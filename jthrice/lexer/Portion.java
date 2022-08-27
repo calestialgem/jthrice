@@ -1,5 +1,7 @@
 package jthrice.lexer;
 
+import jthrice.exception.Bug;
+
 /** Portion of a string. */
 public class Portion {
     /** Location of the first character. */
@@ -9,6 +11,8 @@ public class Portion {
 
     /** Initialize with the given first and last locations. */
     public Portion(Location first, Location last) {
+        Bug.check(first.string.equals(last.string), "The first and last locations are not from the same string!");
+        Bug.check(first.index <= last.index, "The first location comes after the last location!");
         this.first = first;
         this.last = last;
     }
