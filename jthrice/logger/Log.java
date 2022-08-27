@@ -3,6 +3,7 @@
 
 package jthrice.logger;
 
+import java.io.PrintStream;
 import java.time.LocalDateTime;
 import java.util.Objects;
 
@@ -39,6 +40,13 @@ public class Log {
         this.level = level;
         this.author = author;
         dateTime = LocalDateTime.now();
+    }
+
+    /** Print the log to the given stream. */
+    public void print(PrintStream stream) {
+        stream.printf("%1$tY.%1$tm.%1$td.%1$tH.%1$tM.%1$tS [%s] %s:%d:%d:%d:%d: %s: %s", dateTime, author, source.path,
+                portion.first.line, portion.first.column, portion.last.line, portion.last.column, level.toString(),
+                message);
     }
 
     @Override

@@ -3,6 +3,7 @@
 
 package jthrice.logger;
 
+import java.io.PrintStream;
 import java.util.ArrayList;
 
 import jthrice.lexer.Portion;
@@ -21,5 +22,17 @@ public class Logger {
     /** Register a log. */
     public void log(Source source, Portion portion, String message, Log.Level level, String author) {
         logs.add(new Log(source, portion, message, level, author));
+    }
+
+    /** Print all the logs to the standard output. */
+    public void print() {
+        print(System.out);
+    }
+
+    /** Print all the logs to the given stream. */
+    public void print(PrintStream stream) {
+        for (Log log : logs) {
+            log.print(stream);
+        }
     }
 }
