@@ -3,12 +3,19 @@
 
 package jthrice.lexer;
 
-/** Smallest meaningful group of characters in a source string. */
+/** Smallest meaningful group of characters in a source. */
 public class Token {
     /** Type. */
-    TokenType type;
+    public final TokenType type;
     /** Parsed value. */
-    Object value;
-    /** Portion in the source string. */
-    Portion portion;
+    public final Object value;
+    /** Portion in the source. */
+    public final Portion portion;
+
+    /** Initialize with the given type, value and portion. */
+    public Token(TokenType type, Object value, Portion portion) {
+        this.type = type;
+        this.value = value;
+        this.portion = portion;
+    }
 }
