@@ -15,14 +15,14 @@ public class Token {
         PLUS, MINUS, STAR, FORWARD_SLASH,
         NUMBER, IDENTIFIER;
 
-        /** The token type of the given character. */
-        public static Optional<Type> getPunctuation(char character) {
-            final String PUNCTUATIONS = "+-*/";
-            int index = PUNCTUATIONS.indexOf(character);
+        /** Token type of the given character if its a mark. */
+        public static Optional<Type> asMark(char character) {
+            final String MARKS = "+-*/";
+            int index = MARKS.indexOf(character);
             if (index == -1) {
                 return Optional.empty();
             }
-            Bug.check(index < values().length, "The punctuations string is longer than the token types!");
+            Bug.check(index < values().length, "The marks in the string are more than the token types!");
             return Optional.of(values()[index]);
         }
     }

@@ -41,7 +41,7 @@ public class Lexer {
 
     /** Lex the next token. */
     private void lex(Logger logger) {
-        if (lexPunctuation()) {
+        if (lexMark()) {
             return;
         }
         logger.log(source, new Portion(source, index, index), "Could not recognize the character!", Log.Level.ERROR,
@@ -49,14 +49,14 @@ public class Lexer {
         index++;
     }
 
-    /** Try to lex a punctuation mark. */
-    private boolean lexPunctuation() {
+    /** Try to lex a mark. */
+    private boolean lexMark() {
         char character = source.contents.charAt(index);
-        Optional<Token.Type> punctuation = Token.Type.getPunctuation(character);
-        if (punctuation.isEmpty()) {
+        Optional<Token.Type> mark = Token.Type.asMark(character);
+        if (mark.isEmpty()) {
             return false;
         }
-        tokens.add(new Token(punctuation.get(), character, new Portion(source, index, index + 1)));
+        tokens.add(new Token(mark.get(), character, new Portion(source, index, index + 1)));
         index++;
         return true;
     }
