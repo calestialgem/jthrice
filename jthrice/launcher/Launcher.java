@@ -1,5 +1,6 @@
 package jthrice.launcher;
 
+/** Launches the compiler. */
 public class Launcher {
     public static void main(String[] arguments) {
         System.out.println("Thrice Java Compiler v.0.0.1");
