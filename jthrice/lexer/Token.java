@@ -4,18 +4,38 @@
 package jthrice.lexer;
 
 import java.util.Objects;
+import java.util.Optional;
+
+import jthrice.exception.Bug;
 
 /** Smallest meaningful group of characters in a source. */
 public class Token {
+    /** Type of a token. */
+    public static enum Type {
+        PLUS, MINUS, STAR, FORWARD_SLASH,
+        NUMBER, IDENTIFIER;
+
+        /** The token type of the given character. */
+        public static Optional<Type> getPunctuation(char character) {
+            final String PUNCTUATIONS = "+-*/";
+            int index = PUNCTUATIONS.indexOf(character);
+            if (index == -1) {
+                return Optional.empty();
+            }
+            Bug.check(index < values().length, "The punctuations string is longer than the token types!");
+            return Optional.of(values()[index]);
+        }
+    }
+
     /** Type. */
-    public final TokenType type;
+    public final Type type;
     /** Parsed value. */
     public final Object value;
     /** Portion in the source. */
     public final Portion portion;
 
     /** Initialize with the given type, value and portion. */
-    public Token(TokenType type, Object value, Portion portion) {
+    public Token(Type type, Object value, Portion portion) {
         this.type = type;
         this.value = value;
         this.portion = portion;

@@ -4,6 +4,7 @@
 package jthrice.lexer;
 
 import java.util.ArrayList;
+import java.util.Optional;
 
 import jthrice.logger.Logger;
 import jthrice.logger.Log;
@@ -40,8 +41,23 @@ public class Lexer {
 
     /** Lex the next token. */
     private void lex(Logger logger) {
+        if (lexPunctuation()) {
+            return;
+        }
         logger.log(source, new Portion(source, index, index), "Could not recognize the character!", Log.Level.ERROR,
                 "LEXER");
         index++;
+    }
+
+    /** Try to lex a punctuation mark. */
+    private boolean lexPunctuation() {
+        char character = source.contents.charAt(index);
+        Optional<Token.Type> punctuation = Token.Type.getPunctuation(character);
+        if (punctuation.isEmpty()) {
+            return false;
+        }
+        tokens.add(new Token(punctuation.get(), character, new Portion(source, index, index + 1)));
+        index++;
+        return true;
     }
 }
