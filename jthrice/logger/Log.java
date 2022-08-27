@@ -5,6 +5,7 @@ package jthrice.logger;
 
 import java.io.PrintStream;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Objects;
 
 import jthrice.exception.Bug;
@@ -44,9 +45,9 @@ public class Log {
 
     /** Print the log to the given stream. */
     public void print(PrintStream stream) {
-        stream.printf("%1$tY.%1$tm.%1$td.%1$tH.%1$tM.%1$tS [%s] %s:%d:%d:%d:%d: %s: %s", dateTime, author, source.path,
-                portion.first.line, portion.first.column, portion.last.line, portion.last.column, level.toString(),
-                message);
+        final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("yyyy.MM.dd.HH.mm.ss.SSS");
+        stream.printf("%s [%s] %s:%d:%d:%d:%d: %s: %s%n", FORMATTER.format(dateTime), author, source.path,
+                portion.first.line, portion.first.column, portion.last.line, portion.last.column, level, message);
     }
 
     @Override

@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.Optional;
 
 import jthrice.logger.Logger;
+import jthrice.exception.Bug;
 import jthrice.logger.Log;
 
 /** Lexes a source to a list of tokens. */
@@ -39,19 +40,26 @@ public class Lexer {
         return index < source.contents.length();
     }
 
+    /** Currently pointed character. */
+    private char current() {
+        Bug.check(has(), "There are no characters!");
+        return source.contents.charAt(index);
+    }
+
     /** Lex the next token. */
     private void lex(Logger logger) {
         if (lexMark()) {
             return;
         }
-        logger.log(source, new Portion(source, index, index), "Could not recognize the character!", Log.Level.ERROR,
+        logger.log(source, new Portion(source, index, index),
+                "Could not recognize the character '" + current() + "'!", Log.Level.ERROR,
                 "LEXER");
         index++;
     }
 
     /** Try to lex a mark. */
     private boolean lexMark() {
-        char character = source.contents.charAt(index);
+        char character = current();
         Optional<Token.Type> mark = Token.Type.asMark(character);
         if (mark.isEmpty()) {
             return false;
