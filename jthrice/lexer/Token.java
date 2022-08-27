@@ -3,6 +3,8 @@
 
 package jthrice.lexer;
 
+import java.util.Objects;
+
 /** Smallest meaningful group of characters in a source. */
 public class Token {
     /** Type. */
@@ -17,5 +19,22 @@ public class Token {
         this.type = type;
         this.value = value;
         this.portion = portion;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(portion, type, value);
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (!(obj instanceof Token)) {
+            return false;
+        }
+        Token other = (Token) obj;
+        return Objects.equals(portion, other.portion) && type == other.type && Objects.equals(value, other.value);
     }
 }

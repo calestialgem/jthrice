@@ -3,12 +3,14 @@
 
 package jthrice.lexer;
 
+import java.util.Objects;
+
 import jthrice.exception.Bug;
 
-/** Location of a character in a string. */
+/** Location of a character in a source. */
 public class Location {
-    /** String the location is in. */
-    public final String string;
+    /** Source that the location is in. */
+    public final Source source;
     /** Index of the character in the string. */
     public final int index;
     /** Line number. */
@@ -17,15 +19,15 @@ public class Location {
     public final int column;
 
     /**
-     * Initialize with the location of the character in the given string at the
+     * Initialize with the location of the character in the given source at the
      * given index.
      */
-    public Location(String string, int index) {
+    public Location(Source source, int index) {
         int line = 1;
         int column = 1;
-        Bug.check(string.length() > index, "Index is out of the bounds of the string!");
+        Bug.check(source.contents.length() > index, "Index is out of the bounds of the source contents!");
         for (int i = 0; i < index; i++) {
-            char c = string.charAt(i);
+            char c = source.contents.charAt(i);
             if (c == '\n') {
                 line++;
                 column = 1;
@@ -33,9 +35,27 @@ public class Location {
                 column++;
             }
         }
-        this.string = string;
+        this.source = source;
         this.index = index;
         this.line = line;
         this.column = column;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(column, index, line, source);
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (!(obj instanceof Location)) {
+            return false;
+        }
+        Location other = (Location) obj;
+        return column == other.column && index == other.index && line == other.line
+                && Objects.equals(source, other.source);
     }
 }

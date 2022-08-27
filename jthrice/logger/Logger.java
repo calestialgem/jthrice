@@ -6,6 +6,7 @@ package jthrice.logger;
 import java.util.ArrayList;
 
 import jthrice.lexer.Portion;
+import jthrice.lexer.Source;
 
 /** Holds the logs from the compiler. */
 public class Logger {
@@ -18,7 +19,7 @@ public class Logger {
     }
 
     /** Register a log. */
-    public void log(String file, Portion portion, String message, Log.Level level, String author) {
-        logs.add(new Log(file, portion, message, level, author));
+    public void log(Source source, Portion portion, String message, Log.Level level, String author) {
+        logs.add(new Log(source, portion, message, level, author));
     }
 }

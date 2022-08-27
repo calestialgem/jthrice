@@ -5,26 +5,29 @@ package jthrice.lexer;
 
 import java.util.ArrayList;
 
+import jthrice.logger.Logger;
+import jthrice.logger.Log;
+
 /** Lexes a source to a list of tokens. */
 public class Lexer {
     /** Lex the given source. */
-    public static ArrayList<Token> lex(String source) {
+    public static ArrayList<Token> lex(Source source, Logger logger) {
         Lexer lexer = new Lexer(source);
         while (lexer.has()) {
-            lexer.lex();
+            lexer.lex(logger);
         }
         return lexer.tokens;
     }
 
     /** Lexed source. */
-    private final String source;
+    private final Source source;
     /** Current index in the source. */
     private int index;
     /** Previously lexed tokens. */
     private ArrayList<Token> tokens;
 
     /** Initialize at the start of the given source with an empty lex. */
-    private Lexer(String source) {
+    private Lexer(Source source) {
         this.source = source;
         index = 0;
         tokens = new ArrayList<>();
@@ -32,11 +35,13 @@ public class Lexer {
 
     /** Whether there are characters lext to be lexed. */
     private boolean has() {
-        return index < source.length();
+        return index < source.contents.length();
     }
 
     /** Lex the next token. */
-    private void lex() {
-
+    private void lex(Logger logger) {
+        logger.log(source, new Portion(source, index, index), "Could not recognize the character!", Log.Level.ERROR,
+                "LEXER");
+        index++;
     }
 }
