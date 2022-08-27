@@ -48,13 +48,24 @@ public class Lexer {
 
     /** Lex the next token. */
     private void lex(Logger logger) {
-        if (lexMark()) {
+        if (skipWhitespace() || lexMark()) {
             return;
         }
         logger.log(source, new Portion(source, index, index),
                 "Could not recognize the character '" + current() + "'!", Log.Level.ERROR,
                 "LEXER");
         index++;
+    }
+
+    /** Skip whitespace. Returns true when there is nothing left. */
+    private boolean skipWhitespace() {
+        while (has() && switch (current()) {
+            case '\t', '\r', '\n', ' ' -> true;
+            default -> false;
+        }) {
+            index++;
+        }
+        return !has();
     }
 
     /** Try to lex a mark. */
