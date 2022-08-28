@@ -1,7 +1,7 @@
 // SPDX-FileCopyrightText: 2022 Cem Geçgel <gecgelcem@outlook.com>
 // SPDX-License-Identifier: GPL-3.0-or-later
 
-package jthrice.exception;
+package jthrice;
 
 /** Exception that shows that there is a bug in the code. */
 public class Bug extends RuntimeException {

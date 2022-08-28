@@ -6,7 +6,7 @@ package jthrice.lexer;
 import java.util.Objects;
 import java.util.Optional;
 
-import jthrice.exception.Bug;
+import jthrice.Bug;
 
 /** Smallest meaningful group of characters in a source. */
 public class Token {

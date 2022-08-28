@@ -5,7 +5,7 @@ package jthrice.lexer;
 
 import java.util.Objects;
 
-import jthrice.exception.Bug;
+import jthrice.Bug;
 
 /** Portion of a string. */
 public class Portion {

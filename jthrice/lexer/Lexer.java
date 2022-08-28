@@ -6,9 +6,8 @@ package jthrice.lexer;
 import java.util.ArrayList;
 import java.util.Optional;
 
-import jthrice.logger.Logger;
-import jthrice.exception.Bug;
-import jthrice.logger.Log;
+import jthrice.Bug;
+import jthrice.Logger;
 
 /** Lexes a source to a list of tokens. */
 public class Lexer {
@@ -50,9 +49,8 @@ public class Lexer {
         if (skipWhitespace() || lexMark()) {
             return;
         }
-        logger.log(source, Portion.of(source, index, index),
-                "Could not recognize the character '" + current() + "'!", Log.Level.ERROR,
-                "LEXER");
+        logger.error(Portion.of(source, index, index), "LEXER",
+                "Could not recognize the character '" + current() + "'!");
         index++;
     }
 
