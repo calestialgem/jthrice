@@ -12,10 +12,9 @@ public class Source {
     /** Contents of the source file. */
     public final String contents;
 
-    /** Initialize from the file at the given path. */
     public Source(Path path) throws IOException {
         this.path = path.toAbsolutePath().toString();
-        contents = Files.readString(path);
+        contents = Files.readString(path).replaceAll("\r", "");
     }
 
     @Override

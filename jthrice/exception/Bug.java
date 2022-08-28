@@ -12,12 +12,10 @@ public class Bug extends RuntimeException {
         }
     }
 
-    /** Initialize with the given message. */
     public Bug(String message) {
         super(message);
     }
 
-    /** Initialize with the given message and the cause. */
     public Bug(String message, Throwable cause) {
         super(message, cause);
     }

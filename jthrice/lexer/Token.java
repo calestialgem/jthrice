@@ -16,7 +16,7 @@ public class Token {
         NUMBER, IDENTIFIER;
 
         /** Token type of the given character if its a mark. */
-        public static Optional<Type> asMark(char character) {
+        public static Optional<Type> of(char character) {
             final String MARKS = "+-*/";
             int index = MARKS.indexOf(character);
             if (index == -1) {
@@ -34,7 +34,6 @@ public class Token {
     /** Portion in the source. */
     public final Portion portion;
 
-    /** Initialize with the given type, value and portion. */
     public Token(Type type, Object value, Portion portion) {
         this.type = type;
         this.value = value;

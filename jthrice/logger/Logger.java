@@ -13,13 +13,12 @@ public class Logger {
     /** Stream to print the logs to. */
     private PrintStream out;
 
-    /** Initialize with the given target stream. */
     public Logger(PrintStream out) {
         this.out = out;
     }
 
     /** Register a log. */
     public void log(Source source, Portion portion, String message, Log.Level level, String author) {
-        new Log(source, portion, message, level, author).print(out);
+        Log.of(source, portion, message, level, author).print(out);
     }
 }

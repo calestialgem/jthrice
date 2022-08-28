@@ -28,7 +28,6 @@ public class Lexer {
     /** Previously lexed tokens. */
     private ArrayList<Token> tokens;
 
-    /** Initialize at the start of the given source with an empty lex. */
     private Lexer(Source source) {
         this.source = source;
         index = 0;
@@ -51,7 +50,7 @@ public class Lexer {
         if (skipWhitespace() || lexMark()) {
             return;
         }
-        logger.log(source, new Portion(source, index, index),
+        logger.log(source, Portion.of(source, index, index),
                 "Could not recognize the character '" + current() + "'!", Log.Level.ERROR,
                 "LEXER");
         index++;
@@ -71,11 +70,11 @@ public class Lexer {
     /** Try to lex a mark. */
     private boolean lexMark() {
         char character = current();
-        Optional<Token.Type> mark = Token.Type.asMark(character);
+        Optional<Token.Type> mark = Token.Type.of(character);
         if (mark.isEmpty()) {
             return false;
         }
-        tokens.add(new Token(mark.get(), character, new Portion(source, index, index + 1)));
+        tokens.add(new Token(mark.get(), character, Portion.of(source, index, index)));
         index++;
         return true;
     }

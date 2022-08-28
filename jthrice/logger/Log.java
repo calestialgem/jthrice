@@ -19,6 +19,11 @@ public class Log {
         ERROR, WARNING, INFO, DEBUG;
     }
 
+    /** Log with the given contents and current time. */
+    public static Log of(Source source, Portion portion, String message, Level level, String author) {
+        return new Log(source, portion, message, level, author, LocalDateTime.now());
+    }
+
     /** Source file that emmited the log. */
     public final Source source;
     /** Portion of the source that emmited the log. */
@@ -32,15 +37,14 @@ public class Log {
     /** Date and time when the log was emmited. */
     public final LocalDateTime dateTime;
 
-    /** Initialize with the given file path, portion, message, level, and author. */
-    Log(Source source, Portion portion, String message, Level level, String author) {
+    public Log(Source source, Portion portion, String message, Level level, String author, LocalDateTime dateTime) {
         Bug.check(source.equals(portion.first.source), "The portion is not from the source!");
         this.source = source;
         this.portion = portion;
         this.message = message;
         this.level = level;
         this.author = author;
-        dateTime = LocalDateTime.now();
+        this.dateTime = dateTime;
     }
 
     /** Print the log to the given stream. */

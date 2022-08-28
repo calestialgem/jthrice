@@ -9,6 +9,14 @@ import jthrice.exception.Bug;
 
 /** Portion of a string. */
 public class Portion {
+    /**
+     * Portion of the given source from the given first to the last index,
+     * inclusive.
+     */
+    public static Portion of(Source source, int first, int last) {
+        return new Portion(new Location(source, first), new Location(source, last));
+    }
+
     /** Location of the first character. */
     public final Location first;
     /** Location of the last character. */
@@ -20,14 +28,6 @@ public class Portion {
         Bug.check(first.index <= last.index, "The first location comes after the last location!");
         this.first = first;
         this.last = last;
-    }
-
-    /**
-     * Initialize with the location of the first and last characters in the given
-     * source at the given indicies.
-     */
-    public Portion(Source source, int first, int last) {
-        this(new Location(source, first), new Location(source, last));
     }
 
     @Override

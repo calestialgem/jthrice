@@ -18,14 +18,14 @@ public class Location {
     /** Column number. */
     public final int column;
 
-    /**
-     * Initialize with the location of the character in the given source at the
-     * given index.
-     */
     public Location(Source source, int index) {
+        Bug.check(source.contents.length() > index, "Index is out of the bounds of the source contents!");
+        Bug.check(index >= 0, "Index is negative!");
+        Bug.check(source.contents.charAt(index) != '\n', "The character is a new line!");
+        this.source = source;
+        this.index = index;
         int line = 1;
         int column = 1;
-        Bug.check(source.contents.length() > index, "Index is out of the bounds of the source contents!");
         for (int i = 0; i < index; i++) {
             char c = source.contents.charAt(i);
             if (c == '\n') {
@@ -35,10 +35,33 @@ public class Location {
                 column++;
             }
         }
-        this.source = source;
-        this.index = index;
         this.line = line;
         this.column = column;
+    }
+
+    public Location(Source source, int line, int column) {
+        Bug.check(line >= 1, "Line number is not positive!");
+        Bug.check(column >= 1, "Column number is not positive!");
+        this.source = source;
+        this.line = line;
+        this.column = column;
+        int index = 0;
+        for (; index < source.contents.length(); index++) {
+            char c = source.contents.charAt(index);
+            if (c == '\n') {
+                line--;
+                continue;
+            }
+            if (line == 1) {
+                column--;
+                if (column == 0) {
+                    break;
+                }
+            }
+        }
+        Bug.check(index < source.contents.length(), "There is no character at the given line and column!");
+        Bug.check(source.contents.charAt(index) != '\n', "The character is a new line!");
+        this.index = index;
     }
 
     @Override
