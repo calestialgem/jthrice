@@ -47,7 +47,7 @@ public class Lexer {
 
     /** Lex the next token. */
     private void lex() {
-        if (skipWhitespace() || lexMark() || lexNumber()) {
+        if (skipWhitespace() || lexMark() || lexNumber() || lexIdentifier()) {
             return;
         }
         source.error("LEXER", Portion.of(source, index, index),
@@ -101,6 +101,30 @@ public class Lexer {
         }
 
         tokens.add(new Token(Token.Type.NUMBER, value, Portion.of(source, start, index - 1)));
+        return true;
+    }
+
+    /** Try to lex an identifier. */
+    private boolean lexIdentifier() {
+        int start = index;
+        char character = current();
+        if ((character < 'a' || character > 'z') && (character < 'A' || character > 'Z') && character != '_') {
+            return false;
+        }
+
+        StringBuilder value = new StringBuilder();
+
+        while ((character >= '0' && character <= '9') || (character >= 'a' && character <= 'z')
+                || (character >= 'A' && character <= 'Z') || character == '_') {
+            value.append(character);
+            index++;
+            if (!has()) {
+                break;
+            }
+            character = current();
+        }
+
+        tokens.add(new Token(Token.Type.IDENTIFIER, value, Portion.of(source, start, index - 1)));
         return true;
     }
 }
