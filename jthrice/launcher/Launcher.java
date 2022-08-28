@@ -28,7 +28,7 @@ public class Launcher {
 
         for (String argument : arguments) {
             try {
-                Logger logger = new Logger();
+                Logger logger = new Logger(System.out);
                 Source source = new Source(Paths.get(argument));
                 ArrayList<Token> tokens = Lexer.lex(source, logger);
                 for (Token token : tokens) {
@@ -36,7 +36,6 @@ public class Launcher {
                     System.out.print(" ");
                 }
                 System.out.println();
-                logger.print();
             } catch (IOException e) {
                 e.printStackTrace();
             }
