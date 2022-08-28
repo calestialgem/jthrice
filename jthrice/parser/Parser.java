@@ -60,11 +60,25 @@ public class Parser {
 
     /** Parse a statement. */
     private Optional<Syntax> parseStatement() {
-        Optional<Syntax> statement = parseDefinitionStatement();
-        if (statement.isEmpty()) {
+        Optional<Syntax> body = parseDefinitionStatement();
+        if (body.isEmpty()) {
             return Optional.empty();
         }
-        return Optional.of(Syntax.ofStatement(statement.get()));
+        Optional<Syntax> separator = parseStatementSeparator();
+        if (separator.isEmpty()) {
+            return Optional.empty();
+        }
+        return Optional.of(Syntax.ofStatement(body.get(), separator.get()));
+    }
+
+    /** Parse a statement separator. */
+    private Optional<Syntax> parseStatementSeparator() {
+        Token token = current();
+        if (!has() || !token.check(Token.Type.SEMICOLON)) {
+            return Optional.empty();
+        }
+        index++;
+        return Optional.of(Syntax.ofStatementSeparator(token));
     }
 
     /** Parse a definition statement. */
@@ -96,12 +110,13 @@ public class Parser {
 
     /** Parse an expression. */
     private Optional<Syntax> parseExpression() {
-        Optional<Syntax> expression = parseBinaryExpression().or(this::parseUnaryExpression).or(this::parseReference)
-                .or(this::parseLiteral);
-        if (expression.isEmpty()) {
+        Optional<Syntax> body = Optional.empty();
+        body = body.or(this::parseLiteral).or(this::parseReference).or(this::parseUnaryExpression)
+                .or(this::parseBinaryExpression);
+        if (body.isEmpty()) {
             return Optional.empty();
         }
-        return Optional.of(Syntax.ofExpression(expression.get()));
+        return Optional.of(Syntax.ofExpression(body.get()));
     }
 
     /** Parse a binary expression. */

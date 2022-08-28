@@ -13,9 +13,8 @@ import jthrice.lexer.Token;
 public class Syntax {
     /** Type of the syntax object. */
     public static enum Type {
-        SOURCE, STATEMENT, DEFINITION_STATEMENT, DEFINITION_SIGN, EXPRESSION, BINARY_EXPRESSION, BINARY_OPERATOR,
-        UNARY_EXPRESSION,
-        UNARY_OPERATOR, REFERENCE, LITERAL;
+        SOURCE, STATEMENT, STATEMENT_SEPARATOR, DEFINITION_STATEMENT, DEFINITION_SIGN, EXPRESSION, BINARY_EXPRESSION,
+        BINARY_OPERATOR, UNARY_EXPRESSION, UNARY_OPERATOR, REFERENCE, LITERAL;
     };
 
     /** Syntax object of a source. */
@@ -27,9 +26,16 @@ public class Syntax {
     }
 
     /** Syntax object of a statement. */
-    public static Syntax ofStatement(Syntax statement) {
-        Bug.check(statement.check(Type.DEFINITION_STATEMENT), "The object is not a statement!");
-        return new Syntax(Type.STATEMENT, statement);
+    public static Syntax ofStatement(Syntax body, Syntax separator) {
+        Bug.check(body.check(Type.DEFINITION_STATEMENT), "The object is not a statement body!");
+        Bug.check(separator.check(Type.STATEMENT_SEPARATOR), "The object is not a statement separator!");
+        return new Syntax(Type.STATEMENT, body, separator);
+    }
+
+    /** Syntax object of a statement separator. */
+    public static Syntax ofStatementSeparator(Token separator) {
+        Bug.check(separator.check(Token.Type.SEMICOLON), "The token is not a statement separator!");
+        return new Syntax(Type.STATEMENT_SEPARATOR, separator);
     }
 
     /** Syntax object of a definition statement. */
@@ -47,10 +53,10 @@ public class Syntax {
     }
 
     /** Syntax object of an expression. */
-    public static Syntax ofExpression(Syntax expression) {
-        Bug.check(expression.check(Type.BINARY_EXPRESSION, Type.UNARY_EXPRESSION, Type.REFERENCE, Type.LITERAL),
-                "The object is not an expression!");
-        return new Syntax(Type.EXPRESSION, expression);
+    public static Syntax ofExpression(Syntax body) {
+        Bug.check(body.check(Type.BINARY_EXPRESSION, Type.UNARY_EXPRESSION, Type.REFERENCE, Type.LITERAL),
+                "The object is not an expression body!");
+        return new Syntax(Type.EXPRESSION, body);
     }
 
     /** Syntax object of a binary expression. */
