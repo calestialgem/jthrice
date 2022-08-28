@@ -7,7 +7,6 @@ import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 
-import jthrice.Logger;
 import jthrice.lexer.Lexer;
 import jthrice.lexer.Token;
 
@@ -30,8 +29,13 @@ public class Launcher {
         for (String argument : arguments) {
             try {
                 Source source = new Source(Paths.get(argument));
-                Logger logger = new Logger(System.out, source);
-                ArrayList<Token> tokens = Lexer.lex(source, logger);
+                ArrayList<Token> tokens = Lexer.lex(source);
+                if (source.errors() > 0) {
+                    System.out.printf("There were %d errors in %s!%n", source.errors(), source.path);
+                }
+                if (source.warnings() > 0) {
+                    System.out.printf("There were %d warnings in %s!%n", source.warnings(), source.path);
+                }
                 for (Token token : tokens) {
                     System.out.print(token.type);
                     System.out.print(" ");

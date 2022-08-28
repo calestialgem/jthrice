@@ -7,16 +7,15 @@ import java.util.ArrayList;
 import java.util.Optional;
 
 import jthrice.Bug;
-import jthrice.Logger;
 import jthrice.launcher.Source;
 
 /** Lexes a source to a list of tokens. */
 public class Lexer {
     /** Lex the given source. */
-    public static ArrayList<Token> lex(Source source, Logger logger) {
+    public static ArrayList<Token> lex(Source source) {
         Lexer lexer = new Lexer(source);
         while (lexer.has()) {
-            lexer.lex(logger);
+            lexer.lex();
         }
         return lexer.tokens;
     }
@@ -46,11 +45,11 @@ public class Lexer {
     }
 
     /** Lex the next token. */
-    private void lex(Logger logger) {
+    private void lex() {
         if (skipWhitespace() || lexMark()) {
             return;
         }
-        logger.error(Portion.of(source, index, index), "LEXER",
+        source.error("LEXER", Portion.of(source, index, index),
                 "Could not recognize the character '" + current() + "'!");
         index++;
     }
