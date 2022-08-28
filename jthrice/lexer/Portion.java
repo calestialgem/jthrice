@@ -62,7 +62,7 @@ public class Portion {
     private void underlineSingle(PrintStream out, boolean continues) {
         Bug.check(!multiline(), "Portion is not contained in a single line!");
         Portion line = Portion.ofLine(first);
-        out.printf("%8d | %s%n", line.first.line, line.view());
+        out.printf("%8d | %s%n", line.first.line, line);
         out.printf("%11s", continues ? "... |" : "");
         for (int i = 1; i <= last.column; i++) {
             out.printf("%c", i < first.column ? ' ' : '~');
@@ -75,8 +75,8 @@ public class Portion {
         return first.line < last.line;
     }
 
-    /** View of the portion as a string. */
-    public String view() {
+    @Override
+    public String toString() {
         return first.source.contents.substring(first.index, last.index + 1);
     }
 
