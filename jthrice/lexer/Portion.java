@@ -6,6 +6,7 @@ package jthrice.lexer;
 import java.util.Objects;
 
 import jthrice.Bug;
+import jthrice.launcher.Source;
 
 /** Portion of a string. */
 public class Portion {

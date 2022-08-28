@@ -7,8 +7,8 @@ import java.io.PrintStream;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
+import jthrice.launcher.Source;
 import jthrice.lexer.Portion;
-import jthrice.lexer.Source;
 
 /** Holds the logs from the compiler. */
 public class Logger {
@@ -25,6 +25,39 @@ public class Logger {
     public Logger(PrintStream out, Source source) {
         this.out = out;
         this.source = source;
+    }
+
+    /**
+     * Log the given message from the given author, for the given portion of the
+     * source at the given log level.
+     */
+    public void log(Logger.Level level, String author, String message) {
+        final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("yyyy.MM.dd.HH.mm.ss.SSS");
+        out.printf("%s [%s] %s: %s: %s%n", FORMATTER.format(LocalDateTime.now()), author, source.path, level, message);
+    }
+
+    /**
+     * Log an error with the given message from the given author, for the given
+     * portion of the source.
+     */
+    public void error(String author, String message) {
+        log(Level.ERROR, author, message);
+    }
+
+    /**
+     * Log a warning with the given message from the given author, for the given
+     * portion of the source.
+     */
+    public void warning(String author, String message) {
+        log(Level.WARNING, author, message);
+    }
+
+    /**
+     * Log an info with the given message from the given author, for the given
+     * portion of the source.
+     */
+    public void info(String author, String message) {
+        log(Level.INFO, author, message);
     }
 
     /**

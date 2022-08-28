@@ -8,6 +8,7 @@ import java.util.Optional;
 
 import jthrice.Bug;
 import jthrice.Logger;
+import jthrice.launcher.Source;
 
 /** Lexes a source to a list of tokens. */
 public class Lexer {
@@ -57,7 +58,7 @@ public class Lexer {
     /** Skip whitespace. Returns true when there is nothing left. */
     private boolean skipWhitespace() {
         while (has() && switch (current()) {
-            case '\t', '\r', '\n', ' ' -> true;
+            case '\t', '\n', ' ' -> true;
             default -> false;
         }) {
             index++;

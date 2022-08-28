@@ -9,7 +9,6 @@ import java.util.ArrayList;
 
 import jthrice.Logger;
 import jthrice.lexer.Lexer;
-import jthrice.lexer.Source;
 import jthrice.lexer.Token;
 
 /** Launches the compiler. */
