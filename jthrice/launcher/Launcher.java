@@ -29,13 +29,14 @@ public class Launcher {
             try {
                 Source source = new Source(Paths.get(argument));
                 Resolution resolution = new Resolution(source);
-                Syntax syntax = Parser.parse(resolution);
+                Syntax tree = Parser.parse(resolution);
                 if (resolution.errors() > 0) {
                     System.out.printf("There were %d errors in %s!%n", resolution.errors(), source.path);
                 }
                 if (resolution.warnings() > 0) {
                     System.out.printf("There were %d warnings in %s!%n", resolution.warnings(), source.path);
                 }
+                System.out.println(tree);
             } catch (IOException e) {
                 e.printStackTrace();
             }

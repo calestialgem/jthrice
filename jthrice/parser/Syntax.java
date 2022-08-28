@@ -141,4 +141,28 @@ public class Syntax {
         }
         return false;
     }
+
+    public String toString(int depth) {
+        String result = "";
+        for (int i = 1; i < depth; i++) {
+            result += "  |";
+        }
+        if (depth > 0) {
+            result += "  +- ";
+        }
+        result += type + " {";
+        for (Token token : tokens) {
+            result += token.portion;
+        }
+        result += "}\n";
+        for (Syntax child : childeren) {
+            result += child.toString(depth + 1);
+        }
+        return result;
+    }
+
+    @Override
+    public String toString() {
+        return toString(0);
+    }
 }
