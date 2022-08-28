@@ -29,12 +29,13 @@ public class Launcher {
         for (String argument : arguments) {
             try {
                 Source source = new Source(Paths.get(argument));
-                ArrayList<Token> tokens = Lexer.lex(source);
-                if (source.errors() > 0) {
-                    System.out.printf("There were %d errors in %s!%n", source.errors(), source.path);
+                Resolution resolution = new Resolution(source);
+                ArrayList<Token> tokens = Lexer.lex(resolution);
+                if (resolution.errors() > 0) {
+                    System.out.printf("There were %d errors in %s!%n", resolution.errors(), source.path);
                 }
-                if (source.warnings() > 0) {
-                    System.out.printf("There were %d warnings in %s!%n", source.warnings(), source.path);
+                if (resolution.warnings() > 0) {
+                    System.out.printf("There were %d warnings in %s!%n", resolution.warnings(), source.path);
                 }
                 for (Token token : tokens) {
                     System.out.printf("%s%n", token);

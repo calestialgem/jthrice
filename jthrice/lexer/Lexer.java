@@ -8,41 +8,41 @@ import java.util.ArrayList;
 import java.util.Optional;
 
 import jthrice.Bug;
-import jthrice.launcher.Source;
+import jthrice.launcher.Resolution;
 
 /** Lexes a source to a list of tokens. */
 public class Lexer {
-    /** Lex the given source. */
-    public static ArrayList<Token> lex(Source source) {
-        Lexer lexer = new Lexer(source);
+    /** Lex the given source in the resolution. */
+    public static ArrayList<Token> lex(Resolution resolution) {
+        Lexer lexer = new Lexer(resolution);
         while (lexer.has()) {
             lexer.lex();
         }
         return lexer.tokens;
     }
 
-    /** Lexed source. */
-    private final Source source;
+    /** Resolution of the lexed source. */
+    private final Resolution resolution;
     /** Current index in the source. */
     private int index;
     /** Previously lexed tokens. */
     private ArrayList<Token> tokens;
 
-    private Lexer(Source source) {
-        this.source = source;
+    private Lexer(Resolution resolution) {
+        this.resolution = resolution;
         index = 0;
         tokens = new ArrayList<>();
     }
 
     /** Whether there are characters lext to be lexed. */
     private boolean has() {
-        return index < source.contents.length();
+        return index < resolution.source.contents.length();
     }
 
     /** Currently pointed character. */
     private char current() {
         Bug.check(has(), "There are no characters!");
-        return source.contents.charAt(index);
+        return resolution.source.contents.charAt(index);
     }
 
     /** Lex the next token. */
@@ -50,7 +50,7 @@ public class Lexer {
         if (skipWhitespace() || lexMark() || lexNumber() || lexIdentifier()) {
             return;
         }
-        source.error("LEXER", Portion.of(source, index, index),
+        resolution.error("LEXER", Portion.of(resolution.source, index, index),
                 "Could not recognize the character '" + current() + "'!");
         index++;
     }
@@ -73,7 +73,7 @@ public class Lexer {
         if (mark.isEmpty()) {
             return false;
         }
-        tokens.add(new Token(mark.get(), character, Portion.of(source, index, index)));
+        tokens.add(new Token(mark.get(), character, Portion.of(resolution.source, index, index)));
         index++;
         return true;
     }
@@ -100,7 +100,7 @@ public class Lexer {
             digit = DIGITS.indexOf(current());
         }
 
-        tokens.add(new Token(Token.Type.NUMBER, value, Portion.of(source, start, index - 1)));
+        tokens.add(new Token(Token.Type.NUMBER, value, Portion.of(resolution.source, start, index - 1)));
         return true;
     }
 
@@ -124,7 +124,7 @@ public class Lexer {
             character = current();
         }
 
-        tokens.add(new Token(Token.Type.IDENTIFIER, value, Portion.of(source, start, index - 1)));
+        tokens.add(new Token(Token.Type.IDENTIFIER, value, Portion.of(resolution.source, start, index - 1)));
         return true;
     }
 }
