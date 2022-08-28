@@ -3,6 +3,7 @@
 
 package jthrice.lexer;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Optional;
 
@@ -46,7 +47,7 @@ public class Lexer {
 
     /** Lex the next token. */
     private void lex() {
-        if (skipWhitespace() || lexMark()) {
+        if (skipWhitespace() || lexMark() || lexNumber()) {
             return;
         }
         source.error("LEXER", Portion.of(source, index, index),
@@ -74,6 +75,32 @@ public class Lexer {
         }
         tokens.add(new Token(mark.get(), character, Portion.of(source, index, index)));
         index++;
+        return true;
+    }
+
+    /** Try to lex a number. */
+    private boolean lexNumber() {
+        final String DIGITS = "0123456789";
+        final BigDecimal BASE = new BigDecimal(10);
+
+        int start = index;
+        int digit = DIGITS.indexOf(current());
+        if (digit == -1) {
+            return false;
+        }
+
+        BigDecimal value = new BigDecimal(0);
+
+        while (digit != -1) {
+            value = value.multiply(BASE).add(new BigDecimal(digit));
+            index++;
+            if (!has()) {
+                break;
+            }
+            digit = DIGITS.indexOf(current());
+        }
+
+        tokens.add(new Token(Token.Type.NUMBER, value, Portion.of(source, start, index - 1)));
         return true;
     }
 }

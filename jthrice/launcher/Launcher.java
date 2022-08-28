@@ -37,10 +37,8 @@ public class Launcher {
                     System.out.printf("There were %d warnings in %s!%n", source.warnings(), source.path);
                 }
                 for (Token token : tokens) {
-                    System.out.print(token.type);
-                    System.out.print(" ");
+                    System.out.printf("%s%n", token);
                 }
-                System.out.println();
             } catch (IOException e) {
                 e.printStackTrace();
             }

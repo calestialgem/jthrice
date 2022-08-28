@@ -41,6 +41,12 @@ public class Token {
     }
 
     @Override
+    public String toString() {
+        return "Token [" + (portion != null ? "portion=" + portion + ", " : "")
+                + (type != null ? "type=" + type + ", " : "") + (value != null ? "value=" + value : "") + "]";
+    }
+
+    @Override
     public int hashCode() {
         return Objects.hash(portion, type, value);
     }
