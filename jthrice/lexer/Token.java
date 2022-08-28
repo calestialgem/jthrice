@@ -12,12 +12,12 @@ import jthrice.Bug;
 public class Token {
     /** Type of a token. */
     public static enum Type {
-        PLUS, MINUS, STAR, FORWARD_SLASH,
+        PLUS, MINUS, STAR, FORWARD_SLASH, PERCENT, EQUAL, SEMICOLON,
         NUMBER, IDENTIFIER;
 
         /** Token type of the given character if its a mark. */
         public static Optional<Type> of(char character) {
-            final String MARKS = "+-*/";
+            final String MARKS = "+-*/%=;";
             int index = MARKS.indexOf(character);
             if (index == -1) {
                 return Optional.empty();
