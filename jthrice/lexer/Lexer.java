@@ -12,7 +12,7 @@ import jthrice.launcher.Resolution;
 
 /** Lexes a source to a list of tokens. */
 public class Lexer {
-    /** Lex the given source in the resolution. */
+    /** Lex the source in the given resolution. */
     public static ArrayList<Token> lex(Resolution resolution) {
         Lexer lexer = new Lexer(resolution);
         while (lexer.has()) {

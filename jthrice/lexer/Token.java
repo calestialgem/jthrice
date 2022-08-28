@@ -40,6 +40,16 @@ public class Token {
         this.portion = portion;
     }
 
+    /** Whether the type of the token is one of the given types. */
+    public boolean check(Type... types) {
+        for (Type type : types) {
+            if (this.type.equals(type)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     @Override
     public String toString() {
         return "Token [" + (portion != null ? "portion=" + portion + ", " : "")
