@@ -66,9 +66,9 @@ public class Logger {
      */
     public void log(Logger.Level level, Portion portion, String author, String message) {
         Bug.check(source.equals(portion.first.source), "The portion is not from the source!");
-        final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("yyyy.MM.dd.HH.mm.ss.SSS");
-        out.printf("%s [%s] %s:%d:%d:%d:%d: %s: %s%n", FORMATTER.format(LocalDateTime.now()), author, source.path,
-                portion.first.line, portion.first.column, portion.last.line, portion.last.column, level, message);
+        out.printf("[%s] %s:%d:%d:%d:%d: %s: %s%n", author, source.path, portion.first.line, portion.first.column,
+                portion.last.line, portion.last.column, level, message);
+        portion.underline(out);
     }
 
     /**

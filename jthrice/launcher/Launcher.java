@@ -19,8 +19,10 @@ public class Launcher {
         System.out.println(System.getProperty("java.version"));
         System.out.println("Running with arguments:");
         for (int i = 0; i < arguments.length; i++) {
-            System.out.printf("[%d] %s\n", i, arguments[i]);
+            System.out.printf("[%d] %s%n", i, arguments[i]);
         }
+        System.out.println();
+
         if (arguments.length < 1) {
             System.out.println("Provide a Thrice file!");
         }

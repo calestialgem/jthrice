@@ -65,6 +65,20 @@ public class Location {
         this.index = index;
     }
 
+    /** Start of the line this location is in. */
+    public Location start() {
+        return new Location(source, line, 1);
+    }
+
+    /** End of the line this location is in. */
+    public Location end() {
+        int index = this.index;
+        while (index < source.contents.length() && source.contents.charAt(index) != '\n') {
+            index++;
+        }
+        return new Location(source, index - 1);
+    }
+
     @Override
     public int hashCode() {
         return Objects.hash(column, index, line, source);
