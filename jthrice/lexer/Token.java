@@ -3,26 +3,40 @@
 
 package jthrice.lexer;
 
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
 import jthrice.Bug;
+import jthrice.launcher.Source;
 
 /** Smallest meaningful group of characters in a source. */
 public class Token {
     /** Type of a token. */
     public static enum Type {
-        PLUS, MINUS, STAR, FORWARD_SLASH, PERCENT, EQUAL, SEMICOLON,
-        NUMBER, IDENTIFIER;
+        PLUS, MINUS, STAR, FORWARD_SLASH, PERCENT, EQUAL, SEMICOLON, EOF,
+        NUMBER, LET, IDENTIFIER;
 
         /** Token type of the given character if its a mark. */
-        public static Optional<Type> of(char character) {
-            final String MARKS = "+-*/%=;";
+        public static Optional<Type> ofMark(char character) {
+            final String MARKS = "+-*/%=;" + Source.EOF;
             int index = MARKS.indexOf(character);
             if (index == -1) {
                 return Optional.empty();
             }
             Bug.check(index < values().length, "The marks in the string are more than the token types!");
+            return Optional.of(values()[index]);
+        }
+
+        /** Token type of the given string if its a keyword. */
+        public static Optional<Type> ofKeyword(String keyword) {
+            final String[] KEYWORDS = { "let" };
+            int index = List.of(KEYWORDS).indexOf(keyword);
+            if (index == -1) {
+                return Optional.empty();
+            }
+            index += LET.ordinal();
+            Bug.check(index < values().length, "The keywords in the array are more than the token types!");
             return Optional.of(values()[index]);
         }
     }

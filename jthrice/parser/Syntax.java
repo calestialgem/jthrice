@@ -13,16 +13,16 @@ import jthrice.lexer.Token;
 public class Syntax {
     /** Type of the syntax object. */
     public static enum Type {
-        PLUS, MINUS, STAR, FORWARD_SLASH, PERCENT, EQUAL, SEMICOLON, NUMBER, IDENTIFIER, SOURCE, STATEMENT,
-        STATEMENT_BODY, DEFINITION, EXPRESSION, LITERAL, UNARY_OPERATION, BINARY_OPERATION;
+        PLUS, MINUS, STAR, FORWARD_SLASH, PERCENT, EQUAL, SEMICOLON, EOF, NUMBER, LET, IDENTIFIER, SOURCE, STATEMENT,
+        DEFINITION, DECLERATION, EXPRESSION, LITERAL, UNARY_OPERATION, BINARY_OPERATION;
     };
 
     /** Syntax object reduction patterns. */
     public static Pattern[] PATTERNS = {
-            Pattern.ofRepeatition(Type.SOURCE, Type.STATEMENT),
-            Pattern.ofSerial(Type.STATEMENT, Type.STATEMENT_BODY, Type.SEMICOLON),
-            Pattern.ofParallel(Type.STATEMENT_BODY, Type.DEFINITION),
-            Pattern.ofSerial(Type.DEFINITION, Type.IDENTIFIER, Type.EQUAL, Type.EXPRESSION),
+            Pattern.ofRepeatition(Type.SOURCE, Type.STATEMENT, Type.EOF),
+            Pattern.ofParallel(Type.STATEMENT, Type.DEFINITION),
+            Pattern.ofSerial(Type.DEFINITION, Type.DECLERATION, Type.EQUAL, Type.EXPRESSION, Type.SEMICOLON),
+            Pattern.ofSerial(Type.DECLERATION, Type.LET, Type.IDENTIFIER),
             Pattern.ofParallel(Type.EXPRESSION, Type.LITERAL, Type.IDENTIFIER, Type.UNARY_OPERATION,
                     Type.BINARY_OPERATION),
             Pattern.ofParallel(Type.LITERAL, Type.NUMBER),
@@ -97,8 +97,9 @@ public class Syntax {
         }
         result += type + " {";
         for (Token token : tokens) {
-            result += token.portion;
+            result += token.portion + " ";
         }
+        result = result.substring(0, result.length() - 1);
         result += "}\n";
         for (Syntax child : childeren) {
             result += child.toString(depth + 1);

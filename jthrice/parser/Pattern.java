@@ -73,24 +73,33 @@ public interface Pattern {
 
     /** Repeatition of a type that lead to another one. */
     class Repeatition implements Pattern {
-        /** Type to look for. */
-        Syntax.Type input;
+        /** Type to repeat. */
+        Syntax.Type repeat;
+        /** Type to end the repeatition. */
+        Syntax.Type end;
         /** Resulting type. */
         Syntax.Type output;
 
-        public Repeatition(Type input, Type output) {
-            this.input = input;
+        public Repeatition(Type repeat, Type end, Type output) {
+            this.repeat = repeat;
+            this.end = end;
             this.output = output;
         }
 
         @Override
         public int match(ArrayList<Syntax> stack) {
-            for (int i = 0; i < stack.size(); i++) {
-                if (!stack.get(stack.size() - 1 - i).check(input)) {
+            if (stack.size() < 2 || !stack.get(stack.size() - 1).check(end)) {
+                return 0;
+            }
+            for (int i = 1; i < stack.size(); i++) {
+                if (!stack.get(stack.size() - 1 - i).check(repeat)) {
+                    if (i == 1) {
+                        return 0;
+                    }
                     return i;
                 }
             }
-            return 0;
+            return stack.size();
         }
 
         @Override
@@ -109,9 +118,12 @@ public interface Pattern {
         return new Parallel(input, output);
     }
 
-    /** Pattern that has the given input type repeated as many times as possible. */
-    public static Pattern ofRepeatition(Syntax.Type output, Syntax.Type input) {
-        return new Repeatition(input, output);
+    /**
+     * Pattern that has the given type repeated as many times as possible before
+     * ending with the given type.
+     */
+    public static Pattern ofRepeatition(Syntax.Type output, Syntax.Type repeat, Syntax.Type end) {
+        return new Repeatition(repeat, end, output);
     }
 
     /**

@@ -10,6 +10,9 @@ import java.util.Objects;
 
 /** A UTF-8 source file. */
 public class Source {
+    /** Character that represents the end of file. */
+    public static final char EOF = 0;
+
     /** Path to the source file. */
     public final String path;
     /** Contents of the source file. */
@@ -17,7 +20,7 @@ public class Source {
 
     public Source(Path path) throws IOException {
         this.path = path.toAbsolutePath().toString();
-        contents = Files.readString(path).replaceAll("\r", "");
+        contents = Files.readString(path).replaceAll("\r", "") + EOF;
     }
 
     @Override

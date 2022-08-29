@@ -15,8 +15,7 @@ public class Parser {
     /** Parse the source in the given resolution. */
     public static Syntax parse(Resolution resolution) {
         Parser parser = new Parser(resolution, Lexer.lex(resolution));
-        while (parser.has()) {
-            parser.parse();
+        while (parser.parse()) {
         }
         return parser.collect();
     }
@@ -48,8 +47,8 @@ public class Parser {
         return tokens.get(index);
     }
 
-    /** Parse a token. */
-    private void parse() {
+    /** Parse a token. Returns whether there are actions to be done. */
+    private boolean parse() {
         int maxMatch = Integer.MIN_VALUE;
         Pattern greedyPattern = null;
         for (Pattern pattern : Syntax.PATTERNS) {
@@ -61,9 +60,12 @@ public class Parser {
         }
         Bug.check(greedyPattern != null, "There are no patterns!");
         if (maxMatch <= 0) {
+            if (!has()) {
+                return false;
+            }
             stack.add(Syntax.reduce(current()));
             index++;
-            return;
+            return true;
         }
         Syntax[] input = new Syntax[maxMatch];
         for (int i = 0; i < maxMatch; i++) {
@@ -73,8 +75,10 @@ public class Parser {
         }
         Syntax output = new Syntax(greedyPattern.result(), input);
         stack.add(output);
+        return true;
     }
 
+    /** Result of parsing. */
     private Syntax collect() {
         Bug.check(!has(), "There are still tokens that are not parsed!");
         switch (stack.size()) {

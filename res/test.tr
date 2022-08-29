@@ -1,4 +1,4 @@
-a = 3;
-b = 4;
-c = a*a + b*b;
-d = c/2;
+let a = 3;
+let b = 4;
+let c = a*a + b*b;
+let d = c/2;

@@ -18,7 +18,7 @@ public class Lexer {
         while (lexer.has()) {
             lexer.lex();
         }
-        return lexer.tokens;
+        return lexer.collect();
     }
 
     /** Resolution of the lexed source. */
@@ -47,7 +47,7 @@ public class Lexer {
 
     /** Lex the next token. */
     private void lex() {
-        if (skipWhitespace() || lexMark() || lexNumber() || lexIdentifier()) {
+        if (skipWhitespace() || lexMark() || lexNumber() || lexKeywordOrIdentifier()) {
             return;
         }
         resolution.error("LEXER", Portion.of(resolution.source, index, index),
@@ -69,7 +69,7 @@ public class Lexer {
     /** Try to lex a mark. */
     private boolean lexMark() {
         char character = current();
-        Optional<Token.Type> mark = Token.Type.of(character);
+        Optional<Token.Type> mark = Token.Type.ofMark(character);
         if (mark.isEmpty()) {
             return false;
         }
@@ -104,19 +104,19 @@ public class Lexer {
         return true;
     }
 
-    /** Try to lex an identifier. */
-    private boolean lexIdentifier() {
+    /** Try to lex a keyword or an identifier. */
+    private boolean lexKeywordOrIdentifier() {
         int start = index;
         char character = current();
         if ((character < 'a' || character > 'z') && (character < 'A' || character > 'Z') && character != '_') {
             return false;
         }
 
-        StringBuilder value = new StringBuilder();
+        StringBuilder builder = new StringBuilder();
 
         while ((character >= '0' && character <= '9') || (character >= 'a' && character <= 'z')
                 || (character >= 'A' && character <= 'Z') || character == '_') {
-            value.append(character);
+            builder.append(character);
             index++;
             if (!has()) {
                 break;
@@ -124,7 +124,24 @@ public class Lexer {
             character = current();
         }
 
-        tokens.add(new Token(Token.Type.IDENTIFIER, value, Portion.of(resolution.source, start, index - 1)));
+        String value = builder.toString();
+        Optional<Token.Type> keyword = Token.Type.ofKeyword(value);
+        if (keyword.isPresent()) {
+            tokens.add(new Token(keyword.get(), value, Portion.of(resolution.source, start, index - 1)));
+
+        } else {
+            tokens.add(new Token(Token.Type.IDENTIFIER, value, Portion.of(resolution.source, start, index - 1)));
+        }
         return true;
+    }
+
+    /** Result of lexing. */
+    private ArrayList<Token> collect() {
+        Bug.check(!has(), "There are still characters that are not lexed!");
+        Bug.check(!tokens.isEmpty() && tokens.get(tokens.size() - 1).check(Token.Type.EOF),
+                "There is no EOF character at the end of the source!");
+        Bug.check(tokens.stream().filter(token -> token.check(Token.Type.EOF)).count() == 1,
+                "There are EOF characters in the middle of the source!");
+        return tokens;
     }
 }
