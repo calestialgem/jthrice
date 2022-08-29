@@ -2,3 +2,7 @@ let a = 3;
 let b = 4;
 let c = a*a + b*b;
 let d = c/2;
+
+let pi = 3;
+let e = 3;
+let ratio = pi / 3;

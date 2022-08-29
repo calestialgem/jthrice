@@ -13,5 +13,14 @@ int main(int argc, char** argv) {
 	int d=c/2;
 	printf("d = %d\n", d);
 
+	int pi=3;
+	printf("pi = %d\n", pi);
+
+	int e=3;
+	printf("e = %d\n", e);
+
+	int ratio=pi/3;
+	printf("ratio = %d\n", ratio);
+
 
 }
