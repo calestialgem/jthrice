@@ -4,10 +4,11 @@
 package jthrice.launcher;
 
 import java.io.IOException;
+import java.io.PrintStream;
+import java.nio.file.Files;
 import java.nio.file.Paths;
 
-import jthrice.analyzer.Analyzer;
-import jthrice.parser.Syntax;
+import jthrice.generator.Generator;
 
 /** Launches the compiler. */
 public class Launcher {
@@ -26,15 +27,25 @@ public class Launcher {
         }
 
         for (String argument : arguments) {
+            final String FILE_EXTENSION = ".tr";
+            if (!argument.endsWith(FILE_EXTENSION)) {
+                System.out.println("The Thrice source files should have `" + FILE_EXTENSION + "` file extension!");
+                continue;
+            }
             try {
                 Source source = new Source(Paths.get(argument));
                 Resolution resolution = new Resolution(source);
-                Syntax tree = Analyzer.analyze(resolution);
+                String code = Generator.generate(resolution);
                 if (resolution.errors() > 0) {
                     System.out.printf("There were %d errors in %s!%n", resolution.errors(), source.path);
                 }
                 if (resolution.warnings() > 0) {
                     System.out.printf("There were %d warnings in %s!%n", resolution.warnings(), source.path);
+                }
+                try (PrintStream out = new PrintStream(Files.newOutputStream(
+                        Paths.get(argument.substring(0, argument.length() - FILE_EXTENSION.length()) + ".c")))) {
+                    out.println(code);
+                } catch (IOException e) {
                 }
             } catch (IOException e) {
                 e.printStackTrace();

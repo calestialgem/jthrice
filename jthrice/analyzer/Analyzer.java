@@ -20,7 +20,7 @@ public class Analyzer {
         return analyzer.collect();
     }
 
-    /** Resolution of the parsed tokens. */
+    /** Resolution of the analyzed syntax object. */
     private final Resolution resolution;
     /** Top-level syntax object. */
     private final Syntax syntax;
