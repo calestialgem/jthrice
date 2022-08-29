@@ -67,8 +67,9 @@ public class Parser {
         }
         Syntax[] input = new Syntax[maxMatch];
         for (int i = 0; i < maxMatch; i++) {
-            input[maxMatch - 1 - i] = stack.get(stack.size() - 1 - i);
-            stack.remove(stack.size() - 1 - i);
+            int index = stack.size() - maxMatch + i;
+            input[i] = stack.get(index);
+            stack.remove(index);
         }
         Syntax output = new Syntax(greedyPattern.result(), input);
         stack.add(output);
@@ -82,11 +83,6 @@ public class Parser {
             case 1:
                 return stack.get(0);
             default:
-                int counter = 0;
-                for (Syntax syntax : stack) {
-                    System.out.print(counter++);
-                    System.out.println(syntax);
-                }
                 resolution.error("PARSER", "Parse objects failed to reduce!");
                 return stack.get(0);
         }

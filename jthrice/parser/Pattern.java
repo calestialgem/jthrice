@@ -29,7 +29,7 @@ public interface Pattern {
                 return 0;
             }
             for (int i = 0; i < input.length; i++) {
-                if (!stack.get(stack.size() - 1 - i).check(input[i])) {
+                if (!stack.get(stack.size() - input.length + i).check(input[i])) {
                     return 0;
                 }
             }
