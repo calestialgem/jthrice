@@ -14,12 +14,16 @@ import jthrice.launcher.Source;
 public class Token {
     /** Type of a token. */
     public static enum Type {
-        PLUS, MINUS, STAR, FORWARD_SLASH, PERCENT, EQUAL, SEMICOLON, EOF,
-        NUMBER, LET, IDENTIFIER;
+        PLUS, MINUS, STAR, FORWARD_SLASH, PERCENT, EQUAL, COLON, SEMICOLON, EOF,
+        LET,
+        I1, I2, I4, I8, IX,
+        U1, U2, U4, U8, UX,
+        F4, F8,
+        NUMBER, IDENTIFIER;
 
         /** Token type of the given character if its a mark. */
         public static Optional<Type> ofMark(char character) {
-            final String MARKS = "+-*/%=;" + Source.EOF;
+            final String MARKS = "+-*/%=:;" + Source.EOF;
             int index = MARKS.indexOf(character);
             if (index == -1) {
                 return Optional.empty();
@@ -30,7 +34,11 @@ public class Token {
 
         /** Token type of the given string if its a keyword. */
         public static Optional<Type> ofKeyword(String keyword) {
-            final String[] KEYWORDS = { "let" };
+            final String[] KEYWORDS = {
+                    "let",
+                    "i1", "i2", "i4", "i8", "ix",
+                    "u1", "u2", "u4", "u8", "ux",
+                    "f4", "f8" };
             int index = List.of(KEYWORDS).indexOf(keyword);
             if (index == -1) {
                 return Optional.empty();

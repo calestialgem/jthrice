@@ -13,19 +13,28 @@ import jthrice.lexer.Token;
 public class Syntax {
     /** Type of the syntax object. */
     public static enum Type {
-        PLUS, MINUS, STAR, FORWARD_SLASH, PERCENT, EQUAL, SEMICOLON, EOF, NUMBER, LET, IDENTIFIER, SOURCE, STATEMENT,
-        DEFINITION, DECLERATION, EXPRESSION, LITERAL, UNARY_OPERATION, BINARY_OPERATION;
+        PLUS, MINUS, STAR, FORWARD_SLASH, PERCENT, EQUAL, COLON, SEMICOLON, EOF,
+        LET,
+        I1, I2, I4, I8, IX,
+        U1, U2, U4, U8, UX,
+        F4, F8,
+        NUMBER, IDENTIFIER,
+        SOURCE, STATEMENT,
+        DEFINITION, DECLERATION,
+        EXPRESSION, LITERAL, UNARY_OPERATION, BINARY_OPERATION;
     };
 
     /** Syntax object reduction patterns. */
     public static Pattern[] PATTERNS = {
             Pattern.ofRepeatition(Type.SOURCE, Type.STATEMENT, Type.EOF),
             Pattern.ofParallel(Type.STATEMENT, Type.DEFINITION),
-            Pattern.ofSerial(Type.DEFINITION, Type.DECLERATION, Type.EQUAL, Type.EXPRESSION, Type.SEMICOLON),
+            Pattern.ofSerial(Type.DEFINITION, Type.DECLERATION, Type.COLON, Type.EXPRESSION, Type.EQUAL,
+                    Type.EXPRESSION, Type.SEMICOLON),
             Pattern.ofSerial(Type.DECLERATION, Type.LET, Type.IDENTIFIER),
             Pattern.ofParallel(Type.EXPRESSION, Type.LITERAL, Type.IDENTIFIER, Type.UNARY_OPERATION,
                     Type.BINARY_OPERATION),
-            Pattern.ofParallel(Type.LITERAL, Type.NUMBER),
+            Pattern.ofParallel(Type.LITERAL, Type.NUMBER, Type.I1, Type.I2, Type.I4, Type.I8, Type.IX, Type.U1, Type.U2,
+                    Type.U4, Type.U8, Type.UX, Type.F4, Type.F8),
             Pattern.ofSerial(Type.UNARY_OPERATION, Type.PLUS, Type.EXPRESSION),
             Pattern.ofSerial(Type.UNARY_OPERATION, Type.MINUS, Type.EXPRESSION),
             Pattern.ofSerial(Type.BINARY_OPERATION, Type.EXPRESSION, Type.PLUS, Type.EXPRESSION),

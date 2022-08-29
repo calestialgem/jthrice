@@ -81,7 +81,7 @@ public class Lexer {
     /** Try to lex a number. */
     private boolean lexNumber() {
         final String DIGITS = "0123456789";
-        final BigDecimal BASE = new BigDecimal(10);
+        final BigDecimal BASE = new BigDecimal(DIGITS.length());
 
         int start = index;
         int digit = DIGITS.indexOf(current());
@@ -89,18 +89,38 @@ public class Lexer {
             return false;
         }
 
+        int decimalPlaces = -1;
         BigDecimal value = new BigDecimal(0);
 
         while (digit != -1) {
             value = value.multiply(BASE).add(new BigDecimal(digit));
+            if (decimalPlaces != -1) {
+                decimalPlaces++;
+            }
             index++;
             if (!has()) {
                 break;
             }
+            if (current() == '.') {
+                decimalPlaces = 0;
+                index++;
+            }
             digit = DIGITS.indexOf(current());
         }
 
-        tokens.add(new Token(Token.Type.NUMBER, value, Portion.of(resolution.source, start, index - 1)));
+        Portion portion = Portion.of(resolution.source, start, index - 1);
+
+        if (decimalPlaces == 0) {
+            resolution.error("LEXER", portion,
+                    "The number ends after the decimal place separator without a digit in decimal place!");
+        }
+
+        if (decimalPlaces != -1) {
+            BigDecimal dividor = BASE.pow(decimalPlaces);
+            value = value.divide(dividor);
+        }
+
+        tokens.add(new Token(Token.Type.NUMBER, value, portion));
         return true;
     }
 
