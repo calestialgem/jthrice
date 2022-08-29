@@ -72,9 +72,19 @@ public class Syntax {
         return Arrays.copyOf(childeren, childeren.length);
     }
 
+    /** Child at the given index. */
+    public Syntax child(int index) {
+        return childeren[index];
+    }
+
     /** Tokens that make up the syntax object. */
     public Token[] tokens() {
         return Arrays.copyOf(tokens, tokens.length);
+    }
+
+    /** Token at the given index. */
+    public Token token(int index) {
+        return tokens[index];
     }
 
     /** Whether the type of the syntax object is one of the given types. */
@@ -85,6 +95,19 @@ public class Syntax {
             }
         }
         return false;
+    }
+
+    /** Whether the type of the childeren are the given types in the given order. */
+    public boolean checkChilderen(Type... types) {
+        if (childeren.length != types.length) {
+            return false;
+        }
+        for (int i = 0; i < childeren.length; i++) {
+            if (!childeren[i].check(types[i])) {
+                return false;
+            }
+        }
+        return true;
     }
 
     public String toString(int depth) {
