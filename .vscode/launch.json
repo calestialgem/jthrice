@@ -12,7 +12,7 @@
             "request": "launch",
             "mainClass": "jthrice.compiler/jthrice.launcher.Launcher",
             "args": [
-                "test.tr"
+                "test"
             ],
             "stopOnEntry": false,
             "cwd": "${workspaceFolder}/res"

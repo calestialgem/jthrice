@@ -3,28 +3,36 @@
 
 package jthrice.generator;
 
+import java.nio.file.Path;
+
 import jthrice.analyzer.Analyzer;
 import jthrice.launcher.Resolution;
 import jthrice.parser.Syntax;
 
 /** Generates the C source from the syntax tree. */
 public class Generator {
+    /** C compiler. */
+    public static final String COMPILER = "clang";
+
     /** Generate the C source from the source in the given resolution. */
-    public static String generate(Resolution resolution) {
-        Generator generator = new Generator(resolution, Analyzer.analyze(resolution));
+    public static void generate(Resolution resolution, Path build) {
+        Generator generator = new Generator(resolution, build, Analyzer.analyze(resolution));
         generator.generate();
-        return generator.collect();
+        generator.collect();
     }
 
     /** Resolution of the generated syntax object. */
     private final Resolution resolution;
+    /** Path to the build folder. */
+    private final Path build;
     /** Top-level syntax object. */
     private final Syntax syntax;
     /** Buffer to append the code into. */
     private final StringBuilder buffer;
 
-    private Generator(Resolution resolution, Syntax syntax) {
+    private Generator(Resolution resolution, Path build, Syntax syntax) {
         this.resolution = resolution;
+        this.build = build;
         this.syntax = syntax;
         buffer = new StringBuilder();
     }
@@ -98,7 +106,9 @@ public class Generator {
     }
 
     /** Result of generation. */
-    private String collect() {
-        return buffer.toString();
+    private void collect() {
+        CompilerFlags compilerFlags = new CompilerFlags(resolution, COMPILER, build);
+        compilerFlags.write(buffer.toString());
+        compilerFlags.compile();
     }
 }

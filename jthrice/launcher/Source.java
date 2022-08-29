@@ -12,14 +12,19 @@ import java.util.Objects;
 public class Source {
     /** Character that represents the end of file. */
     public static final char EOF = 0;
+    /** File extension of Thrice source files. */
+    public static final String EXTENSION = "tr";
 
+    /** Name of the source file without the file extensions. */
+    public final String name;
     /** Path to the source file. */
-    public final String path;
+    public final Path path;
     /** Contents of the source file. */
     public final String contents;
 
-    public Source(Path path) throws IOException {
-        this.path = path.toAbsolutePath().toString();
+    public Source(String name) throws IOException {
+        this.name = name;
+        this.path = Path.of(name + '.' + EXTENSION).toAbsolutePath();
         contents = Files.readString(path).replaceAll("\r", "") + EOF;
     }
 
