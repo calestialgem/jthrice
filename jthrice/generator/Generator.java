@@ -7,7 +7,7 @@ import java.nio.file.Path;
 
 import jthrice.analyzer.Analyzer;
 import jthrice.launcher.Resolution;
-import jthrice.parser.Syntax;
+import jthrice.parser.Symbol;
 
 /** Generates the C source from the syntax tree. */
 public class Generator {
@@ -26,11 +26,11 @@ public class Generator {
     /** Path to the build folder. */
     private final Path build;
     /** Top-level syntax object. */
-    private final Syntax syntax;
+    private final Symbol syntax;
     /** Buffer to append the code into. */
     private final StringBuilder buffer;
 
-    private Generator(Resolution resolution, Path build, Syntax syntax) {
+    private Generator(Resolution resolution, Path build, Symbol syntax) {
         this.resolution = resolution;
         this.build = build;
         this.syntax = syntax;
@@ -43,7 +43,7 @@ public class Generator {
     }
 
     /** Generate the code for the given syntax object. */
-    private void generate(Syntax root) {
+    private void generate(Symbol root) {
         switch (root.type) {
             case PLUS:
             case MINUS:
@@ -65,7 +65,7 @@ public class Generator {
 
                         int main(int argc, char** argv) {
                         """);
-                for (Syntax child : root.childeren()) {
+                for (Symbol child : root.childeren()) {
                     generate(child);
                     buffer.append(System.lineSeparator());
                 }
@@ -76,7 +76,7 @@ public class Generator {
 
             case DEFINITION:
                 buffer.append("int ");
-                for (Syntax child : root.childeren()) {
+                for (Symbol child : root.childeren()) {
                     generate(child);
                 }
                 buffer.append(System.lineSeparator());
@@ -88,7 +88,7 @@ public class Generator {
                 buffer.append(System.lineSeparator());
                 return;
             case STATEMENT:
-                for (Syntax child : root.childeren()) {
+                for (Symbol child : root.childeren()) {
                     buffer.append("\t");
                     generate(child);
                 }
@@ -98,7 +98,7 @@ public class Generator {
             case LITERAL:
             case UNARY_OPERATION:
             case BINARY_OPERATION:
-                for (Syntax child : root.childeren()) {
+                for (Symbol child : root.childeren()) {
                     generate(child);
                 }
                 return;

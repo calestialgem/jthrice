@@ -4,16 +4,17 @@
 package jthrice.parser;
 
 import java.util.ArrayList;
+import java.util.Optional;
 
 import jthrice.Bug;
 import jthrice.launcher.Resolution;
 import jthrice.lexer.Lexer;
 import jthrice.lexer.Token;
 
-/** Parses a list of tokens to a syntax tree. */
+/** Parses a list of tokens to syntatic symbols. */
 public class Parser {
     /** Parse the source in the given resolution. */
-    public static Syntax parse(Resolution resolution) {
+    public static Symbol parse(Resolution resolution) {
         Parser parser = new Parser(resolution, Lexer.lex(resolution));
         while (parser.parse()) {
         }
@@ -26,14 +27,14 @@ public class Parser {
     private final ArrayList<Token> tokens;
     /** Current index in the tokens. */
     private int index;
-    /** Syntax object stack. */
-    private final ArrayList<Syntax> stack;
+    /** Symbols on the stack. */
+    private final Stack stack;
 
     private Parser(Resolution resolution, ArrayList<Token> tokens) {
         this.resolution = resolution;
         this.tokens = tokens;
         index = 0;
-        stack = new ArrayList<>();
+        stack = new Stack();
     }
 
     /** Whether there are any tokens left. */
@@ -41,54 +42,33 @@ public class Parser {
         return index < tokens.size();
     }
 
-    /** Currently pointed token. */
-    private Token current() {
-        Bug.check(has(), "There are no tokens!");
-        return tokens.get(index);
-    }
-
     /** Parse a token. Returns whether there are actions to be done. */
     private boolean parse() {
-        int maxMatch = Integer.MIN_VALUE;
-        Pattern greedyPattern = null;
-        for (Pattern pattern : Syntax.PATTERNS) {
-            int match = pattern.match(stack);
-            if (match > maxMatch) {
-                maxMatch = match;
-                greedyPattern = pattern;
-            }
-        }
-        Bug.check(greedyPattern != null, "There are no patterns!");
-        if (maxMatch <= 0) {
+        Optional<Symbol.Result> result = Symbol.of(stack);
+        if (result.isEmpty()) {
             if (!has()) {
                 return false;
             }
-            stack.add(Syntax.reduce(current()));
+            stack.shift(tokens.get(index));
             index++;
             return true;
         }
-        Syntax[] input = new Syntax[maxMatch];
-        for (int i = 0; i < maxMatch; i++) {
-            int index = stack.size() - maxMatch + i;
-            input[i] = stack.get(index);
-            stack.remove(index);
-        }
-        Syntax output = new Syntax(greedyPattern.result(), input);
-        stack.add(output);
+
+        stack.reduce(result.get());
         return true;
     }
 
     /** Result of parsing. */
-    private Syntax collect() {
+    private Symbol collect() {
         Bug.check(!has(), "There are still tokens that are not parsed!");
         switch (stack.size()) {
             case 0:
-                return Syntax.EMPTY;
+                Bug.check(false, "There is no EOF in the source!");
             case 1:
-                return stack.get(0);
+                return stack.top(0).get();
             default:
                 resolution.error("PARSER", "Parse objects failed to reduce!");
-                return stack.get(0);
+                return stack.top(0).get();
         }
     }
 }
