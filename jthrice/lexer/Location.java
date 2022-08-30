@@ -4,12 +4,23 @@
 package jthrice.lexer;
 
 import java.util.Objects;
+import java.util.Optional;
 
 import jthrice.Bug;
 import jthrice.launcher.Source;
 
 /** Location of a character in a source. */
 public class Location {
+    /** First location in the source. */
+    public static Optional<Location> ofFirst(Source source) {
+        for (int i = 0; i < source.contents.length(); i++) {
+            if (source.contents.charAt(i) != '\n') {
+                return Optional.of(new Location(source, i));
+            }
+        }
+        return Optional.empty();
+    }
+
     /** Source that the location is in. */
     public final Source source;
     /** Index of the character in the string. */
@@ -77,6 +88,31 @@ public class Location {
             index++;
         }
         return new Location(source, index - 1);
+    }
+
+    /** Character at the location. */
+    public char get() {
+        return source.contents.charAt(index);
+    }
+
+    /** Location after this one. */
+    public Optional<Location> next() {
+        for (int i = index + 1; i < source.contents.length(); i++) {
+            if (source.contents.charAt(i) != '\n') {
+                return Optional.of(new Location(source, i));
+            }
+        }
+        return Optional.empty();
+    }
+
+    /** Location before this one. */
+    public Optional<Location> previous() {
+        for (int i = index - 1; i >= 0; i--) {
+            if (source.contents.charAt(i) != '\n') {
+                return Optional.of(new Location(source, i));
+            }
+        }
+        return Optional.empty();
     }
 
     @Override
