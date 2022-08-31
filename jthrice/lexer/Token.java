@@ -221,11 +221,10 @@ public sealed abstract class Token permits Token.Mark, Token.Number, Token.Keywo
 
     /** Reserved identifier. */
     public static sealed abstract class Keyword extends
-            Token permits Keyword.Let, Keyword.I1, Keyword.I2, Keyword.I4, Keyword.I8, Keyword.IX, Keyword.U1, Keyword.U2, Keyword.U4, Keyword.U8, Keyword.UX, Keyword.F4, Keyword.F8 {
+            Token permits Keyword.I1, Keyword.I2, Keyword.I4, Keyword.I8, Keyword.IX, Keyword.U1, Keyword.U2, Keyword.U4, Keyword.U8, Keyword.UX, Keyword.F4, Keyword.F8 {
         /** Keyword from the identifier. */
         public static Optional<Token> of(Identifier identifier) {
             return switch (identifier.value) {
-                case "let" -> Optional.of(new Let(identifier.portion));
                 case "i1" -> Optional.of(new I1(identifier.portion));
                 case "i2" -> Optional.of(new I2(identifier.portion));
                 case "i4" -> Optional.of(new I4(identifier.portion));
@@ -240,13 +239,6 @@ public sealed abstract class Token permits Token.Mark, Token.Number, Token.Keywo
                 case "f8" -> Optional.of(new F8(identifier.portion));
                 default -> Optional.empty();
             };
-        }
-
-        /** Keyword `let`; indicates a local variable definition. */
-        public static final class Let extends Keyword {
-            public Let(Portion portion) {
-                super(portion);
-            }
         }
 
         /** Keyword `i1`; 1 byte, signed integer type. */
