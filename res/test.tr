@@ -1,8 +1,8 @@
-let a: i4 = 3;
-let b: i4 = 4;
-let c: i4 = a*a + b*b;
-let d: i4 = c/2;
+a: i4 = 3;
+b: i4 = 4;
+c: i4 = a*a + b*b;
+d: i4 = c/2;
 
-let pi:    f8 = 3.14;
-let e:     f8 = 2.79;
-let ratio: f8 = pi / e;
+pi:    f8 = 3.14;
+e:     f8 = 2.79;
+ratio: f8 = pi / e;
