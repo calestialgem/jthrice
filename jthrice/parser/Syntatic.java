@@ -7,6 +7,8 @@ import java.util.Arrays;
 import java.util.Objects;
 
 import jthrice.lexer.Token;
+import jthrice.lexer.Token.Mark.ClosingBracket;
+import jthrice.lexer.Token.Mark.OpeningBracket;
 
 /** Syntatic objects; hierarchical collection of tokens. */
 public sealed abstract class Syntatic permits Syntatic.Source, Syntatic.Statement, Syntatic.Expression {
@@ -95,7 +97,7 @@ public sealed abstract class Syntatic permits Syntatic.Source, Syntatic.Statemen
 
     /** Calculations and actions that lead to a value. */
     public static sealed abstract class Expression
-            extends Syntatic permits Expression.Primary, Expression.Unary, Expression.Binary {
+            extends Syntatic permits Expression.Primary, Expression.Group, Expression.Unary, Expression.Binary {
         /** Independent expression. */
         public static sealed abstract class Primary extends Expression permits Primary.Literal, Primary.Access {
             /** Hard coded value. */
@@ -153,14 +155,48 @@ public sealed abstract class Syntatic permits Syntatic.Source, Syntatic.Statemen
             }
         }
 
+        /** Grouping expression to elevate its position in associative ordering. */
+        public static final class Group extends Expression {
+            /** Expression that is elevated. */
+            public final Expression elevated;
+            /** Start of the group. */
+            public final Token.Mark.OpeningBracket opening;
+            /** End of the group. */
+            public final Token.Mark.ClosingBracket closing;
+
+            public Group(Expression elevated, OpeningBracket opening, ClosingBracket closing) {
+                this.elevated = elevated;
+                this.opening = opening;
+                this.closing = closing;
+            }
+
+            @Override
+            public int hashCode() {
+                return Objects.hash(closing, elevated, opening);
+            }
+
+            @Override
+            public boolean equals(Object obj) {
+                if (this == obj) {
+                    return true;
+                }
+                if (!(obj instanceof Group)) {
+                    return false;
+                }
+                Group other = (Group) obj;
+                return Objects.equals(closing, other.closing) && Objects.equals(elevated, other.elevated)
+                        && Objects.equals(opening, other.opening);
+            }
+        }
+
         /** Operation on an expression. */
         public static final class Unary extends Expression {
             /** Operator. */
-            public final Token operator;
+            public final Token.Mark operator;
             /** Operand. */
             public final Expression operand;
 
-            public Unary(Token operator, Expression operand) {
+            public Unary(Token.Mark operator, Expression operand) {
                 this.operator = operator;
                 this.operand = operand;
             }
@@ -185,22 +221,22 @@ public sealed abstract class Syntatic permits Syntatic.Source, Syntatic.Statemen
 
         /** Operation on two expressions. */
         public static final class Binary extends Expression {
-            /** Operation. */
-            public final Token operation;
+            /** Operator. */
+            public final Token.Mark operator;
             /** Left operand. */
             public final Expression left;
             /** Right operand. */
             public final Expression right;
 
-            public Binary(Token operation, Expression left, Expression right) {
-                this.operation = operation;
+            public Binary(Token.Mark operator, Expression left, Expression right) {
+                this.operator = operator;
                 this.left = left;
                 this.right = right;
             }
 
             @Override
             public int hashCode() {
-                return Objects.hash(left, operation, right);
+                return Objects.hash(left, operator, right);
             }
 
             @Override
@@ -212,7 +248,7 @@ public sealed abstract class Syntatic permits Syntatic.Source, Syntatic.Statemen
                     return false;
                 }
                 Binary other = (Binary) obj;
-                return Objects.equals(left, other.left) && Objects.equals(operation, other.operation)
+                return Objects.equals(left, other.left) && Objects.equals(operator, other.operator)
                         && Objects.equals(right, other.right);
             }
         }

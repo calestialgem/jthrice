@@ -12,7 +12,7 @@ import jthrice.launcher.Resolution;
 /** Lexes a source to a list of tokens. */
 public class Lexer {
     /** Lex the source in the given resolution. */
-    public static ArrayList<Token> lex(Resolution resolution) {
+    public static Token[] lex(Resolution resolution) {
         Lexer lexer = new Lexer(resolution);
         while (lexer.has()) {
             lexer.lex();
@@ -66,12 +66,12 @@ public class Lexer {
     }
 
     /** Result of lexing. */
-    private ArrayList<Token> collect() {
+    private Token[] collect() {
         Bug.check(!has(), "There are still characters that are not lexed!");
         Bug.check(!tokens.isEmpty() && tokens.get(tokens.size() - 1) instanceof Token.Mark.EOF,
                 "There is no EOF character at the end of the source!");
         Bug.check(tokens.stream().filter(token -> token instanceof Token.Mark.EOF).count() == 1,
                 "There are EOF characters in the middle of the source!");
-        return tokens;
+        return tokens.toArray(new Token[0]);
     }
 }

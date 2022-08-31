@@ -32,7 +32,7 @@ public sealed abstract class Token permits Token.Mark, Token.Number, Token.Keywo
 
     /** Non-alphanumeric tokens. */
     public static sealed abstract class Mark extends
-            Token permits Mark.Plus, Mark.Minus, Mark.Star, Mark.ForwardSlash, Mark.Percent, Mark.Equal, Mark.Colon, Mark.Semicolon, Mark.EOF {
+            Token permits Mark.Plus, Mark.Minus, Mark.Star, Mark.ForwardSlash, Mark.Percent, Mark.Equal, Mark.Colon, Mark.Semicolon, Mark.OpeningBracket, Mark.ClosingBracket, Mark.EOF {
         /** Mark at the given location. */
         public static Optional<Token> of(Location first) {
             return switch (first.get()) {
@@ -44,6 +44,8 @@ public sealed abstract class Token permits Token.Mark, Token.Number, Token.Keywo
                 case '=' -> Optional.of(new Equal(new Portion(first, first)));
                 case ':' -> Optional.of(new Colon(new Portion(first, first)));
                 case ';' -> Optional.of(new Semicolon(new Portion(first, first)));
+                case '(' -> Optional.of(new OpeningBracket(new Portion(first, first)));
+                case ')' -> Optional.of(new ClosingBracket(new Portion(first, first)));
                 case 0 -> Optional.of(new EOF(new Portion(first, first)));
                 default -> Optional.empty();
             };
@@ -101,6 +103,20 @@ public sealed abstract class Token permits Token.Mark, Token.Number, Token.Keywo
         /** Semicolon. */
         public static final class Semicolon extends Mark {
             public Semicolon(Portion portion) {
+                super(portion);
+            }
+        }
+
+        /** Opening bracket. */
+        public static final class OpeningBracket extends Mark {
+            public OpeningBracket(Portion portion) {
+                super(portion);
+            }
+        }
+
+        /** Closing bracket. */
+        public static final class ClosingBracket extends Mark {
+            public ClosingBracket(Portion portion) {
                 super(portion);
             }
         }
