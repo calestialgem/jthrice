@@ -3,7 +3,6 @@
 
 package jthrice.lexer;
 
-import java.util.Objects;
 import java.util.Optional;
 
 /** Reserved identifier. */
@@ -34,46 +33,12 @@ public sealed abstract class Keyword extends
         public Let(Portion portion) {
             super(portion);
         }
-
-        @Override
-        public int hashCode() {
-            return Objects.hash(portion);
-        }
-
-        @Override
-        public boolean equals(Object obj) {
-            if (this == obj) {
-                return true;
-            }
-            if (!(obj instanceof Let)) {
-                return false;
-            }
-            Let other = (Let) obj;
-            return Objects.equals(portion, other.portion);
-        }
     }
 
     /** Keyword `i1`; 1 byte, signed integer type. */
     public static final class I1 extends Keyword {
         public I1(Portion portion) {
             super(portion);
-        }
-
-        @Override
-        public int hashCode() {
-            return Objects.hash(portion);
-        }
-
-        @Override
-        public boolean equals(Object obj) {
-            if (this == obj) {
-                return true;
-            }
-            if (!(obj instanceof I1)) {
-                return false;
-            }
-            I1 other = (I1) obj;
-            return Objects.equals(portion, other.portion);
         }
     }
 
@@ -82,46 +47,12 @@ public sealed abstract class Keyword extends
         public I2(Portion portion) {
             super(portion);
         }
-
-        @Override
-        public int hashCode() {
-            return Objects.hash(portion);
-        }
-
-        @Override
-        public boolean equals(Object obj) {
-            if (this == obj) {
-                return true;
-            }
-            if (!(obj instanceof I2)) {
-                return false;
-            }
-            I2 other = (I2) obj;
-            return Objects.equals(portion, other.portion);
-        }
     }
 
     /** Keyword `i4`; 4 byte, signed integer type. */
     public static final class I4 extends Keyword {
         public I4(Portion portion) {
             super(portion);
-        }
-
-        @Override
-        public int hashCode() {
-            return Objects.hash(portion);
-        }
-
-        @Override
-        public boolean equals(Object obj) {
-            if (this == obj) {
-                return true;
-            }
-            if (!(obj instanceof I4)) {
-                return false;
-            }
-            I4 other = (I4) obj;
-            return Objects.equals(portion, other.portion);
         }
     }
 
@@ -130,46 +61,12 @@ public sealed abstract class Keyword extends
         public I8(Portion portion) {
             super(portion);
         }
-
-        @Override
-        public int hashCode() {
-            return Objects.hash(portion);
-        }
-
-        @Override
-        public boolean equals(Object obj) {
-            if (this == obj) {
-                return true;
-            }
-            if (!(obj instanceof I8)) {
-                return false;
-            }
-            I8 other = (I8) obj;
-            return Objects.equals(portion, other.portion);
-        }
     }
 
     /** Keyword `ix`; platform-pointer size, signed integer type. */
     public static final class IX extends Keyword {
         public IX(Portion portion) {
             super(portion);
-        }
-
-        @Override
-        public int hashCode() {
-            return Objects.hash(portion);
-        }
-
-        @Override
-        public boolean equals(Object obj) {
-            if (this == obj) {
-                return true;
-            }
-            if (!(obj instanceof IX)) {
-                return false;
-            }
-            IX other = (IX) obj;
-            return Objects.equals(portion, other.portion);
         }
     }
 
@@ -178,46 +75,12 @@ public sealed abstract class Keyword extends
         public U1(Portion portion) {
             super(portion);
         }
-
-        @Override
-        public int hashCode() {
-            return Objects.hash(portion);
-        }
-
-        @Override
-        public boolean equals(Object obj) {
-            if (this == obj) {
-                return true;
-            }
-            if (!(obj instanceof U1)) {
-                return false;
-            }
-            U1 other = (U1) obj;
-            return Objects.equals(portion, other.portion);
-        }
     }
 
     /** Keyword `u2`; 2 byte, unsigned integer type. */
     public static final class U2 extends Keyword {
         public U2(Portion portion) {
             super(portion);
-        }
-
-        @Override
-        public int hashCode() {
-            return Objects.hash(portion);
-        }
-
-        @Override
-        public boolean equals(Object obj) {
-            if (this == obj) {
-                return true;
-            }
-            if (!(obj instanceof U2)) {
-                return false;
-            }
-            U2 other = (U2) obj;
-            return Objects.equals(portion, other.portion);
         }
     }
 
@@ -226,46 +89,12 @@ public sealed abstract class Keyword extends
         public U4(Portion portion) {
             super(portion);
         }
-
-        @Override
-        public int hashCode() {
-            return Objects.hash(portion);
-        }
-
-        @Override
-        public boolean equals(Object obj) {
-            if (this == obj) {
-                return true;
-            }
-            if (!(obj instanceof U4)) {
-                return false;
-            }
-            U4 other = (U4) obj;
-            return Objects.equals(portion, other.portion);
-        }
     }
 
     /** Keyword `u8`; 8 byte, unsigned integer type. */
     public static final class U8 extends Keyword {
         public U8(Portion portion) {
             super(portion);
-        }
-
-        @Override
-        public int hashCode() {
-            return Objects.hash(portion);
-        }
-
-        @Override
-        public boolean equals(Object obj) {
-            if (this == obj) {
-                return true;
-            }
-            if (!(obj instanceof U8)) {
-                return false;
-            }
-            U8 other = (U8) obj;
-            return Objects.equals(portion, other.portion);
         }
     }
 
@@ -274,46 +103,12 @@ public sealed abstract class Keyword extends
         public UX(Portion portion) {
             super(portion);
         }
-
-        @Override
-        public int hashCode() {
-            return Objects.hash(portion);
-        }
-
-        @Override
-        public boolean equals(Object obj) {
-            if (this == obj) {
-                return true;
-            }
-            if (!(obj instanceof UX)) {
-                return false;
-            }
-            UX other = (UX) obj;
-            return Objects.equals(portion, other.portion);
-        }
     }
 
     /** Keyword `f4`; 4 byte, floating-point real. */
     public static final class F4 extends Keyword {
         public F4(Portion portion) {
             super(portion);
-        }
-
-        @Override
-        public int hashCode() {
-            return Objects.hash(portion);
-        }
-
-        @Override
-        public boolean equals(Object obj) {
-            if (this == obj) {
-                return true;
-            }
-            if (!(obj instanceof F4)) {
-                return false;
-            }
-            F4 other = (F4) obj;
-            return Objects.equals(portion, other.portion);
         }
     }
 
@@ -322,26 +117,19 @@ public sealed abstract class Keyword extends
         public F8(Portion portion) {
             super(portion);
         }
-
-        @Override
-        public int hashCode() {
-            return Objects.hash(portion);
-        }
-
-        @Override
-        public boolean equals(Object obj) {
-            if (this == obj) {
-                return true;
-            }
-            if (!(obj instanceof F8)) {
-                return false;
-            }
-            F8 other = (F8) obj;
-            return Objects.equals(portion, other.portion);
-        }
     }
 
     public Keyword(Portion portion) {
         super(portion);
+    }
+
+    @Override
+    public int hashCode() {
+        return getClass().hashCode();
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        return getClass().equals(obj.getClass());
     }
 }
