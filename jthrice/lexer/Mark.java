@@ -3,10 +3,9 @@
 
 package jthrice.lexer;
 
-import java.util.Objects;
 import java.util.Optional;
 
-/** Single character. */
+/** Non-alphanumeric tokens. */
 public sealed abstract class Mark extends
         Token permits Mark.Plus, Mark.Minus, Mark.Star, Mark.ForwardSlash, Mark.Percent, Mark.Equal, Mark.Colon, Mark.Semicolon, Mark.EOF {
     /** Mark at the given location. */
@@ -30,46 +29,12 @@ public sealed abstract class Mark extends
         public Plus(Portion portion) {
             super(portion);
         }
-
-        @Override
-        public int hashCode() {
-            return Objects.hash(portion);
-        }
-
-        @Override
-        public boolean equals(Object obj) {
-            if (this == obj) {
-                return true;
-            }
-            if (!(obj instanceof Plus)) {
-                return false;
-            }
-            Plus other = (Plus) obj;
-            return Objects.equals(portion, other.portion);
-        }
     }
 
     /** Minus sign. */
     public static final class Minus extends Mark {
         public Minus(Portion portion) {
             super(portion);
-        }
-
-        @Override
-        public int hashCode() {
-            return Objects.hash(portion);
-        }
-
-        @Override
-        public boolean equals(Object obj) {
-            if (this == obj) {
-                return true;
-            }
-            if (!(obj instanceof Minus)) {
-                return false;
-            }
-            Minus other = (Minus) obj;
-            return Objects.equals(portion, other.portion);
         }
     }
 
@@ -78,46 +43,12 @@ public sealed abstract class Mark extends
         public Star(Portion portion) {
             super(portion);
         }
-
-        @Override
-        public int hashCode() {
-            return Objects.hash(portion);
-        }
-
-        @Override
-        public boolean equals(Object obj) {
-            if (this == obj) {
-                return true;
-            }
-            if (!(obj instanceof Star)) {
-                return false;
-            }
-            Star other = (Star) obj;
-            return Objects.equals(portion, other.portion);
-        }
     }
 
     /** Forward slash. */
     public static final class ForwardSlash extends Mark {
         public ForwardSlash(Portion portion) {
             super(portion);
-        }
-
-        @Override
-        public int hashCode() {
-            return Objects.hash(portion);
-        }
-
-        @Override
-        public boolean equals(Object obj) {
-            if (this == obj) {
-                return true;
-            }
-            if (!(obj instanceof ForwardSlash)) {
-                return false;
-            }
-            ForwardSlash other = (ForwardSlash) obj;
-            return Objects.equals(portion, other.portion);
         }
     }
 
@@ -126,46 +57,12 @@ public sealed abstract class Mark extends
         public Percent(Portion portion) {
             super(portion);
         }
-
-        @Override
-        public int hashCode() {
-            return Objects.hash(portion);
-        }
-
-        @Override
-        public boolean equals(Object obj) {
-            if (this == obj) {
-                return true;
-            }
-            if (!(obj instanceof Percent)) {
-                return false;
-            }
-            Percent other = (Percent) obj;
-            return Objects.equals(portion, other.portion);
-        }
     }
 
     /** Equal sign. */
     public static final class Equal extends Mark {
         public Equal(Portion portion) {
             super(portion);
-        }
-
-        @Override
-        public int hashCode() {
-            return Objects.hash(portion);
-        }
-
-        @Override
-        public boolean equals(Object obj) {
-            if (this == obj) {
-                return true;
-            }
-            if (!(obj instanceof Equal)) {
-                return false;
-            }
-            Equal other = (Equal) obj;
-            return Objects.equals(portion, other.portion);
         }
     }
 
@@ -174,46 +71,12 @@ public sealed abstract class Mark extends
         public Colon(Portion portion) {
             super(portion);
         }
-
-        @Override
-        public int hashCode() {
-            return Objects.hash(portion);
-        }
-
-        @Override
-        public boolean equals(Object obj) {
-            if (this == obj) {
-                return true;
-            }
-            if (!(obj instanceof Colon)) {
-                return false;
-            }
-            Colon other = (Colon) obj;
-            return Objects.equals(portion, other.portion);
-        }
     }
 
     /** Semicolon. */
     public static final class Semicolon extends Mark {
         public Semicolon(Portion portion) {
             super(portion);
-        }
-
-        @Override
-        public int hashCode() {
-            return Objects.hash(portion);
-        }
-
-        @Override
-        public boolean equals(Object obj) {
-            if (this == obj) {
-                return true;
-            }
-            if (!(obj instanceof Semicolon)) {
-                return false;
-            }
-            Semicolon other = (Semicolon) obj;
-            return Objects.equals(portion, other.portion);
         }
     }
 
@@ -222,26 +85,19 @@ public sealed abstract class Mark extends
         public EOF(Portion portion) {
             super(portion);
         }
-
-        @Override
-        public int hashCode() {
-            return Objects.hash(portion);
-        }
-
-        @Override
-        public boolean equals(Object obj) {
-            if (this == obj) {
-                return true;
-            }
-            if (!(obj instanceof EOF)) {
-                return false;
-            }
-            EOF other = (EOF) obj;
-            return Objects.equals(portion, other.portion);
-        }
     }
 
     public Mark(Portion portion) {
         super(portion);
+    }
+
+    @Override
+    public int hashCode() {
+        return getClass().hashCode();
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        return getClass().equals(obj.getClass());
     }
 }
