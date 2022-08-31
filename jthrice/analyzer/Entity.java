@@ -3,7 +3,7 @@
 
 package jthrice.analyzer;
 
-/** Semantic representation of a Thrice program. */
-public class Semantic {
+/** Semantic object in a Thrice program. */
+public sealed abstract class Entity permits Program, Statement, Variable, Expression {
 
 }

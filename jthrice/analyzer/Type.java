@@ -6,7 +6,7 @@ package jthrice.analyzer;
 import java.util.Objects;
 
 /** Type of a value in Thrice. */
-public sealed abstract class Type permits Type.Scalar, Type.Pointer, Type.Array, Type.Aggregate {
+public sealed abstract class Type permits Type.Scalar, Type.Pointer, Type.Array, Type.Aggregate, Type.Meta {
     /** Integer type. */
     public static Scalar ofInteger(long size, boolean signedness) {
         if (signedness) {
@@ -233,6 +233,38 @@ public sealed abstract class Type permits Type.Scalar, Type.Pointer, Type.Array,
             }
             Aggregate other = (Aggregate) obj;
             return Objects.equals(name, other.name) && size == other.size;
+        }
+    }
+
+    /** Type type. */
+    public static final class Meta extends Type {
+        /** Value. */
+        public final Type value;
+
+        public Meta(Type value) {
+            this.value = value;
+        }
+
+        @Override
+        public String toString() {
+            return "type";
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(value);
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            if (this == obj) {
+                return true;
+            }
+            if (!(obj instanceof Meta)) {
+                return false;
+            }
+            Meta other = (Meta) obj;
+            return Objects.equals(value, other.value);
         }
     }
 }
