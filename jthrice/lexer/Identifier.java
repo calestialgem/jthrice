@@ -42,7 +42,7 @@ public final class Identifier extends Token {
 
     @Override
     public int hashCode() {
-        return Objects.hash(portion, value);
+        return Objects.hash(value);
     }
 
     @Override
@@ -54,6 +54,6 @@ public final class Identifier extends Token {
             return false;
         }
         Identifier other = (Identifier) obj;
-        return Objects.equals(portion, other.portion) && Objects.equals(value, other.value);
+        return Objects.equals(value, other.value);
     }
 }
