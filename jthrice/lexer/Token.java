@@ -414,4 +414,9 @@ public sealed abstract class Token permits Token.Mark, Token.Number, Token.Keywo
     public Token(Portion portion) {
         this.portion = portion;
     }
+
+    @Override
+    public String toString() {
+        return portion.toString();
+    }
 }

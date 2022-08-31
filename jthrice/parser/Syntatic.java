@@ -25,6 +25,15 @@ public sealed abstract class Syntatic permits Syntatic.Source, Syntatic.Statemen
         }
 
         @Override
+        public String toString() {
+            StringBuilder builder = new StringBuilder();
+            for (Statement statement : statements) {
+                builder.append(statement).append(System.lineSeparator());
+            }
+            return builder.toString();
+        }
+
+        @Override
         public int hashCode() {
             final int prime = 31;
             int result = 1;
@@ -75,6 +84,11 @@ public sealed abstract class Syntatic permits Syntatic.Source, Syntatic.Statemen
             }
 
             @Override
+            public String toString() {
+                return name.toString() + separator + type + assignment + value + end;
+            }
+
+            @Override
             public int hashCode() {
                 return Objects.hash(assignment, end, name, separator, type, value);
             }
@@ -110,6 +124,11 @@ public sealed abstract class Syntatic permits Syntatic.Source, Syntatic.Statemen
                 }
 
                 @Override
+                public String toString() {
+                    return value.toString();
+                }
+
+                @Override
                 public int hashCode() {
                     return Objects.hash(value);
                 }
@@ -134,6 +153,11 @@ public sealed abstract class Syntatic permits Syntatic.Source, Syntatic.Statemen
 
                 public Access(Token.Identifier name) {
                     this.name = name;
+                }
+
+                @Override
+                public String toString() {
+                    return name.toString();
                 }
 
                 @Override
@@ -171,6 +195,11 @@ public sealed abstract class Syntatic permits Syntatic.Source, Syntatic.Statemen
             }
 
             @Override
+            public String toString() {
+                return opening.toString() + elevated + closing;
+            }
+
+            @Override
             public int hashCode() {
                 return Objects.hash(closing, elevated, opening);
             }
@@ -199,6 +228,11 @@ public sealed abstract class Syntatic permits Syntatic.Source, Syntatic.Statemen
             public Unary(Token.Mark operator, Expression operand) {
                 this.operator = operator;
                 this.operand = operand;
+            }
+
+            @Override
+            public String toString() {
+                return operator.toString() + operand;
             }
 
             @Override
@@ -232,6 +266,11 @@ public sealed abstract class Syntatic permits Syntatic.Source, Syntatic.Statemen
                 this.operator = operator;
                 this.left = left;
                 this.right = right;
+            }
+
+            @Override
+            public String toString() {
+                return left + operator.toString() + right;
             }
 
             @Override

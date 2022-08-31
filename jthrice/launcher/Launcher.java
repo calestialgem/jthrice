@@ -5,8 +5,11 @@ package jthrice.launcher;
 
 import java.io.IOException;
 import java.nio.file.Path;
+import java.util.Optional;
 
 import jthrice.generator.Generator;
+import jthrice.parser.Parser;
+import jthrice.parser.Syntatic;
 
 /** Launches the compiler. */
 public class Launcher {
@@ -33,7 +36,11 @@ public class Launcher {
                 e.printStackTrace();
                 continue;
             }
-            Generator.generate(resolution, build);
+            // Generator.generate(resolution, build);
+            Optional<Syntatic.Source> parse = Parser.parse(resolution);
+            if (parse.isPresent()) {
+                System.out.println(parse.get());
+            }
             if (resolution.errors() > 0) {
                 System.out.printf("There were %d errors in %s!%n", resolution.errors(), argument);
             }
