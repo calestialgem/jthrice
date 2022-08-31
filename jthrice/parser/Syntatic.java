@@ -125,7 +125,7 @@ public sealed abstract class Syntatic permits Syntatic.Source, Syntatic.Statemen
 
                 @Override
                 public String toString() {
-                    return value.toString();
+                    return "[" + value + "]";
                 }
 
                 @Override
@@ -157,7 +157,7 @@ public sealed abstract class Syntatic permits Syntatic.Source, Syntatic.Statemen
 
                 @Override
                 public String toString() {
-                    return name.toString();
+                    return "[" + name + "]";
                 }
 
                 @Override
@@ -196,7 +196,7 @@ public sealed abstract class Syntatic permits Syntatic.Source, Syntatic.Statemen
 
             @Override
             public String toString() {
-                return opening.toString() + elevated + closing;
+                return "[" + opening + elevated + closing + "]";
             }
 
             @Override
@@ -232,7 +232,7 @@ public sealed abstract class Syntatic permits Syntatic.Source, Syntatic.Statemen
 
             @Override
             public String toString() {
-                return operator.toString() + operand;
+                return "[" + operator + operand + "]";
             }
 
             @Override
@@ -270,7 +270,7 @@ public sealed abstract class Syntatic permits Syntatic.Source, Syntatic.Statemen
 
             @Override
             public String toString() {
-                return left + operator.toString() + right;
+                return "[" + left + operator + right + "]";
             }
 
             @Override
