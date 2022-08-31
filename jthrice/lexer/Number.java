@@ -64,46 +64,12 @@ public sealed abstract class Number extends Token permits Number.Integer, Number
         public Integer(Portion portion, BigDecimal value) {
             super(portion, value);
         }
-
-        @Override
-        public int hashCode() {
-            return Objects.hash(portion, value);
-        }
-
-        @Override
-        public boolean equals(Object obj) {
-            if (this == obj) {
-                return true;
-            }
-            if (!(obj instanceof Integer)) {
-                return false;
-            }
-            Integer other = (Integer) obj;
-            return Objects.equals(portion, other.portion) && Objects.equals(value, other.value);
-        }
     }
 
     /** Real literal. */
     public static final class Real extends Number {
         public Real(Portion portion, BigDecimal value) {
             super(portion, value);
-        }
-
-        @Override
-        public int hashCode() {
-            return Objects.hash(portion, value);
-        }
-
-        @Override
-        public boolean equals(Object obj) {
-            if (this == obj) {
-                return true;
-            }
-            if (!(obj instanceof Real)) {
-                return false;
-            }
-            Real other = (Real) obj;
-            return Objects.equals(portion, other.portion) && Objects.equals(value, other.value);
         }
     }
 
@@ -113,5 +79,22 @@ public sealed abstract class Number extends Token permits Number.Integer, Number
     public Number(Portion portion, BigDecimal value) {
         super(portion);
         this.value = value;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(value);
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (!(obj instanceof Number)) {
+            return false;
+        }
+        Number other = (Number) obj;
+        return Objects.equals(value, other.value);
     }
 }
