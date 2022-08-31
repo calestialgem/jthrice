@@ -5,7 +5,7 @@ package jthrice.parser;
 
 import java.util.Optional;
 
-import jthrice.lexer.Mark;
+import jthrice.lexer.Token;
 
 /** Commands that are executed by the computer in order. */
 public sealed abstract class Statement extends Symbol permits Statement.Definition {
@@ -19,11 +19,11 @@ public sealed abstract class Statement extends Symbol permits Statement.Definiti
         /** From the top of the given stack. */
         public static Optional<Result> of(Stack stack) {
             Optional<Decleration> decleration = stack.top(5, Decleration.class);
-            Optional<Terminal> separator = stack.topTerminal(4, Mark.Colon.class);
+            Optional<Terminal> separator = stack.topTerminal(4, Token.Mark.Colon.class);
             Optional<Expression> type = stack.top(3, Expression.class);
-            Optional<Terminal> assignment = stack.topTerminal(2, Mark.Equal.class);
+            Optional<Terminal> assignment = stack.topTerminal(2, Token.Mark.Equal.class);
             Optional<Expression> value = stack.top(1, Expression.class);
-            Optional<Terminal> end = stack.topTerminal(0, Mark.Semicolon.class);
+            Optional<Terminal> end = stack.topTerminal(0, Token.Mark.Semicolon.class);
             if (decleration.isEmpty() || separator.isEmpty() || type.isEmpty() || assignment.isEmpty()
                     || value.isEmpty() || end.isEmpty()) {
                 return Optional.empty();

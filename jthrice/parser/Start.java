@@ -7,13 +7,13 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Optional;
 
-import jthrice.lexer.Mark;
+import jthrice.lexer.Token;
 
 /** Symbol that is the root of all the symbols. */
 public final class Start extends Symbol {
     /** From the top of the given stack. */
     public static Optional<Result> of(Stack stack) {
-        Optional<Terminal> eof = stack.topTerminal(0, Mark.EOF.class);
+        Optional<Terminal> eof = stack.topTerminal(0, Token.Mark.EOF.class);
         if (eof.isEmpty()) {
             return Optional.empty();
         }

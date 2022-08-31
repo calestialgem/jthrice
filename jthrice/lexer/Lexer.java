@@ -68,9 +68,9 @@ public class Lexer {
     /** Result of lexing. */
     private ArrayList<Token> collect() {
         Bug.check(!has(), "There are still characters that are not lexed!");
-        Bug.check(!tokens.isEmpty() && tokens.get(tokens.size() - 1) instanceof Mark.EOF,
+        Bug.check(!tokens.isEmpty() && tokens.get(tokens.size() - 1) instanceof Token.Mark.EOF,
                 "There is no EOF character at the end of the source!");
-        Bug.check(tokens.stream().filter(token -> token instanceof Mark.EOF).count() == 1,
+        Bug.check(tokens.stream().filter(token -> token instanceof Token.Mark.EOF).count() == 1,
                 "There are EOF characters in the middle of the source!");
         return tokens;
     }

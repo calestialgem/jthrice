@@ -5,15 +5,14 @@ package jthrice.parser;
 
 import java.util.Optional;
 
-import jthrice.lexer.Identifier;
-import jthrice.lexer.Keyword;
+import jthrice.lexer.Token;
 
 /** Informing the compiler about an object and its type. */
 public final class Decleration extends Symbol {
     /** From the top of the given stack. */
     public static Optional<Result> of(Stack stack) {
-        Optional<Terminal> keyword = stack.topTerminal(1, Keyword.Let.class);
-        Optional<Terminal> name = stack.topTerminal(0, Identifier.class);
+        Optional<Terminal> keyword = stack.topTerminal(1, Token.Keyword.Let.class);
+        Optional<Terminal> name = stack.topTerminal(0, Token.Identifier.class);
         if (keyword.isEmpty() || name.isEmpty()) {
             return Optional.empty();
         }

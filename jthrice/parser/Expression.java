@@ -5,10 +5,7 @@ package jthrice.parser;
 
 import java.util.Optional;
 
-import jthrice.lexer.Identifier;
-import jthrice.lexer.Keyword;
-import jthrice.lexer.Mark;
-import jthrice.lexer.Number;
+import jthrice.lexer.Token;
 
 /** Symbols that result in a value. */
 public sealed abstract class Expression
@@ -22,9 +19,12 @@ public sealed abstract class Expression
     public static final class Literal extends Expression {
         /** From the top of the given stack. */
         public static Optional<Result> of(Stack stack) {
-            Optional<Terminal> value = stack.topTerminal(0, Number.class, Keyword.I1.class, Keyword.I2.class,
-                    Keyword.I4.class, Keyword.I8.class, Keyword.IX.class, Keyword.U1.class, Keyword.U2.class,
-                    Keyword.U4.class, Keyword.U8.class, Keyword.UX.class, Keyword.F4.class, Keyword.F8.class);
+            Optional<Terminal> value = stack.topTerminal(0, Token.Number.class, Token.Keyword.I1.class,
+                    Token.Keyword.I2.class,
+                    Token.Keyword.I4.class, Token.Keyword.I8.class, Token.Keyword.IX.class, Token.Keyword.U1.class,
+                    Token.Keyword.U2.class,
+                    Token.Keyword.U4.class, Token.Keyword.U8.class, Token.Keyword.UX.class, Token.Keyword.F4.class,
+                    Token.Keyword.F8.class);
             if (value.isEmpty()) {
                 return Optional.empty();
             }
@@ -43,7 +43,7 @@ public sealed abstract class Expression
     public static final class Reference extends Expression {
         /** From the top of the given stack. */
         public static Optional<Result> of(Stack stack) {
-            Optional<Terminal> name = stack.topTerminal(0, Identifier.class);
+            Optional<Terminal> name = stack.topTerminal(0, Token.Identifier.class);
             if (name.isEmpty()) {
                 return Optional.empty();
             }
@@ -62,7 +62,7 @@ public sealed abstract class Expression
     public static final class Unary extends Expression {
         /** From the top of the given stack. */
         public static Optional<Result> of(Stack stack) {
-            Optional<Terminal> operator = stack.topTerminal(1, Mark.Plus.class, Mark.Minus.class);
+            Optional<Terminal> operator = stack.topTerminal(1, Token.Mark.Plus.class, Token.Mark.Minus.class);
             Optional<Expression> operand = stack.top(0, Expression.class);
             if (operator.isEmpty() || operand.isEmpty()) {
                 return Optional.empty();
@@ -85,8 +85,9 @@ public sealed abstract class Expression
     public static final class Binary extends Expression {
         /** From the top of the given stack. */
         public static Optional<Result> of(Stack stack) {
-            Optional<Terminal> operator = stack.topTerminal(1, Mark.Plus.class, Mark.Minus.class, Mark.Star.class,
-                    Mark.ForwardSlash.class, Mark.Percent.class);
+            Optional<Terminal> operator = stack.topTerminal(1, Token.Mark.Plus.class, Token.Mark.Minus.class,
+                    Token.Mark.Star.class,
+                    Token.Mark.ForwardSlash.class, Token.Mark.Percent.class);
             Optional<Expression> left = stack.top(0, Expression.class);
             Optional<Expression> right = stack.top(2, Expression.class);
             if (operator.isEmpty() || left.isEmpty() || right.isEmpty()) {
