@@ -41,30 +41,15 @@ public class Parser {
     }
 
     /**
-     * Get the current token if it exists and its of the given type. Consume the
-     * token if its returned.
-     */
-    private <T extends Token> Optional<T> cast(Class<T> type) {
-        if (cursor.isEmpty()) {
-            return Optional.empty();
-        }
-        var token = cursor.get().cast(type);
-        if (token.isPresent()) {
-            next();
-        }
-        return token;
-    }
-
-    /**
      * Get the current token if it exists and its of one of the given types. Consume
      * the token if its returned.
      */
     @SafeVarargs
-    private <T extends Token> Optional<T> check(Class<? extends T>... types) {
+    private <T extends Token> Optional<T> consume(Class<? extends T>... types) {
         if (cursor.isEmpty()) {
             return Optional.empty();
         }
-        var token = cursor.get().check(types);
+        var token = cursor.get().cast(types);
         if (token.isPresent()) {
             next();
         }
@@ -83,7 +68,7 @@ public class Parser {
             statements.add(statement.get());
         }
         Bug.check(cursor.isPresent(), "There is no EOF!");
-        var eof = cast(Token.Mark.EOF.class);
+        var eof = consume(Token.Mark.EOF.class);
         if (eof.isEmpty()) {
             error("Expected the end of the file!");
             return Optional.empty();
@@ -99,11 +84,11 @@ public class Parser {
 
     /** Parse a definition. */
     private Optional<Syntatic.Statement> parseDefinition() {
-        var name = cast(Token.Identifier.class);
+        var name = consume(Token.Identifier.class);
         if (name.isEmpty()) {
             return Optional.empty();
         }
-        var separator = cast(Token.Mark.Colon.class);
+        var separator = consume(Token.Mark.Colon.class);
         if (separator.isEmpty()) {
             error("Expected a `:` at the definition of `" + name.get().portion + "`!");
             return Optional.empty();
@@ -113,7 +98,7 @@ public class Parser {
             error("Expected the type at the definition of `" + name.get().portion + "`!");
             return Optional.empty();
         }
-        var assignment = cast(Token.Mark.Equal.class);
+        var assignment = consume(Token.Mark.Equal.class);
         if (assignment.isEmpty()) {
             error("Expected a `=` at the definition of `" + name.get().portion + "`!");
             return Optional.empty();
@@ -123,7 +108,7 @@ public class Parser {
             error("Expected the value at the definition of `" + name.get().portion + "`!");
             return Optional.empty();
         }
-        var end = cast(Token.Mark.Semicolon.class);
+        var end = consume(Token.Mark.Semicolon.class);
         if (end.isEmpty()) {
             error("Expected a `;` at the definition of `" + name.get().portion + "`!");
             return Optional.empty();
@@ -158,7 +143,7 @@ public class Parser {
         }
         Syntatic.Expression binary = left.get();
         while (true) {
-            var operator = check(types);
+            var operator = consume(types);
             if (operator.isEmpty()) {
                 break;
             }
@@ -175,7 +160,7 @@ public class Parser {
 
     /** Parse a unary. */
     private Optional<Syntatic.Expression> parseUnary() {
-        var operator = check(Token.Mark.Plus.class, Token.Mark.Minus.class);
+        var operator = consume(Token.Mark.Plus.class, Token.Mark.Minus.class);
         if (operator.isEmpty()) {
             return parseGroup();
         }
@@ -189,7 +174,7 @@ public class Parser {
 
     /** Parse a group. */
     private Optional<Syntatic.Expression> parseGroup() {
-        var opening = check(Token.Mark.OpeningBracket.class);
+        var opening = consume(Token.Mark.OpeningBracket.class);
         if (opening.isEmpty()) {
             return parsePrimary();
         }
@@ -198,7 +183,7 @@ public class Parser {
             error("Expected an expression after `(`!");
             return Optional.empty();
         }
-        var closing = check(Token.Mark.ClosingBracket.class);
+        var closing = consume(Token.Mark.ClosingBracket.class);
         if (closing.isEmpty()) {
             error("Expected `)` at the end of the expression!");
         }
@@ -207,11 +192,11 @@ public class Parser {
 
     /** Parse a primary. */
     private Optional<Syntatic.Expression> parsePrimary() {
-        var name = check(Token.Identifier.class);
+        var name = consume(Token.Identifier.class);
         if (name.isPresent()) {
             return Optional.of(new Syntatic.Expression.Primary.Access(name.get()));
         }
-        var value = check(Token.Number.class, Token.Keyword.I1.class, Token.Keyword.I2.class, Token.Keyword.I4.class,
+        var value = consume(Token.Number.class, Token.Keyword.I1.class, Token.Keyword.I2.class, Token.Keyword.I4.class,
                 Token.Keyword.I8.class, Token.Keyword.IX.class, Token.Keyword.U1.class, Token.Keyword.U2.class,
                 Token.Keyword.U4.class, Token.Keyword.U8.class, Token.Keyword.UX.class, Token.Keyword.F4.class,
                 Token.Keyword.F8.class);

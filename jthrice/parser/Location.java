@@ -37,19 +37,10 @@ public class Location {
         return tokens[index];
     }
 
-    /** Token at the location if its of the given type. */
-    @SuppressWarnings("unchecked")
-    public <T extends Token> Optional<T> cast(Class<T> type) {
-        if (type.isInstance(get())) {
-            return Optional.of((T) get());
-        }
-        return Optional.empty();
-    }
-
     /** Token at the location if its of one of the given types. */
     @SafeVarargs
     @SuppressWarnings("unchecked")
-    public final <T extends Token> Optional<T> check(Class<? extends T>... types) {
+    public final <T extends Token> Optional<T> cast(Class<? extends T>... types) {
         for (var type : types) {
             if (type.isInstance(get())) {
                 return Optional.of((T) get());
