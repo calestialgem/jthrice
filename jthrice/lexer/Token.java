@@ -4,6 +4,7 @@
 package jthrice.lexer;
 
 import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -148,7 +149,7 @@ public sealed abstract class Token permits Token.Mark, Token.Number, Token.Keywo
         /** Number at the given location. */
         public static Optional<Token> of(Location first) {
             final String DIGITS = "0123456789";
-            final BigDecimal BASE = new BigDecimal(DIGITS.length());
+            final BigInteger BASE = BigInteger.valueOf(DIGITS.length());
 
             Location current = first;
             int digit = DIGITS.indexOf(current.get());
@@ -157,9 +158,9 @@ public sealed abstract class Token permits Token.Mark, Token.Number, Token.Keywo
             }
 
             Optional<java.lang.Integer> decimalPlaces = Optional.empty();
-            BigDecimal value = new BigDecimal(0);
+            BigInteger value = BigInteger.valueOf(0);
             while (digit != -1) {
-                value = value.multiply(BASE).add(new BigDecimal(digit));
+                value = value.multiply(BASE).add(BigInteger.valueOf(digit));
                 if (decimalPlaces.isPresent()) {
                     decimalPlaces = Optional.of(decimalPlaces.get() + 1);
                 }
@@ -190,48 +191,67 @@ public sealed abstract class Token permits Token.Mark, Token.Number, Token.Keywo
             if (decimalPlaces.get() == 0) {
                 return Optional.empty();
             }
-            BigDecimal dividor = BASE.pow(decimalPlaces.get());
-            value = value.divide(dividor);
-            return Optional.of(new Real(portion, value));
+            return Optional.of(new Real(portion, new BigDecimal(value, decimalPlaces.get())));
         }
 
         /** Integer literal. */
         public static final class Integer extends Number {
-            public Integer(Portion portion, BigDecimal value) {
-                super(portion, value);
+            /** Value. */
+            public final BigInteger value;
+
+            public Integer(Portion portion, BigInteger value) {
+                super(portion);
+                this.value = value;
+            }
+
+            @Override
+            public int hashCode() {
+                return Objects.hash(value);
+            }
+
+            @Override
+            public boolean equals(Object obj) {
+                if (this == obj) {
+                    return true;
+                }
+                if (!(obj instanceof Integer)) {
+                    return false;
+                }
+                Integer other = (Integer) obj;
+                return Objects.equals(value, other.value);
             }
         }
 
         /** Real literal. */
         public static final class Real extends Number {
+            /** Value. */
+            public final BigDecimal value;
+
             public Real(Portion portion, BigDecimal value) {
-                super(portion, value);
+                super(portion);
+                this.value = value;
+            }
+
+            @Override
+            public int hashCode() {
+                return Objects.hash(value);
+            }
+
+            @Override
+            public boolean equals(Object obj) {
+                if (this == obj) {
+                    return true;
+                }
+                if (!(obj instanceof Real)) {
+                    return false;
+                }
+                Real other = (Real) obj;
+                return Objects.equals(value, other.value);
             }
         }
 
-        /** Value of the number. */
-        public final BigDecimal value;
-
-        public Number(Portion portion, BigDecimal value) {
+        public Number(Portion portion) {
             super(portion);
-            this.value = value;
-        }
-
-        @Override
-        public int hashCode() {
-            return Objects.hash(value);
-        }
-
-        @Override
-        public boolean equals(Object obj) {
-            if (this == obj) {
-                return true;
-            }
-            if (!(obj instanceof Number)) {
-                return false;
-            }
-            Number other = (Number) obj;
-            return Objects.equals(value, other.value);
         }
     }
 
