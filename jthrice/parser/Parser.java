@@ -141,7 +141,7 @@ public class Parser {
         if (left.isEmpty()) {
             return Optional.empty();
         }
-        Syntatic.Expression binary = left.get();
+        var binary = left.get();
         while (true) {
             var operator = consume(types);
             if (operator.isEmpty()) {

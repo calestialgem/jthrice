@@ -26,8 +26,8 @@ public sealed abstract class Syntatic permits Syntatic.Source, Syntatic.Statemen
 
         @Override
         public String toString() {
-            StringBuilder builder = new StringBuilder();
-            for (Statement statement : statements) {
+            var builder = new StringBuilder();
+            for (var statement : statements) {
                 builder.append(statement).append(System.lineSeparator());
             }
             return builder.toString();
