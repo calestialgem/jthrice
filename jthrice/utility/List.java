@@ -5,7 +5,8 @@ package jthrice.utility;
 
 import java.util.ArrayList;
 import java.util.Objects;
-import java.util.Optional;
+
+import jthrice.Bug;
 
 /** Immutable list. */
 public class List<Element> {
@@ -32,12 +33,15 @@ public class List<Element> {
         return elements.size();
     }
 
+    /** Whether there is an element at the given index. */
+    public boolean exists(int index) {
+        return index >= 0 && index < size();
+    }
+
     /** Element at the given index. */
-    public Optional<Element> get(int index) {
-        if (index < 0 || index >= size()) {
-            return Optional.empty();
-        }
-        return Optional.of(elements.get(index));
+    public Element at(int index) {
+        Bug.check(exists(index), "Unexisting element!");
+        return elements.get(index);
     }
 
     @Override

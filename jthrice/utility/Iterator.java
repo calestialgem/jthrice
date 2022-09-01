@@ -12,7 +12,7 @@ import jthrice.Bug;
 public class Iterator<Element> {
     /** Iterator over the given list to the given index. */
     public static <Element> Optional<Iterator<Element>> of(List<Element> iterated, int index) {
-        if (index >= 0 && index < iterated.size()) {
+        if (iterated.exists(index)) {
             return Optional.of(new Iterator<>(iterated, index));
         }
         return Optional.empty();
@@ -34,15 +34,14 @@ public class Iterator<Element> {
     public final int index;
 
     public Iterator(List<Element> iterated, int index) {
-        Bug.check(index >= 0, "Iterator index is negative!");
-        Bug.check(index < iterated.size(), "Iterator index is out of list!");
+        Bug.check(iterated.exists(index), "Unexisting iterator!");
         this.iterated = iterated;
         this.index = index;
     }
 
     /** Iterated element. */
     public Element get() {
-        return iterated.get(index).get();
+        return iterated.at(index);
     }
 
     /** Iterated element after its casted to base of the given types. */

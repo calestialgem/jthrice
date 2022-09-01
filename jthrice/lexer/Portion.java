@@ -47,6 +47,11 @@ public class Portion {
         this.last = last;
     }
 
+    /** Whether the portion spans multiple lines. */
+    public boolean multiline() {
+        return first.line < last.line;
+    }
+
     /** Print the line or lines the portion is in with the portion underlined. */
     public void underline(PrintStream out) {
         if (!multiline()) {
@@ -60,24 +65,18 @@ public class Portion {
 
     /** Print the line the portion is in with the portion underlined. */
     private void underlineSingle(PrintStream out, boolean continues) {
-        Bug.check(!multiline(), "Portion is not contained in a single line!");
         var line = Portion.ofLine(first);
         out.printf("%8d | %s%n", line.first.line, line);
         out.printf("%11s", continues ? "... |" : "");
-        for (int i = 1; i <= last.column; i++) {
+        for (var i = 1; i <= last.column; i++) {
             out.printf("%c", i < first.column ? ' ' : '~');
         }
         out.println();
     }
 
-    /** Whether the portion spans multiple lines. */
-    public boolean multiline() {
-        return first.line < last.line;
-    }
-
     @Override
     public String toString() {
-        return first.source.contents.substring(first.index, last.index + 1);
+        return first.source.sub(first.index, last.index);
     }
 
     @Override

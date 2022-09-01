@@ -11,14 +11,66 @@ import jthrice.launcher.Source;
 
 /** Location of a character in a source. */
 public class Location {
-    /** First location in the source. */
-    public static Optional<Location> ofFirst(Source source) {
-        for (int i = 0; i < source.contents.length(); i++) {
-            if (source.contents.charAt(i) != '\n') {
-                return Optional.of(new Location(source, i));
+    /** Location from the given source at the given index. */
+    public static Optional<Location> of(Source source, int index) {
+        if (source.exists(index) && source.at(index) != '\n') {
+            return Optional.of(new Location(source, index));
+        }
+        return Optional.empty();
+    }
+
+    /** Location from the given source at the given line and column. */
+    public static Optional<Location> of(Source source, int line, int column) {
+        if (line >= 1 && column >= 1) {
+            var index = 0;
+            for (; index < source.size(); index++) {
+                if (source.at(index) == '\n') {
+                    line--;
+                    continue;
+                }
+                if (line == 1) {
+                    column--;
+                    if (column == 0) {
+                        return Optional.of(new Location(source, index, line, column));
+                    }
+                }
             }
         }
         return Optional.empty();
+    }
+
+    /** First location in the given source starting at the given index. */
+    public static Optional<Location> ofFirst(Source source, int start) {
+        if (start >= 0) {
+            for (int i = start; i < source.size(); i++) {
+                if (source.at(i) != '\n') {
+                    return Optional.of(new Location(source, i));
+                }
+            }
+        }
+        return Optional.empty();
+    }
+
+    /** Last location in the given source ending at the given index. */
+    public static Optional<Location> ofLast(Source source, int end) {
+        if (end < source.size()) {
+            for (int i = end; i >= 0; i--) {
+                if (source.at(i) != '\n') {
+                    return Optional.of(new Location(source, i));
+                }
+            }
+        }
+        return Optional.empty();
+    }
+
+    /** First location in the source. */
+    public static Optional<Location> ofFirst(Source source) {
+        return ofFirst(source, 0);
+    }
+
+    /** Last location in the source. */
+    public static Optional<Location> ofLast(Source source) {
+        return ofLast(source, source.size() - 1);
     }
 
     /** Source that the location is in. */
@@ -30,17 +82,26 @@ public class Location {
     /** Column number. */
     public final int column;
 
+    public Location(Source source, int index, int line, int column) {
+        Bug.check(source.exists(index), "Unexisting location!");
+        Bug.check(source.at(index) == '\n', "Invalid source location!");
+        Bug.check(line >= 1, "Invalid line number!");
+        Bug.check(column >= 1, "Invalid column number!");
+        this.source = source;
+        this.index = index;
+        this.line = line;
+        this.column = column;
+    }
+
     public Location(Source source, int index) {
-        Bug.check(source.contents.length() > index, "Index is out of the bounds of the source contents!");
-        Bug.check(index >= 0, "Index is negative!");
-        Bug.check(source.contents.charAt(index) != '\n', "The character is a new line!");
+        Bug.check(source.exists(index), "Unexisting location!");
+        Bug.check(source.at(index) == '\n', "Invalid source location!");
         this.source = source;
         this.index = index;
         var line = 1;
         var column = 1;
         for (var i = 0; i < index; i++) {
-            var c = source.contents.charAt(i);
-            if (c == '\n') {
+            if (source.at(i) == '\n') {
                 line++;
                 column = 1;
             } else {
@@ -51,68 +112,35 @@ public class Location {
         this.column = column;
     }
 
-    public Location(Source source, int line, int column) {
-        Bug.check(line >= 1, "Line number is not positive!");
-        Bug.check(column >= 1, "Column number is not positive!");
-        this.source = source;
-        this.line = line;
-        this.column = column;
-        var index = 0;
-        for (; index < source.contents.length(); index++) {
-            var c = source.contents.charAt(index);
-            if (c == '\n') {
-                line--;
-                continue;
-            }
-            if (line == 1) {
-                column--;
-                if (column == 0) {
-                    break;
-                }
-            }
-        }
-        Bug.check(index < source.contents.length(), "There is no character at the given line and column!");
-        Bug.check(source.contents.charAt(index) != '\n', "The character is a new line!");
-        this.index = index;
-    }
-
     /** Start of the line this location is in. */
     public Location start() {
-        return new Location(source, line, 1);
+        return new Location(source, index - column + 1, line, 1);
     }
 
     /** End of the line this location is in. */
     public Location end() {
-        var index = this.index;
-        while (index < source.contents.length() && source.contents.charAt(index) != '\n') {
-            index++;
+        for (var i = index + 1; i < source.size(); i++) {
+            if (source.at(index) != '\n') {
+                return new Location(source, index);
+            }
         }
-        return new Location(source, index - 1);
+        Bug.unreachable("Source file does not end with an empty line!");
+        return null;
     }
 
     /** Character at the location. */
     public char get() {
-        return source.contents.charAt(index);
+        return source.at(index);
     }
 
     /** Location after this one. */
     public Optional<Location> next() {
-        for (var i = index + 1; i < source.contents.length(); i++) {
-            if (source.contents.charAt(i) != '\n') {
-                return Optional.of(new Location(source, i));
-            }
-        }
-        return Optional.empty();
+        return ofFirst(source, index + 1);
     }
 
     /** Location before this one. */
     public Optional<Location> previous() {
-        for (var i = index - 1; i >= 0; i--) {
-            if (source.contents.charAt(i) != '\n') {
-                return Optional.of(new Location(source, i));
-            }
-        }
-        return Optional.empty();
+        return ofLast(source, index - 1);
     }
 
     @Override
