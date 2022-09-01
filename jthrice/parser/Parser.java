@@ -12,7 +12,7 @@ import jthrice.launcher.Resolution;
 import jthrice.lexer.Lexer;
 import jthrice.lexer.Token;
 
-/** Parses a list of tokens to syntatic symbols. */
+/** Parses a list of tokens to a syntatic entity. */
 public class Parser {
     /** Parse the source in the given resolution. */
     public static Optional<Syntatic.Source> parse(Resolution resolution) {

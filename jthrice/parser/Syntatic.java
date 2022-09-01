@@ -10,9 +10,9 @@ import jthrice.lexer.Token;
 import jthrice.lexer.Token.Mark.ClosingBracket;
 import jthrice.lexer.Token.Mark.OpeningBracket;
 
-/** Syntatic objects; hierarchical collection of tokens. */
+/** Syntatic entities; hierarchical collection of tokens. */
 public sealed abstract class Syntatic permits Syntatic.Source, Syntatic.Statement, Syntatic.Expression {
-    /** Root of all the syntatic objects in a source file. */
+    /** Root of all the syntatic entities in a source file. */
     public static final class Source extends Syntatic {
         /** Statements under the source file. */
         private final Statement[] statements;
