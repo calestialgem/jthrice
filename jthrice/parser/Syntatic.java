@@ -3,23 +3,23 @@
 
 package jthrice.parser;
 
-import java.util.Arrays;
 import java.util.Objects;
 
 import jthrice.lexer.Token;
 import jthrice.lexer.Token.Mark.ClosingBracket;
 import jthrice.lexer.Token.Mark.OpeningBracket;
+import jthrice.utility.List;
 
 /** Syntatic entities; hierarchical collection of tokens. */
 public sealed abstract class Syntatic permits Syntatic.Source, Syntatic.Statement, Syntatic.Expression {
     /** Root of all the syntatic entities in a source file. */
     public static final class Source extends Syntatic {
         /** Statements under the source file. */
-        private final Statement[] statements;
+        public final List<Statement> statements;
         /** End of the file. */
         public final Token.Mark.EOF eof;
 
-        public Source(Statement[] statements, Token.Mark.EOF eof) {
+        public Source(List<Statement> statements, Token.Mark.EOF eof) {
             this.statements = statements;
             this.eof = eof;
         }
@@ -27,19 +27,13 @@ public sealed abstract class Syntatic permits Syntatic.Source, Syntatic.Statemen
         @Override
         public String toString() {
             var builder = new StringBuilder();
-            for (var statement : statements) {
-                builder.append(statement).append(System.lineSeparator());
-            }
+            statements.forEach(statement -> builder.append(statement).append(System.lineSeparator()));
             return builder.toString();
         }
 
         @Override
         public int hashCode() {
-            final int prime = 31;
-            int result = 1;
-            result = prime * result + Arrays.hashCode(statements);
-            result = prime * result + Objects.hash(eof);
-            return result;
+            return Objects.hash(eof, statements);
         }
 
         @Override
@@ -51,7 +45,7 @@ public sealed abstract class Syntatic permits Syntatic.Source, Syntatic.Statemen
                 return false;
             }
             Source other = (Source) obj;
-            return Objects.equals(eof, other.eof) && Arrays.equals(statements, other.statements);
+            return Objects.equals(eof, other.eof) && Objects.equals(statements, other.statements);
         }
     }
 

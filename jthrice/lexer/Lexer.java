@@ -8,11 +8,12 @@ import java.util.Optional;
 
 import jthrice.Bug;
 import jthrice.launcher.Resolution;
+import jthrice.utility.List;
 
 /** Lexes a source to a list of tokens. */
 public class Lexer {
     /** Lex the source in the given resolution. */
-    public static Token[] lex(Resolution resolution) {
+    public static List<Token> lex(Resolution resolution) {
         var lexer = new Lexer(resolution);
         while (lexer.has()) {
             lexer.lex();
@@ -22,15 +23,15 @@ public class Lexer {
 
     /** Resolution of the lexed source. */
     private final Resolution resolution;
+    /** Previously lexed tokens. */
+    private final ArrayList<Token> tokens;
     /** Current location in the source. */
     private Optional<Location> current;
-    /** Previously lexed tokens. */
-    private ArrayList<Token> tokens;
 
     private Lexer(Resolution resolution) {
         this.resolution = resolution;
-        current = Location.ofFirst(resolution.source);
         tokens = new ArrayList<>();
+        current = Location.ofFirst(resolution.source);
     }
 
     /** Whether there are characters to be lexed. */
@@ -66,12 +67,12 @@ public class Lexer {
     }
 
     /** Result of lexing. */
-    private Token[] collect() {
+    private List<Token> collect() {
         Bug.check(!has(), "There are still characters that are not lexed!");
         Bug.check(!tokens.isEmpty() && tokens.get(tokens.size() - 1) instanceof Token.Mark.EOF,
                 "There is no EOF character at the end of the source!");
         Bug.check(tokens.stream().filter(token -> token instanceof Token.Mark.EOF).count() == 1,
                 "There are EOF characters in the middle of the source!");
-        return tokens.toArray(new Token[0]);
+        return List.of(tokens);
     }
 }

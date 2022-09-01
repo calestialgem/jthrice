@@ -11,6 +11,8 @@ import jthrice.Bug;
 import jthrice.launcher.Resolution;
 import jthrice.lexer.Lexer;
 import jthrice.lexer.Token;
+import jthrice.utility.Iterator;
+import jthrice.utility.List;
 
 /** Parses a list of tokens to a syntatic entity. */
 public class Parser {
@@ -23,11 +25,11 @@ public class Parser {
     /** Resolution of the parsed tokens. */
     private final Resolution resolution;
     /** Current token to be parsed. */
-    private Optional<Location> cursor;
+    private Optional<Iterator<Token>> cursor;
 
-    private Parser(Resolution resolution, Token[] tokens) {
+    private Parser(Resolution resolution, List<Token> tokens) {
         this.resolution = resolution;
-        cursor = Location.ofFirst(tokens);
+        cursor = Iterator.ofFirst(tokens);
     }
 
     /** Give an error to the resolution about the current token. */
@@ -74,7 +76,7 @@ public class Parser {
             return Optional.empty();
         }
         Bug.check(cursor.isEmpty(), "There are tokens after the EOF!");
-        return Optional.of(new Syntatic.Source(statements.toArray(new Syntatic.Statement[0]), eof.get()));
+        return Optional.of(new Syntatic.Source(new List<>(statements), eof.get()));
     }
 
     /** Parse a statement. */

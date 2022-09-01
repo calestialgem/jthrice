@@ -5,6 +5,7 @@ package jthrice.utility;
 
 import java.util.ArrayList;
 import java.util.Objects;
+import java.util.function.Consumer;
 
 import jthrice.Bug;
 
@@ -42,6 +43,11 @@ public class List<Element> {
     public Element at(int index) {
         Bug.check(exists(index), "Unexisting element!");
         return elements.get(index);
+    }
+
+    /** Supply the elements to the given consumer. */
+    public void forEach(Consumer<? super Element> consumer) {
+        elements.forEach(consumer);
     }
 
     @Override
