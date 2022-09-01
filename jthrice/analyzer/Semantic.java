@@ -4,6 +4,6 @@
 package jthrice.analyzer;
 
 /** Semantic object in a Thrice program. */
-public sealed abstract class Entity permits Program, Statement, Variable, Expression {
+public sealed abstract class Semantic permits Semantic.Program, Semantic.Statement, Semantic.Variable, Semantic.Expression {
 
 }

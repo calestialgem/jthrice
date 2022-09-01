@@ -3,10 +3,11 @@
 
 package jthrice.analyzer;
 
+import java.util.Arrays;
 import java.util.Objects;
 
 /** Type of a value in Thrice. */
-public sealed abstract class Type permits Type.Scalar, Type.Pointer, Type.Array, Type.Aggregate, Type.Meta {
+public sealed abstract class Type permits Type.Scalar, Type.Pointer, Type.Array, Type.Custom, Type.Meta {
     /** Integer type. */
     public static Scalar ofInteger(long size, boolean signedness) {
         if (signedness) {
@@ -27,13 +28,23 @@ public sealed abstract class Type permits Type.Scalar, Type.Pointer, Type.Array,
     }
 
     /** Array type. */
-    public static Array ofArray(long length, Type element) {
-        return new Array(length, element);
+    public static Array ofArray(Type element, long length) {
+        return new Array(element, length);
     }
 
-    /** User defined type. */
-    public static Aggregate ofAggregate(long size, String name) {
-        return new Aggregate(size, name);
+    /** Product type. */
+    public static Custom ofStruct(String name, Type[] members) {
+        return new Custom.Struct(name, members);
+    }
+
+    /** Sum type. */
+    public static Custom ofUnion(String name, Type[] members) {
+        return new Custom.Union(name, members);
+    }
+
+    /** Finite value type. */
+    public static Custom ofEnum(String name, String[] literals) {
+        return new Custom.Enum(name, literals);
     }
 
     /** Built-in types. */
@@ -168,14 +179,14 @@ public sealed abstract class Type permits Type.Scalar, Type.Pointer, Type.Array,
 
     /** Array types. */
     public static final class Array extends Type {
-        /** Amount of elements. */
-        public final long length;
         /** Type of elements. */
         public final Type element;
+        /** Amount of elements. */
+        public final long length;
 
-        public Array(long length, Type element) {
-            this.length = length;
+        public Array(Type element, long length) {
             this.element = element;
+            this.length = length;
         }
 
         @Override
@@ -202,37 +213,106 @@ public sealed abstract class Type permits Type.Scalar, Type.Pointer, Type.Array,
     }
 
     /** User defined types. */
-    public static final class Aggregate extends Type {
-        /** Amount of bytes in memory. */
-        public final long size;
+    public static sealed abstract class Custom extends Type permits Custom.Struct, Custom.Union, Custom.Enum {
+        /** Product type. */
+        public static final class Struct extends Custom {
+            /** Types of members. */
+            private final Type[] members;
+
+            public Struct(String name, Type[] members) {
+                super(name);
+                this.members = members;
+            }
+
+            @Override
+            public int hashCode() {
+                final int prime = 31;
+                int result = 1;
+                result = prime * result + Arrays.hashCode(members);
+                return result;
+            }
+
+            @Override
+            public boolean equals(Object obj) {
+                if (this == obj) {
+                    return true;
+                }
+                if (!(obj instanceof Struct)) {
+                    return false;
+                }
+                Struct other = (Struct) obj;
+                return Arrays.equals(members, other.members);
+            }
+
+        }
+
+        /** Sum type. */
+        public static final class Union extends Custom {
+            /** Types of members. */
+            private final Type[] members;
+
+            public Union(String name, Type[] members) {
+                super(name);
+                this.members = members;
+            }
+
+            @Override
+            public int hashCode() {
+                final int prime = 31;
+                int result = 1;
+                result = prime * result + Arrays.hashCode(members);
+                return result;
+            }
+
+            @Override
+            public boolean equals(Object obj) {
+                if (this == obj) {
+                    return true;
+                }
+                if (!(obj instanceof Union)) {
+                    return false;
+                }
+                Union other = (Union) obj;
+                return Arrays.equals(members, other.members);
+            }
+        }
+
+        /** Finitely valued. */
+        public static final class Enum extends Custom {
+            /** Names of literals. */
+            private final String[] literals;
+
+            public Enum(String name, String[] literals) {
+                super(name);
+                this.literals = literals;
+            }
+
+            @Override
+            public int hashCode() {
+                final int prime = 31;
+                int result = 1;
+                result = prime * result + Arrays.hashCode(literals);
+                return result;
+            }
+
+            @Override
+            public boolean equals(Object obj) {
+                if (this == obj) {
+                    return true;
+                }
+                if (!(obj instanceof Enum)) {
+                    return false;
+                }
+                Enum other = (Enum) obj;
+                return Arrays.equals(literals, other.literals);
+            }
+        }
+
         /** Name of the type. */
         public final String name;
 
-        public Aggregate(long size, String name) {
-            this.size = size;
+        public Custom(String name) {
             this.name = name;
-        }
-
-        @Override
-        public String toString() {
-            return name;
-        }
-
-        @Override
-        public int hashCode() {
-            return Objects.hash(name, size);
-        }
-
-        @Override
-        public boolean equals(Object obj) {
-            if (this == obj) {
-                return true;
-            }
-            if (!(obj instanceof Aggregate)) {
-                return false;
-            }
-            Aggregate other = (Aggregate) obj;
-            return Objects.equals(name, other.name) && size == other.size;
         }
     }
 

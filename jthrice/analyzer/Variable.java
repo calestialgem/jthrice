@@ -6,7 +6,7 @@ package jthrice.analyzer;
 import jthrice.lexer.Identifier;
 
 /** Chunk of memory with a type. */
-public final class Variable extends Entity {
+public final class Variable extends Semantic {
     /** Name of the variable. */
     public final Identifier name;
     /** Type of the variable. */

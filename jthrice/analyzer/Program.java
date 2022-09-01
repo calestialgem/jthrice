@@ -6,7 +6,7 @@ package jthrice.analyzer;
 import java.util.Arrays;
 
 /** Semantic representation of a Thrice program. */
-public final class Program extends Entity {
+public final class Program extends Semantic {
     /** Statements in the program. */
     private final Statement[] statements;
 

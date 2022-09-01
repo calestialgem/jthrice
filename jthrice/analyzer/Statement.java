@@ -4,7 +4,7 @@
 package jthrice.analyzer;
 
 /** Directive to the computer. */
-public sealed abstract class Statement extends Entity permits Statement.Definition {
+public sealed abstract class Statement extends Semantic permits Statement.Definition {
     /** Definition of a variable. */
     public static final class Definition extends Statement {
         /** Defined variable. */

@@ -8,7 +8,7 @@ import jthrice.lexer.Token;
 
 /** Directives to the computer that lead to a value. */
 public sealed abstract class Expression
-        extends Entity permits Expression.Literal, Expression.Reference, Expression.Unary, Expression.Binary {
+        extends Semantic permits Expression.Literal, Expression.Reference, Expression.Unary, Expression.Binary {
     /** Immediate value. */
     public static final class Literal extends Expression {
         /** Value. */
