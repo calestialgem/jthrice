@@ -5,11 +5,9 @@ package jthrice.launcher;
 
 import java.io.IOException;
 import java.nio.file.Path;
-import java.util.Optional;
 
 import jthrice.generator.Generator;
 import jthrice.parser.Parser;
-import jthrice.parser.Syntatic;
 
 /** Launches the compiler. */
 public class Launcher {
@@ -18,7 +16,7 @@ public class Launcher {
         System.out.print("Java Version: ");
         System.out.println(System.getProperty("java.version"));
         System.out.println("Running with arguments:");
-        for (int i = 0; i < arguments.length; i++) {
+        for (var i = 0; i < arguments.length; i++) {
             System.out.printf("[%d] %s%n", i, arguments[i]);
         }
         System.out.println();
@@ -26,8 +24,8 @@ public class Launcher {
         if (arguments.length < 1) {
             System.out.println("Provide a Thrice file!");
         }
-        Path build = Path.of("build");
-        for (String argument : arguments) {
+        var build = Path.of("build");
+        for (var argument : arguments) {
             Resolution resolution = null;
             try {
                 resolution = new Resolution(new Source(argument));
@@ -37,7 +35,7 @@ public class Launcher {
                 continue;
             }
             // Generator.generate(resolution, build);
-            Optional<Syntatic.Source> parse = Parser.parse(resolution);
+            var parse = Parser.parse(resolution);
             if (parse.isPresent()) {
                 System.out.println(parse.get());
             }
