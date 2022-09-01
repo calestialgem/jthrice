@@ -13,7 +13,7 @@ import jthrice.launcher.Resolution;
 public class Lexer {
     /** Lex the source in the given resolution. */
     public static Token[] lex(Resolution resolution) {
-        Lexer lexer = new Lexer(resolution);
+        var lexer = new Lexer(resolution);
         while (lexer.has()) {
             lexer.lex();
         }
@@ -44,7 +44,7 @@ public class Lexer {
         if (current.isEmpty()) {
             return;
         }
-        Optional<Token> token = Token.of(current.get());
+        var token = Token.of(current.get());
         if (token.isPresent()) {
             tokens.add(token.get());
             current = token.get().portion.last.next();

@@ -61,7 +61,7 @@ public class Portion {
     /** Print the line the portion is in with the portion underlined. */
     private void underlineSingle(PrintStream out, boolean continues) {
         Bug.check(!multiline(), "Portion is not contained in a single line!");
-        Portion line = Portion.ofLine(first);
+        var line = Portion.ofLine(first);
         out.printf("%8d | %s%n", line.first.line, line);
         out.printf("%11s", continues ? "... |" : "");
         for (int i = 1; i <= last.column; i++) {

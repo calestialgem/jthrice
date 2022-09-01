@@ -36,10 +36,10 @@ public class Location {
         Bug.check(source.contents.charAt(index) != '\n', "The character is a new line!");
         this.source = source;
         this.index = index;
-        int line = 1;
-        int column = 1;
-        for (int i = 0; i < index; i++) {
-            char c = source.contents.charAt(i);
+        var line = 1;
+        var column = 1;
+        for (var i = 0; i < index; i++) {
+            var c = source.contents.charAt(i);
             if (c == '\n') {
                 line++;
                 column = 1;
@@ -57,9 +57,9 @@ public class Location {
         this.source = source;
         this.line = line;
         this.column = column;
-        int index = 0;
+        var index = 0;
         for (; index < source.contents.length(); index++) {
-            char c = source.contents.charAt(index);
+            var c = source.contents.charAt(index);
             if (c == '\n') {
                 line--;
                 continue;
@@ -83,7 +83,7 @@ public class Location {
 
     /** End of the line this location is in. */
     public Location end() {
-        int index = this.index;
+        var index = this.index;
         while (index < source.contents.length() && source.contents.charAt(index) != '\n') {
             index++;
         }
@@ -97,7 +97,7 @@ public class Location {
 
     /** Location after this one. */
     public Optional<Location> next() {
-        for (int i = index + 1; i < source.contents.length(); i++) {
+        for (var i = index + 1; i < source.contents.length(); i++) {
             if (source.contents.charAt(i) != '\n') {
                 return Optional.of(new Location(source, i));
             }
@@ -107,7 +107,7 @@ public class Location {
 
     /** Location before this one. */
     public Optional<Location> previous() {
-        for (int i = index - 1; i >= 0; i--) {
+        for (var i = index - 1; i >= 0; i--) {
             if (source.contents.charAt(i) != '\n') {
                 return Optional.of(new Location(source, i));
             }

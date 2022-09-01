@@ -12,17 +12,17 @@ import java.util.Optional;
 public sealed abstract class Token permits Token.Mark, Token.Number, Token.Keyword, Token.Identifier {
     /** Token at the given location. */
     public static Optional<Token> of(Location first) {
-        Optional<Token> mark = Mark.of(first);
+        var mark = Mark.of(first);
         if (mark.isPresent()) {
             return mark;
         }
-        Optional<Token> number = Number.of(first);
+        var number = Number.of(first);
         if (number.isPresent()) {
             return number;
         }
-        Optional<Token> identifier = Identifier.of(first);
+        var identifier = Identifier.of(first);
         if (identifier.isPresent()) {
-            Optional<Token> keyword = Keyword.of((Identifier) identifier.get());
+            var keyword = Keyword.of((Identifier) identifier.get());
             if (keyword.isPresent()) {
                 return keyword;
             }
@@ -148,23 +148,23 @@ public sealed abstract class Token permits Token.Mark, Token.Number, Token.Keywo
     public static sealed abstract class Number extends Token permits Number.Integer, Number.Real {
         /** Number at the given location. */
         public static Optional<Token> of(Location first) {
-            final String DIGITS = "0123456789";
-            final BigInteger BASE = BigInteger.valueOf(DIGITS.length());
+            final var DIGITS = "0123456789";
+            final var BASE = BigInteger.valueOf(DIGITS.length());
 
-            Location current = first;
-            int digit = DIGITS.indexOf(current.get());
+            var current = first;
+            var digit = DIGITS.indexOf(current.get());
             if (digit == -1) {
                 return Optional.empty();
             }
 
-            Optional<java.lang.Integer> decimalPlaces = Optional.empty();
-            BigInteger value = BigInteger.valueOf(0);
+            var decimalPlaces = Optional.<java.lang.Integer>empty();
+            var value = BigInteger.valueOf(0);
             while (digit != -1) {
                 value = value.multiply(BASE).add(BigInteger.valueOf(digit));
                 if (decimalPlaces.isPresent()) {
                     decimalPlaces = Optional.of(decimalPlaces.get() + 1);
                 }
-                Optional<Location> next = current.next();
+                var next = current.next();
                 if (next.isEmpty()) {
                     break;
                 }
@@ -183,7 +183,7 @@ public sealed abstract class Token permits Token.Mark, Token.Number, Token.Keywo
                 digit = DIGITS.indexOf(current.get());
             }
 
-            Portion portion = new Portion(first, current.previous().get());
+            var portion = new Portion(first, current.previous().get());
 
             if (decimalPlaces.isEmpty()) {
                 return Optional.of(new Integer(portion, value));
@@ -380,25 +380,25 @@ public sealed abstract class Token permits Token.Mark, Token.Number, Token.Keywo
     public static final class Identifier extends Token {
         /** Identifier at the given location. */
         public static Optional<Token> of(Location first) {
-            Location current = first;
+            var current = first;
             if ((current.get() < 'a' || current.get() > 'z') && (current.get() < 'A' || current.get() > 'Z')
                     && current.get() != '_') {
                 return Optional.empty();
             }
 
-            StringBuilder builder = new StringBuilder();
+            var builder = new StringBuilder();
             while ((current.get() >= '0' && current.get() <= '9') || (current.get() >= 'a' && current.get() <= 'z')
                     || (current.get() >= 'A' && current.get() <= 'Z') || current.get() == '_') {
                 builder.append(current.get());
-                Optional<Location> next = current.next();
+                var next = current.next();
                 if (next.isEmpty()) {
                     break;
                 }
                 current = next.get();
             }
 
-            String value = builder.toString();
-            Portion portion = new Portion(first, current.previous().get());
+            var value = builder.toString();
+            var portion = new Portion(first, current.previous().get());
             return Optional.of(new Identifier(portion, value));
         }
 
