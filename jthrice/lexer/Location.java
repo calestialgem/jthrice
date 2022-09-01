@@ -84,7 +84,7 @@ public class Location {
 
     public Location(Source source, int index, int line, int column) {
         Bug.check(source.exists(index), "Unexisting location!");
-        Bug.check(source.at(index) == '\n', "Invalid source location!");
+        Bug.check(source.at(index) != '\n', "Invalid source location!");
         Bug.check(line >= 1, "Invalid line number!");
         Bug.check(column >= 1, "Invalid column number!");
         this.source = source;
@@ -95,7 +95,7 @@ public class Location {
 
     public Location(Source source, int index) {
         Bug.check(source.exists(index), "Unexisting location!");
-        Bug.check(source.at(index) == '\n', "Invalid source location!");
+        Bug.check(source.at(index) != '\n', "Invalid source location!");
         this.source = source;
         this.index = index;
         var line = 1;
