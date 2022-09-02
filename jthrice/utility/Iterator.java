@@ -6,8 +6,6 @@ package jthrice.utility;
 import java.util.Objects;
 import java.util.Optional;
 
-import jthrice.Bug;
-
 /** Iterator over an immutable list. */
 public class Iterator<Element> {
     /** Iterator over the given list to the given index. */

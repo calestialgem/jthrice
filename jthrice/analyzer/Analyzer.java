@@ -5,10 +5,10 @@ package jthrice.analyzer;
 
 import java.util.ArrayList;
 
-import jthrice.Bug;
 import jthrice.launcher.Resolution;
 import jthrice.parser.Parser;
 import jthrice.parser.Symbol;
+import jthrice.utility.Bug;
 
 /** Analyzes a syntax tree for correctness and optimization. */
 public class Analyzer {

@@ -3,8 +3,8 @@
 
 package jthrice.analyzer;
 
-import jthrice.Bug;
 import jthrice.lexer.Token;
+import jthrice.utility.Bug;
 
 /** Directives to the computer that lead to a value. */
 public sealed abstract class Expression

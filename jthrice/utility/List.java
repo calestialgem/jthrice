@@ -7,8 +7,6 @@ import java.util.ArrayList;
 import java.util.Objects;
 import java.util.function.Consumer;
 
-import jthrice.Bug;
-
 /** Immutable list. */
 public class List<Element> {
     /** Immutable copy of the given list. */

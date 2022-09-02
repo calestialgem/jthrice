@@ -8,7 +8,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Objects;
 
-import jthrice.Bug;
+import jthrice.utility.Bug;
 
 /** A UTF-8 source file. */
 public class Source {

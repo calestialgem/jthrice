@@ -3,8 +3,8 @@
 
 package jthrice.launcher;
 
-import jthrice.Bug;
 import jthrice.lexer.Portion;
+import jthrice.utility.Bug;
 
 /** Resolution of a source file. */
 public class Resolution {

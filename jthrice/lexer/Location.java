@@ -6,8 +6,8 @@ package jthrice.lexer;
 import java.util.Objects;
 import java.util.Optional;
 
-import jthrice.Bug;
 import jthrice.launcher.Source;
+import jthrice.utility.Bug;
 
 /** Location of a character in a source. */
 public class Location {

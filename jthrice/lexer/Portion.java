@@ -6,8 +6,8 @@ package jthrice.lexer;
 import java.io.PrintStream;
 import java.util.Objects;
 
-import jthrice.Bug;
 import jthrice.launcher.Source;
+import jthrice.utility.Bug;
 
 /** Portion of a string. */
 public class Portion {

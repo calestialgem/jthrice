@@ -7,10 +7,10 @@ import java.util.ArrayList;
 import java.util.Optional;
 import java.util.function.Supplier;
 
-import jthrice.Bug;
 import jthrice.launcher.Resolution;
 import jthrice.lexer.Lexer;
 import jthrice.lexer.Token;
+import jthrice.utility.Bug;
 import jthrice.utility.Iterator;
 import jthrice.utility.List;
 
@@ -58,7 +58,7 @@ public class Parser {
         return token;
     }
 
-    /** Parse a source file. */
+    /** Parse the token list. */
     private Optional<Syntatic.Source> parse() {
         Bug.check(cursor.isPresent(), "There is no EOF!");
         var statements = new ArrayList<Syntatic.Statement>();
