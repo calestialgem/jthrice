@@ -3,104 +3,114 @@
 
 package jthrice.utility;
 
-import java.util.Objects;
-
-/** Type of possible early return from a function. */
-public sealed abstract class Result<Return> permits Result.Ok<Return>, Result.Error<Return> {
-    /** Of correct return. */
-    public static <Return> Result<Return> ofOk(Return value) {
-        return new Ok<Return>(value);
+/** Result of an algorithm, which can be valid, invalid or unexisting. */
+public sealed abstract class Result<Return> permits Result.Valid<Return>, Result.Invalid<Return>, Result.Unexisting<Return> {
+    /** Valid result. */
+    public static <Return> Result<Return> of(Return value) {
+        return new Valid<Return>(value);
     }
 
-    /** Of unexisting return value. */
-    public static <Return> Result<Return> ofUnexisting() {
-        return new Error<Return>(Reason.UNEXISTING);
-    }
-
-    /** Of invalid return value. */
+    /** Invalid result. */
     public static <Return> Result<Return> ofInvalid() {
-        return new Error<Return>(Reason.INVALID);
+        return new Invalid<Return>();
     }
 
-    /** Correct return from a function. */
-    public static final class Ok<Return> extends Result<Return> {
-        /** Returned value. */
+    /** Unexisting result. */
+    public static <Return> Result<Return> ofUnexisting() {
+        return new Unexisting<Return>();
+    }
+
+    /** Result of finishing successfully. */
+    public static final class Valid<Return> extends Result<Return> {
+        /** Return value. */
         public final Return value;
 
-        public Ok(Return value) {
+        public Valid(Return value) {
             this.value = value;
         }
 
         @Override
-        public boolean ok() {
+        public boolean valid() {
             return true;
+        }
+
+        @Override
+        public boolean invalid() {
+            return false;
+        }
+
+        @Override
+        public boolean unexisting() {
+            return false;
         }
 
         @Override
         public Return get() {
             return value;
         }
-
-        @Override
-        public int hashCode() {
-            return Objects.hash(value);
-        }
-
-        @Override
-        @SuppressWarnings("rawtypes")
-        public boolean equals(Object obj) {
-            if (this == obj) {
-                return true;
-            }
-            if (!(obj instanceof Ok)) {
-                return false;
-            }
-            Ok other = (Ok) obj;
-            return Objects.equals(value, other.value);
-        }
     }
 
-    /** Early return from a function. */
-    public static final class Error<Return> extends Result<Return> {
-        /** Reason of early return. */
-        public final Reason reason;
-
-        public Error(Reason reason) {
-            this.reason = reason;
+    /** Result of retuning half way because the input data is wrong. */
+    public static final class Invalid<Return> extends Result<Return> {
+        @Override
+        public boolean valid() {
+            return false;
         }
 
         @Override
-        public boolean ok() {
+        public boolean invalid() {
+            return true;
+        }
+
+        @Override
+        public boolean unexisting() {
             return false;
         }
 
         @Override
         public Return get() {
-            Bug.unreachable("Asking an unexisting or invalid return value.");
+            Bug.unreachable("Invalid!");
             return null;
-        }
-
-        @Override
-        public int hashCode() {
-            return Objects.hash(reason);
-        }
-
-        @Override
-        @SuppressWarnings("rawtypes")
-        public boolean equals(Object obj) {
-            if (this == obj) {
-                return true;
-            }
-            if (!(obj instanceof Error)) {
-                return false;
-            }
-            Error other = (Error) obj;
-            return reason == other.reason;
         }
     }
 
-    /** Whether the return value is ok. */
-    public abstract boolean ok();
+    /** Result of returning in the begining because the data is not there. */
+    public static final class Unexisting<Return> extends Result<Return> {
+        @Override
+        public boolean valid() {
+            return false;
+        }
+
+        @Override
+        public boolean invalid() {
+            return false;
+        }
+
+        @Override
+        public boolean unexisting() {
+            return true;
+        }
+
+        @Override
+        public Return get() {
+            Bug.unreachable("Unexisting!");
+            return null;
+        }
+    }
+
+    /** Wheter the return value is valid. */
+    public abstract boolean valid();
+
+    /** Whether the return value is invalid. */
+    public abstract boolean invalid();
+
+    /** Whether the return value is unexisting. */
+    public abstract boolean unexisting();
+
+    /** Whether there is a valid return value. */
+    public boolean empty() {
+        return !valid();
+    }
 
     /** Return value. */
     public abstract Return get();
