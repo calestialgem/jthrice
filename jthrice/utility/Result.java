@@ -20,6 +20,18 @@ public sealed abstract class Result<Return> permits Result.Valid<Return>, Result
         return new Unexisting<Return>();
     }
 
+    /** The first existing result from the given ones. */
+    @SafeVarargs
+    public static <Return> Result<Return> or(Result<Return>... results) {
+        Bug.check(results.length >= 1, "There must be atleast one result!");
+        for (var result : results) {
+            if (result.exists()) {
+                return result;
+            }
+        }
+        return ofUnexisting();
+    }
+
     /** Result of finishing successfully. */
     public static final class Valid<Return> extends Result<Return> {
         /** Return value. */
@@ -107,9 +119,14 @@ public sealed abstract class Result<Return> permits Result.Valid<Return>, Result
     /** Whether the return value is unexisting. */
     public abstract boolean unexisting();
 
-    /** Whether there is a valid return value. */
+    /** Whether there is not a valid return value. */
     public boolean empty() {
         return !valid();
+    }
+
+    /** Whether there is a resolution valid or not. */
+    public boolean exists() {
+        return !unexisting();
     }
 
     /** Return value. */

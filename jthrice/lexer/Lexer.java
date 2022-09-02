@@ -6,12 +6,12 @@ package jthrice.lexer;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.ArrayList;
-import java.util.Optional;
 
 import jthrice.launcher.Resolution;
 import jthrice.launcher.Source;
 import jthrice.utility.Bug;
 import jthrice.utility.List;
+import jthrice.utility.Result;
 
 /** Lexes a source to a list of tokens. */
 public class Lexer {
@@ -24,7 +24,7 @@ public class Lexer {
     /** Resolution of the lexed source. */
     private final Resolution resolution;
     /** Current source location to be lexed. */
-    private Optional<Location> cursor;
+    private Result<Location> cursor;
 
     private Lexer(Resolution resolution) {
         this.resolution = resolution;
@@ -46,7 +46,7 @@ public class Lexer {
      * character if it is.
      */
     private boolean consume(char... set) {
-        if (cursor.isEmpty()) {
+        if (cursor.empty()) {
             return false;
         }
         for (var element : set) {
@@ -61,12 +61,12 @@ public class Lexer {
     /** Lex the source file. */
     private List<Token> lex() {
         var tokens = new ArrayList<Token>();
-        while (cursor.isPresent()) {
+        while (cursor.valid()) {
             if (consume('\t', ' ')) {
                 continue;
             }
-            var token = Optional.<Token>empty().or(this::lexMark).or(this::lexNumber).or(this::lexWord);
-            if (token.isPresent()) {
+            var token = Result.or(lexMark(), lexNumber(), lexWord());
+            if (token.valid()) {
                 tokens.add(token.get());
                 continue;
             }
@@ -80,29 +80,29 @@ public class Lexer {
     }
 
     /** Lex a mark. */
-    private Optional<Token> lexMark() {
-        if (cursor.isEmpty()) {
-            return Optional.empty();
+    private Result<Token> lexMark() {
+        if (cursor.empty()) {
+            return Result.ofUnexisting();
         }
         Location first = cursor.get();
         return switch (first.get()) {
-            case '+' -> Optional.of(new Token.Mark.Plus(new Portion(first, first)));
-            case '-' -> Optional.of(new Token.Mark.Minus(new Portion(first, first)));
-            case '*' -> Optional.of(new Token.Mark.Star(new Portion(first, first)));
-            case '/' -> Optional.of(new Token.Mark.ForwardSlash(new Portion(first, first)));
-            case '%' -> Optional.of(new Token.Mark.Percent(new Portion(first, first)));
-            case '=' -> Optional.of(new Token.Mark.Equal(new Portion(first, first)));
-            case ':' -> Optional.of(new Token.Mark.Colon(new Portion(first, first)));
-            case ';' -> Optional.of(new Token.Mark.Semicolon(new Portion(first, first)));
-            case '(' -> Optional.of(new Token.Mark.OpeningBracket(new Portion(first, first)));
-            case ')' -> Optional.of(new Token.Mark.ClosingBracket(new Portion(first, first)));
-            case Source.EOF -> Optional.of(new Token.Mark.EOF(new Portion(first, first)));
-            default -> Optional.empty();
+            case '+' -> Result.of(new Token.Mark.Plus(new Portion(first, first)));
+            case '-' -> Result.of(new Token.Mark.Minus(new Portion(first, first)));
+            case '*' -> Result.of(new Token.Mark.Star(new Portion(first, first)));
+            case '/' -> Result.of(new Token.Mark.ForwardSlash(new Portion(first, first)));
+            case '%' -> Result.of(new Token.Mark.Percent(new Portion(first, first)));
+            case '=' -> Result.of(new Token.Mark.Equal(new Portion(first, first)));
+            case ':' -> Result.of(new Token.Mark.Colon(new Portion(first, first)));
+            case ';' -> Result.of(new Token.Mark.Semicolon(new Portion(first, first)));
+            case '(' -> Result.of(new Token.Mark.OpeningBracket(new Portion(first, first)));
+            case ')' -> Result.of(new Token.Mark.ClosingBracket(new Portion(first, first)));
+            case Source.EOF -> Result.of(new Token.Mark.EOF(new Portion(first, first)));
+            default -> Result.ofUnexisting();
         };
     }
 
     /** Lex a number. */
-    private Optional<Token> lexNumber() {
+    private Result<Token> lexNumber() {
         final var DIGITS = "0123456789";
         final var BASE = BigInteger.valueOf(DIGITS.length());
 
@@ -110,29 +110,29 @@ public class Lexer {
         var current = first;
         var digit = DIGITS.indexOf(current.get());
         if (digit == -1) {
-            return Optional.empty();
+            return Result.ofUnexisting();
         }
 
-        var decimalPlaces = Optional.<java.lang.Integer>empty();
+        var decimalPlaces = Result.<java.lang.Integer>empty();
         var value = BigInteger.valueOf(0);
         while (digit != -1) {
             value = value.multiply(BASE).add(BigInteger.valueOf(digit));
-            if (decimalPlaces.isPresent()) {
-                decimalPlaces = Optional.of(decimalPlaces.get() + 1);
+            if (decimalPlaces.valid()) {
+                decimalPlaces = Result.of(decimalPlaces.get() + 1);
             }
             var next = current.next();
-            if (next.isEmpty()) {
+            if (next.empty()) {
                 break;
             }
             current = next.get();
             if (current.get() == '.') {
-                if (decimalPlaces.isPresent()) {
-                    return Optional.empty();
+                if (decimalPlaces.valid()) {
+                    return Result.ofUnexisting();
                 }
-                decimalPlaces = Optional.of(0);
+                decimalPlaces = Result.of(0);
                 next = current.next();
-                if (next.isEmpty()) {
-                    return Optional.empty();
+                if (next.empty()) {
+                    return Result.ofUnexisting();
                 }
                 current = next.get();
             }
@@ -141,17 +141,17 @@ public class Lexer {
 
         var portion = new Portion(first, current.previous().get());
 
-        if (decimalPlaces.isEmpty()) {
-            return Optional.of(new Token.Number.Integer(portion, value));
+        if (decimalPlaces.empty()) {
+            return Result.of(new Token.Number.Integer(portion, value));
         }
         if (decimalPlaces.get() == 0) {
-            return Optional.empty();
+            return Result.ofUnexisting();
         }
-        return Optional.of(new Token.Number.Real(portion, new BigDecimal(value, decimalPlaces.get())));
+        return Result.of(new Token.Number.Real(portion, new BigDecimal(value, decimalPlaces.get())));
     }
 
     /** Lex a keyword or identifier. */
-    private Optional<Token> lexWord() {
-        return Optional.empty();
+    private Result<Token> lexWord() {
+        return Result.ofUnexisting();
     }
 }

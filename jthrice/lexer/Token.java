@@ -6,49 +6,50 @@ package jthrice.lexer;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.Objects;
-import java.util.Optional;
+
+import jthrice.utility.Result;
 
 /** Smallest meaningful group of characters in a source. */
 public sealed abstract class Token permits Token.Mark, Token.Number, Token.Keyword, Token.Identifier {
     /** Token at the given location. */
-    public static Optional<Token> of(Location first) {
+    public static Result<Token> of(Location first) {
         var mark = Mark.of(first);
-        if (mark.isPresent()) {
+        if (mark.valid()) {
             return mark;
         }
         var number = Number.of(first);
-        if (number.isPresent()) {
+        if (number.valid()) {
             return number;
         }
         var identifier = Identifier.of(first);
-        if (identifier.isPresent()) {
+        if (identifier.valid()) {
             var keyword = Keyword.of((Identifier) identifier.get());
-            if (keyword.isPresent()) {
+            if (keyword.valid()) {
                 return keyword;
             }
             return identifier;
         }
-        return Optional.empty();
+        return Result.ofUnexisting();
     }
 
     /** Non-alphanumeric tokens. */
     public static sealed abstract class Mark extends
             Token permits Mark.Plus, Mark.Minus, Mark.Star, Mark.ForwardSlash, Mark.Percent, Mark.Equal, Mark.Colon, Mark.Semicolon, Mark.OpeningBracket, Mark.ClosingBracket, Mark.EOF {
         /** Mark at the given location. */
-        public static Optional<Token> of(Location first) {
+        public static Result<Token> of(Location first) {
             return switch (first.get()) {
-                case '+' -> Optional.of(new Plus(new Portion(first, first)));
-                case '-' -> Optional.of(new Minus(new Portion(first, first)));
-                case '*' -> Optional.of(new Star(new Portion(first, first)));
-                case '/' -> Optional.of(new ForwardSlash(new Portion(first, first)));
-                case '%' -> Optional.of(new Percent(new Portion(first, first)));
-                case '=' -> Optional.of(new Equal(new Portion(first, first)));
-                case ':' -> Optional.of(new Colon(new Portion(first, first)));
-                case ';' -> Optional.of(new Semicolon(new Portion(first, first)));
-                case '(' -> Optional.of(new OpeningBracket(new Portion(first, first)));
-                case ')' -> Optional.of(new ClosingBracket(new Portion(first, first)));
-                case 0 -> Optional.of(new EOF(new Portion(first, first)));
-                default -> Optional.empty();
+                case '+' -> Result.of(new Plus(new Portion(first, first)));
+                case '-' -> Result.of(new Minus(new Portion(first, first)));
+                case '*' -> Result.of(new Star(new Portion(first, first)));
+                case '/' -> Result.of(new ForwardSlash(new Portion(first, first)));
+                case '%' -> Result.of(new Percent(new Portion(first, first)));
+                case '=' -> Result.of(new Equal(new Portion(first, first)));
+                case ':' -> Result.of(new Colon(new Portion(first, first)));
+                case ';' -> Result.of(new Semicolon(new Portion(first, first)));
+                case '(' -> Result.of(new OpeningBracket(new Portion(first, first)));
+                case ')' -> Result.of(new ClosingBracket(new Portion(first, first)));
+                case 0 -> Result.of(new EOF(new Portion(first, first)));
+                default -> Result.ofUnexisting();
             };
         }
 
@@ -147,36 +148,36 @@ public sealed abstract class Token permits Token.Mark, Token.Number, Token.Keywo
     /** Number literal. */
     public static sealed abstract class Number extends Token permits Number.Integer, Number.Real {
         /** Number at the given location. */
-        public static Optional<Token> of(Location first) {
+        public static Result<Token> of(Location first) {
             final var DIGITS = "0123456789";
             final var BASE = BigInteger.valueOf(DIGITS.length());
 
             var current = first;
             var digit = DIGITS.indexOf(current.get());
             if (digit == -1) {
-                return Optional.empty();
+                return Result.ofUnexisting();
             }
 
-            var decimalPlaces = Optional.<java.lang.Integer>empty();
+            var decimalPlaces = Result.<java.lang.Integer>ofUnexisting();
             var value = BigInteger.valueOf(0);
             while (digit != -1) {
                 value = value.multiply(BASE).add(BigInteger.valueOf(digit));
-                if (decimalPlaces.isPresent()) {
-                    decimalPlaces = Optional.of(decimalPlaces.get() + 1);
+                if (decimalPlaces.valid()) {
+                    decimalPlaces = Result.of(decimalPlaces.get() + 1);
                 }
                 var next = current.next();
-                if (next.isEmpty()) {
+                if (next.empty()) {
                     break;
                 }
                 current = next.get();
                 if (current.get() == '.') {
-                    if (decimalPlaces.isPresent()) {
-                        return Optional.empty();
+                    if (decimalPlaces.valid()) {
+                        return Result.ofUnexisting();
                     }
-                    decimalPlaces = Optional.of(0);
+                    decimalPlaces = Result.of(0);
                     next = current.next();
-                    if (next.isEmpty()) {
-                        return Optional.empty();
+                    if (next.empty()) {
+                        return Result.ofUnexisting();
                     }
                     current = next.get();
                 }
@@ -185,13 +186,13 @@ public sealed abstract class Token permits Token.Mark, Token.Number, Token.Keywo
 
             var portion = new Portion(first, current.previous().get());
 
-            if (decimalPlaces.isEmpty()) {
-                return Optional.of(new Integer(portion, value));
+            if (decimalPlaces.empty()) {
+                return Result.of(new Integer(portion, value));
             }
             if (decimalPlaces.get() == 0) {
-                return Optional.empty();
+                return Result.ofUnexisting();
             }
-            return Optional.of(new Real(portion, new BigDecimal(value, decimalPlaces.get())));
+            return Result.of(new Real(portion, new BigDecimal(value, decimalPlaces.get())));
         }
 
         /** Integer literal. */
@@ -259,21 +260,21 @@ public sealed abstract class Token permits Token.Mark, Token.Number, Token.Keywo
     public static sealed abstract class Keyword extends
             Token permits Keyword.I1, Keyword.I2, Keyword.I4, Keyword.I8, Keyword.IX, Keyword.U1, Keyword.U2, Keyword.U4, Keyword.U8, Keyword.UX, Keyword.F4, Keyword.F8 {
         /** Keyword from the identifier. */
-        public static Optional<Token> of(Identifier identifier) {
+        public static Result<Token> of(Identifier identifier) {
             return switch (identifier.value) {
-                case "i1" -> Optional.of(new I1(identifier.portion));
-                case "i2" -> Optional.of(new I2(identifier.portion));
-                case "i4" -> Optional.of(new I4(identifier.portion));
-                case "i8" -> Optional.of(new I8(identifier.portion));
-                case "ix" -> Optional.of(new IX(identifier.portion));
-                case "u1" -> Optional.of(new U1(identifier.portion));
-                case "u2" -> Optional.of(new U2(identifier.portion));
-                case "u4" -> Optional.of(new U4(identifier.portion));
-                case "u8" -> Optional.of(new U8(identifier.portion));
-                case "ux" -> Optional.of(new UX(identifier.portion));
-                case "f4" -> Optional.of(new F4(identifier.portion));
-                case "f8" -> Optional.of(new F8(identifier.portion));
-                default -> Optional.empty();
+                case "i1" -> Result.of(new I1(identifier.portion));
+                case "i2" -> Result.of(new I2(identifier.portion));
+                case "i4" -> Result.of(new I4(identifier.portion));
+                case "i8" -> Result.of(new I8(identifier.portion));
+                case "ix" -> Result.of(new IX(identifier.portion));
+                case "u1" -> Result.of(new U1(identifier.portion));
+                case "u2" -> Result.of(new U2(identifier.portion));
+                case "u4" -> Result.of(new U4(identifier.portion));
+                case "u8" -> Result.of(new U8(identifier.portion));
+                case "ux" -> Result.of(new UX(identifier.portion));
+                case "f4" -> Result.of(new F4(identifier.portion));
+                case "f8" -> Result.of(new F8(identifier.portion));
+                default -> Result.ofUnexisting();
             };
         }
 
@@ -379,11 +380,11 @@ public sealed abstract class Token permits Token.Mark, Token.Number, Token.Keywo
     /** Symbol name in definition or reference. */
     public static final class Identifier extends Token {
         /** Identifier at the given location. */
-        public static Optional<Token> of(Location first) {
+        public static Result<Token> of(Location first) {
             var current = first;
             if ((current.get() < 'a' || current.get() > 'z') && (current.get() < 'A' || current.get() > 'Z')
                     && current.get() != '_') {
-                return Optional.empty();
+                return Result.ofUnexisting();
             }
 
             var builder = new StringBuilder();
@@ -391,7 +392,7 @@ public sealed abstract class Token permits Token.Mark, Token.Number, Token.Keywo
                     || (current.get() >= 'A' && current.get() <= 'Z') || current.get() == '_') {
                 builder.append(current.get());
                 var next = current.next();
-                if (next.isEmpty()) {
+                if (next.empty()) {
                     break;
                 }
                 current = next.get();
@@ -399,7 +400,7 @@ public sealed abstract class Token permits Token.Mark, Token.Number, Token.Keywo
 
             var value = builder.toString();
             var portion = new Portion(first, current.previous().get());
-            return Optional.of(new Identifier(portion, value));
+            return Result.of(new Identifier(portion, value));
         }
 
         /** Value of the identifier. */

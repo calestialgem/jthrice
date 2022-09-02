@@ -4,23 +4,23 @@
 package jthrice.lexer;
 
 import java.util.Objects;
-import java.util.Optional;
 
 import jthrice.launcher.Source;
 import jthrice.utility.Bug;
+import jthrice.utility.Result;
 
 /** Location of a character in a source. */
 public class Location {
     /** Location from the given source at the given index. */
-    public static Optional<Location> of(Source source, int index) {
+    public static Result<Location> of(Source source, int index) {
         if (source.exists(index) && source.at(index) != '\n') {
-            return Optional.of(new Location(source, index));
+            return Result.of(new Location(source, index));
         }
-        return Optional.empty();
+        return Result.ofUnexisting();
     }
 
     /** Location from the given source at the given line and column. */
-    public static Optional<Location> of(Source source, int line, int column) {
+    public static Result<Location> of(Source source, int line, int column) {
         if (line >= 1 && column >= 1) {
             var index = 0;
             for (; index < source.size(); index++) {
@@ -31,45 +31,45 @@ public class Location {
                 if (line == 1) {
                     column--;
                     if (column == 0) {
-                        return Optional.of(new Location(source, index, line, column));
+                        return Result.of(new Location(source, index, line, column));
                     }
                 }
             }
         }
-        return Optional.empty();
+        return Result.ofUnexisting();
     }
 
     /** First location in the given source starting at the given index. */
-    public static Optional<Location> ofFirst(Source source, int start) {
+    public static Result<Location> ofFirst(Source source, int start) {
         if (start >= 0) {
             for (int i = start; i < source.size(); i++) {
                 if (source.at(i) != '\n') {
-                    return Optional.of(new Location(source, i));
+                    return Result.of(new Location(source, i));
                 }
             }
         }
-        return Optional.empty();
+        return Result.ofUnexisting();
     }
 
     /** Last location in the given source ending at the given index. */
-    public static Optional<Location> ofLast(Source source, int end) {
+    public static Result<Location> ofLast(Source source, int end) {
         if (end < source.size()) {
             for (int i = end; i >= 0; i--) {
                 if (source.at(i) != '\n') {
-                    return Optional.of(new Location(source, i));
+                    return Result.of(new Location(source, i));
                 }
             }
         }
-        return Optional.empty();
+        return Result.ofUnexisting();
     }
 
     /** First location in the source. */
-    public static Optional<Location> ofFirst(Source source) {
+    public static Result<Location> ofFirst(Source source) {
         return ofFirst(source, 0);
     }
 
     /** Last location in the source. */
-    public static Optional<Location> ofLast(Source source) {
+    public static Result<Location> ofLast(Source source) {
         return ofLast(source, source.size() - 1);
     }
 
@@ -134,12 +134,12 @@ public class Location {
     }
 
     /** Location after this one. */
-    public Optional<Location> next() {
+    public Result<Location> next() {
         return ofFirst(source, index + 1);
     }
 
     /** Location before this one. */
-    public Optional<Location> previous() {
+    public Result<Location> previous() {
         return ofLast(source, index - 1);
     }
 
