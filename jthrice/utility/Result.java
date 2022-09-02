@@ -3,6 +3,8 @@
 
 package jthrice.utility;
 
+import java.util.Objects;
+
 /** Result of an algorithm, which can be valid, invalid or unexisting. */
 public sealed abstract class Result<Return> permits Result.Valid<Return>, Result.Invalid<Return>, Result.Unexisting<Return> {
     /** Valid result. */
@@ -59,6 +61,30 @@ public sealed abstract class Result<Return> permits Result.Valid<Return>, Result
         @Override
         public Return get() {
             return value;
+        }
+
+        @Override
+        public int hashCode() {
+            final int prime = 31;
+            int result = super.hashCode();
+            result = prime * result + Objects.hash(value);
+            return result;
+        }
+
+        @Override
+        @SuppressWarnings("rawtypes")
+        public boolean equals(Object obj) {
+            if (this == obj) {
+                return true;
+            }
+            if (!super.equals(obj)) {
+                return false;
+            }
+            if (!(obj instanceof Valid)) {
+                return false;
+            }
+            Valid other = (Valid) obj;
+            return Objects.equals(value, other.value);
         }
     }
 
@@ -131,4 +157,14 @@ public sealed abstract class Result<Return> permits Result.Valid<Return>, Result
 
     /** Return value. */
     public abstract Return get();
+
+    @Override
+    public int hashCode() {
+        return getClass().hashCode();
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        return getClass().equals(obj.getClass());
+    }
 }
