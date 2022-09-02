@@ -5,9 +5,9 @@ package jthrice.parser;
 
 import java.util.Objects;
 
-import jthrice.lexer.Token;
-import jthrice.lexer.Token.Mark.ClosingBracket;
-import jthrice.lexer.Token.Mark.OpeningBracket;
+import jthrice.lexer.Lexeme;
+import jthrice.lexer.Lexeme.Mark.ClosingBracket;
+import jthrice.lexer.Lexeme.Mark.OpeningBracket;
 import jthrice.utility.List;
 
 /** Syntatic entities; hierarchical collection of tokens. */
@@ -17,9 +17,9 @@ public sealed abstract class Syntatic permits Syntatic.Source, Syntatic.Statemen
         /** Statements under the source file. */
         public final List<Statement> statements;
         /** End of the file. */
-        public final Token.Mark.EOF eof;
+        public final Lexeme.Mark.EOF eof;
 
-        public Source(List<Statement> statements, Token.Mark.EOF eof) {
+        public Source(List<Statement> statements, Lexeme.Mark.EOF eof) {
             this.statements = statements;
             this.eof = eof;
         }
@@ -54,21 +54,21 @@ public sealed abstract class Syntatic permits Syntatic.Source, Syntatic.Statemen
         /** Creation of a variable. */
         public static final class Definition extends Statement {
             /** Name of the defined variable. */
-            public final Token.Identifier name;
+            public final Lexeme.Identifier name;
             /** Separator of name and type. */
-            public final Token.Mark.Colon separator;
+            public final Lexeme.Mark.Colon separator;
             /** Type expression. */
             public final Expression type;
             /** Assignment operator. */
-            public final Token.Mark.Equal assignment;
+            public final Lexeme.Mark.Equal assignment;
             /** Value expression. */
             public final Expression value;
             /** End of the statement. */
-            public final Token.Mark.Semicolon end;
+            public final Lexeme.Mark.Semicolon end;
 
-            public Definition(Token.Identifier name, Token.Mark.Colon separator, Expression type,
-                    Token.Mark.Equal assignment, Expression value,
-                    Token.Mark.Semicolon end) {
+            public Definition(Lexeme.Identifier name, Lexeme.Mark.Colon separator, Expression type,
+                    Lexeme.Mark.Equal assignment, Expression value,
+                    Lexeme.Mark.Semicolon end) {
                 this.name = name;
                 this.separator = separator;
                 this.type = type;
@@ -111,9 +111,9 @@ public sealed abstract class Syntatic permits Syntatic.Source, Syntatic.Statemen
             /** Hard coded value. */
             public static final class Literal extends Primary {
                 /** Token that carries the value. */
-                public final Token value;
+                public final Lexeme value;
 
-                public Literal(Token value) {
+                public Literal(Lexeme value) {
                     this.value = value;
                 }
 
@@ -143,9 +143,9 @@ public sealed abstract class Syntatic permits Syntatic.Source, Syntatic.Statemen
             /** Value of a variable. */
             public static final class Access extends Primary {
                 /** Name of the accessed variable. */
-                public final Token.Identifier name;
+                public final Lexeme.Identifier name;
 
-                public Access(Token.Identifier name) {
+                public Access(Lexeme.Identifier name) {
                     this.name = name;
                 }
 
@@ -178,9 +178,9 @@ public sealed abstract class Syntatic permits Syntatic.Source, Syntatic.Statemen
             /** Expression that is elevated. */
             public final Expression elevated;
             /** Start of the group. */
-            public final Token.Mark.OpeningBracket opening;
+            public final Lexeme.Mark.OpeningBracket opening;
             /** End of the group. */
-            public final Token.Mark.ClosingBracket closing;
+            public final Lexeme.Mark.ClosingBracket closing;
 
             public Group(Expression elevated, OpeningBracket opening, ClosingBracket closing) {
                 this.elevated = elevated;
@@ -215,11 +215,11 @@ public sealed abstract class Syntatic permits Syntatic.Source, Syntatic.Statemen
         /** Operation on an expression. */
         public static final class Unary extends Expression {
             /** Operator. */
-            public final Token.Mark operator;
+            public final Lexeme.Mark operator;
             /** Operand. */
             public final Expression operand;
 
-            public Unary(Token.Mark operator, Expression operand) {
+            public Unary(Lexeme.Mark operator, Expression operand) {
                 this.operator = operator;
                 this.operand = operand;
             }
@@ -250,13 +250,13 @@ public sealed abstract class Syntatic permits Syntatic.Source, Syntatic.Statemen
         /** Operation on two expressions. */
         public static final class Binary extends Expression {
             /** Operator. */
-            public final Token.Mark operator;
+            public final Lexeme.Mark operator;
             /** Left operand. */
             public final Expression left;
             /** Right operand. */
             public final Expression right;
 
-            public Binary(Token.Mark operator, Expression left, Expression right) {
+            public Binary(Lexeme.Mark operator, Expression left, Expression right) {
                 this.operator = operator;
                 this.left = left;
                 this.right = right;

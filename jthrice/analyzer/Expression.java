@@ -3,7 +3,7 @@
 
 package jthrice.analyzer;
 
-import jthrice.lexer.Token;
+import jthrice.lexer.Lexeme;
 import jthrice.utility.Bug;
 
 /** Directives to the computer that lead to a value. */
@@ -12,9 +12,9 @@ public sealed abstract class Expression
     /** Immediate value. */
     public static final class Literal extends Expression {
         /** Value. */
-        public final Token value;
+        public final Lexeme value;
 
-        public Literal(Type type, Token value) {
+        public Literal(Type type, Lexeme value) {
             super(type);
             this.value = value;
         }
@@ -34,11 +34,11 @@ public sealed abstract class Expression
     /** Value from operating on an expression. */
     public static final class Unary extends Expression {
         /** Operator. */
-        public final Token operator;
+        public final Lexeme operator;
         /** Operand. */
         public final Expression operand;
 
-        public Unary(Token operator, Expression operand) {
+        public Unary(Lexeme operator, Expression operand) {
             super(operand.type);
             this.operator = operator;
             this.operand = operand;
@@ -48,13 +48,13 @@ public sealed abstract class Expression
     /** Value from operating on two expressions. */
     public static final class Binary extends Expression {
         /** Operator. */
-        public final Token operator;
+        public final Lexeme operator;
         /** Left operand. */
         public final Expression left;
         /** Right operand. */
         public final Expression right;
 
-        public Binary(Token operator, Expression left, Expression right) {
+        public Binary(Lexeme operator, Expression left, Expression right) {
             super(left.type);
             this.operator = operator;
             this.left = left;

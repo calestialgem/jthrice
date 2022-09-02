@@ -10,9 +10,9 @@ import java.util.Objects;
 import jthrice.utility.Result;
 
 /** Smallest meaningful group of characters in a source. */
-public sealed abstract class Token permits Token.Mark, Token.Number, Token.Keyword, Token.Identifier {
+public sealed abstract class Lexeme permits Lexeme.Mark, Lexeme.Number, Lexeme.Keyword, Lexeme.Identifier {
     /** Token at the given location. */
-    public static Result<Token> of(Location first) {
+    public static Result<Lexeme> of(Location first) {
         var mark = Mark.of(first);
         if (mark.valid()) {
             return mark;
@@ -34,9 +34,9 @@ public sealed abstract class Token permits Token.Mark, Token.Number, Token.Keywo
 
     /** Non-alphanumeric tokens. */
     public static sealed abstract class Mark extends
-            Token permits Mark.Plus, Mark.Minus, Mark.Star, Mark.ForwardSlash, Mark.Percent, Mark.Equal, Mark.Colon, Mark.Semicolon, Mark.OpeningBracket, Mark.ClosingBracket, Mark.EOF {
+            Lexeme permits Mark.Plus, Mark.Minus, Mark.Star, Mark.ForwardSlash, Mark.Percent, Mark.Equal, Mark.Colon, Mark.Semicolon, Mark.OpeningBracket, Mark.ClosingBracket, Mark.EOF {
         /** Mark at the given location. */
-        public static Result<Token> of(Location first) {
+        public static Result<Lexeme> of(Location first) {
             return switch (first.get()) {
                 case '+' -> Result.of(new Plus(new Portion(first, first)));
                 case '-' -> Result.of(new Minus(new Portion(first, first)));
@@ -146,9 +146,9 @@ public sealed abstract class Token permits Token.Mark, Token.Number, Token.Keywo
     }
 
     /** Number literal. */
-    public static sealed abstract class Number extends Token permits Number.Integer, Number.Real {
+    public static sealed abstract class Number extends Lexeme permits Number.Integer, Number.Real {
         /** Number at the given location. */
-        public static Result<Token> of(Location first) {
+        public static Result<Lexeme> of(Location first) {
             final var DIGITS = "0123456789";
             final var BASE = BigInteger.valueOf(DIGITS.length());
 
@@ -258,9 +258,9 @@ public sealed abstract class Token permits Token.Mark, Token.Number, Token.Keywo
 
     /** Reserved identifier. */
     public static sealed abstract class Keyword extends
-            Token permits Keyword.I1, Keyword.I2, Keyword.I4, Keyword.I8, Keyword.IX, Keyword.U1, Keyword.U2, Keyword.U4, Keyword.U8, Keyword.UX, Keyword.F4, Keyword.F8 {
+            Lexeme permits Keyword.I1, Keyword.I2, Keyword.I4, Keyword.I8, Keyword.IX, Keyword.U1, Keyword.U2, Keyword.U4, Keyword.U8, Keyword.UX, Keyword.F4, Keyword.F8 {
         /** Keyword from the identifier. */
-        public static Result<Token> of(Identifier identifier) {
+        public static Result<Lexeme> of(Identifier identifier) {
             return switch (identifier.value) {
                 case "i1" -> Result.of(new I1(identifier.portion));
                 case "i2" -> Result.of(new I2(identifier.portion));
@@ -378,9 +378,9 @@ public sealed abstract class Token permits Token.Mark, Token.Number, Token.Keywo
     }
 
     /** Symbol name in definition or reference. */
-    public static final class Identifier extends Token {
+    public static final class Identifier extends Lexeme {
         /** Identifier at the given location. */
-        public static Result<Token> of(Location first) {
+        public static Result<Lexeme> of(Location first) {
             var current = first;
             if ((current.get() < 'a' || current.get() > 'z') && (current.get() < 'A' || current.get() > 'Z')
                     && current.get() != '_') {
@@ -432,7 +432,7 @@ public sealed abstract class Token permits Token.Mark, Token.Number, Token.Keywo
     /** Portion in the source. */
     public final Portion portion;
 
-    public Token(Portion portion) {
+    public Lexeme(Portion portion) {
         this.portion = portion;
     }
 

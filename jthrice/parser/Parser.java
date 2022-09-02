@@ -8,7 +8,7 @@ import java.util.function.Supplier;
 
 import jthrice.launcher.Resolution;
 import jthrice.lexer.Lexer;
-import jthrice.lexer.Token;
+import jthrice.lexer.Lexeme;
 import jthrice.utility.Bug;
 import jthrice.utility.Iterator;
 import jthrice.utility.List;
@@ -25,9 +25,9 @@ public class Parser {
     /** Resolution of the parsed tokens. */
     private final Resolution resolution;
     /** Current token to be parsed. */
-    private Result<Iterator<Token>> cursor;
+    private Result<Iterator<Lexeme>> cursor;
 
-    private Parser(Resolution resolution, List<Token> tokens) {
+    private Parser(Resolution resolution, List<Lexeme> tokens) {
         this.resolution = resolution;
         cursor = Iterator.ofFirst(tokens);
     }
@@ -47,7 +47,7 @@ public class Parser {
      * the token if its returned.
      */
     @SafeVarargs
-    private <T extends Token> Result<T> consume(Class<? extends T>... types) {
+    private <T extends Lexeme> Result<T> consume(Class<? extends T>... types) {
         if (cursor.empty()) {
             return Result.ofUnexisting();
         }
@@ -70,7 +70,7 @@ public class Parser {
             statements.add(statement.get());
         }
         Bug.check(cursor.valid(), "There is no EOF!");
-        var eof = consume(Token.Mark.EOF.class);
+        var eof = consume(Lexeme.Mark.EOF.class);
         if (eof.empty()) {
             error("Expected the end of the file!");
             return Result.ofUnexisting();
@@ -86,11 +86,11 @@ public class Parser {
 
     /** Parse a definition. */
     private Result<Syntatic.Statement> parseDefinition() {
-        var name = consume(Token.Identifier.class);
+        var name = consume(Lexeme.Identifier.class);
         if (name.empty()) {
             return Result.ofUnexisting();
         }
-        var separator = consume(Token.Mark.Colon.class);
+        var separator = consume(Lexeme.Mark.Colon.class);
         if (separator.empty()) {
             error("Expected a `:` at the definition of `" + name.get().portion + "`!");
             return Result.ofUnexisting();
@@ -100,7 +100,7 @@ public class Parser {
             error("Expected the type at the definition of `" + name.get().portion + "`!");
             return Result.ofUnexisting();
         }
-        var assignment = consume(Token.Mark.Equal.class);
+        var assignment = consume(Lexeme.Mark.Equal.class);
         if (assignment.empty()) {
             error("Expected a `=` at the definition of `" + name.get().portion + "`!");
             return Result.ofUnexisting();
@@ -110,7 +110,7 @@ public class Parser {
             error("Expected the value at the definition of `" + name.get().portion + "`!");
             return Result.ofUnexisting();
         }
-        var end = consume(Token.Mark.Semicolon.class);
+        var end = consume(Lexeme.Mark.Semicolon.class);
         if (end.empty()) {
             error("Expected a `;` at the definition of `" + name.get().portion + "`!");
             return Result.ofUnexisting();
@@ -126,19 +126,19 @@ public class Parser {
 
     /** Parse a term. */
     private Result<Syntatic.Expression> parseTerm() {
-        return parseBinary(this::parseFactor, Token.Mark.Plus.class, Token.Mark.Minus.class);
+        return parseBinary(this::parseFactor, Lexeme.Mark.Plus.class, Lexeme.Mark.Minus.class);
     }
 
     /** Parse a factor. */
     private Result<Syntatic.Expression> parseFactor() {
-        return parseBinary(this::parseUnary, Token.Mark.Star.class, Token.Mark.ForwardSlash.class,
-                Token.Mark.Percent.class);
+        return parseBinary(this::parseUnary, Lexeme.Mark.Star.class, Lexeme.Mark.ForwardSlash.class,
+                Lexeme.Mark.Percent.class);
     }
 
     /** Parse a binary. */
     @SafeVarargs
     private Result<Syntatic.Expression> parseBinary(Supplier<Result<Syntatic.Expression>> operand,
-            Class<? extends Token.Mark>... types) {
+            Class<? extends Lexeme.Mark>... types) {
         var left = operand.get();
         if (left.empty()) {
             return Result.ofUnexisting();
@@ -162,7 +162,7 @@ public class Parser {
 
     /** Parse a unary. */
     private Result<Syntatic.Expression> parseUnary() {
-        var operator = consume(Token.Mark.Plus.class, Token.Mark.Minus.class);
+        var operator = consume(Lexeme.Mark.Plus.class, Lexeme.Mark.Minus.class);
         if (operator.empty()) {
             return parseGroup();
         }
@@ -176,7 +176,7 @@ public class Parser {
 
     /** Parse a group. */
     private Result<Syntatic.Expression> parseGroup() {
-        var opening = consume(Token.Mark.OpeningBracket.class);
+        var opening = consume(Lexeme.Mark.OpeningBracket.class);
         if (opening.empty()) {
             return parsePrimary();
         }
@@ -185,7 +185,7 @@ public class Parser {
             error("Expected an expression after `(`!");
             return Result.ofUnexisting();
         }
-        var closing = consume(Token.Mark.ClosingBracket.class);
+        var closing = consume(Lexeme.Mark.ClosingBracket.class);
         if (closing.empty()) {
             error("Expected `)` at the end of the expression!");
         }
@@ -194,14 +194,15 @@ public class Parser {
 
     /** Parse a primary. */
     private Result<Syntatic.Expression> parsePrimary() {
-        var name = consume(Token.Identifier.class);
+        var name = consume(Lexeme.Identifier.class);
         if (name.valid()) {
             return Result.of(new Syntatic.Expression.Primary.Access(name.get()));
         }
-        var value = consume(Token.Number.class, Token.Keyword.I1.class, Token.Keyword.I2.class, Token.Keyword.I4.class,
-                Token.Keyword.I8.class, Token.Keyword.IX.class, Token.Keyword.U1.class, Token.Keyword.U2.class,
-                Token.Keyword.U4.class, Token.Keyword.U8.class, Token.Keyword.UX.class, Token.Keyword.F4.class,
-                Token.Keyword.F8.class);
+        var value = consume(Lexeme.Number.class, Lexeme.Keyword.I1.class, Lexeme.Keyword.I2.class,
+                Lexeme.Keyword.I4.class,
+                Lexeme.Keyword.I8.class, Lexeme.Keyword.IX.class, Lexeme.Keyword.U1.class, Lexeme.Keyword.U2.class,
+                Lexeme.Keyword.U4.class, Lexeme.Keyword.U8.class, Lexeme.Keyword.UX.class, Lexeme.Keyword.F4.class,
+                Lexeme.Keyword.F8.class);
         return Result.of(new Syntatic.Expression.Primary.Literal(value.get()));
     }
 }
