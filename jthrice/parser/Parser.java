@@ -4,7 +4,6 @@
 package jthrice.parser;
 
 import java.util.ArrayList;
-import java.util.Optional;
 import java.util.function.Supplier;
 
 import jthrice.launcher.Resolution;
@@ -13,11 +12,12 @@ import jthrice.lexer.Token;
 import jthrice.utility.Bug;
 import jthrice.utility.Iterator;
 import jthrice.utility.List;
+import jthrice.utility.Result;
 
 /** Parses a list of tokens to a syntatic entity. */
 public class Parser {
     /** Parse the source in the given resolution. */
-    public static Optional<Syntatic.Source> parse(Resolution resolution) {
+    public static Result<Syntatic.Source> parse(Resolution resolution) {
         var parser = new Parser(resolution, Lexer.lex(resolution));
         return parser.parse();
     }
@@ -25,7 +25,7 @@ public class Parser {
     /** Resolution of the parsed tokens. */
     private final Resolution resolution;
     /** Current token to be parsed. */
-    private Optional<Iterator<Token>> cursor;
+    private Result<Iterator<Token>> cursor;
 
     private Parser(Resolution resolution, List<Token> tokens) {
         this.resolution = resolution;
@@ -47,161 +47,161 @@ public class Parser {
      * the token if its returned.
      */
     @SafeVarargs
-    private <T extends Token> Optional<T> consume(Class<? extends T>... types) {
-        if (cursor.isEmpty()) {
-            return Optional.empty();
+    private <T extends Token> Result<T> consume(Class<? extends T>... types) {
+        if (cursor.empty()) {
+            return Result.ofUnexisting();
         }
         var token = cursor.get().cast(types);
-        if (token.isPresent()) {
+        if (token.valid()) {
             next();
         }
         return token;
     }
 
     /** Parse the token list. */
-    private Optional<Syntatic.Source> parse() {
-        Bug.check(cursor.isPresent(), "There is no EOF!");
+    private Result<Syntatic.Source> parse() {
+        Bug.check(cursor.valid(), "There is no EOF!");
         var statements = new ArrayList<Syntatic.Statement>();
         while (true) {
             var statement = parseStatement();
-            if (statement.isEmpty()) {
+            if (statement.empty()) {
                 break;
             }
             statements.add(statement.get());
         }
-        Bug.check(cursor.isPresent(), "There is no EOF!");
+        Bug.check(cursor.valid(), "There is no EOF!");
         var eof = consume(Token.Mark.EOF.class);
-        if (eof.isEmpty()) {
+        if (eof.empty()) {
             error("Expected the end of the file!");
-            return Optional.empty();
+            return Result.ofUnexisting();
         }
-        Bug.check(cursor.isEmpty(), "There are tokens after the EOF!");
-        return Optional.of(new Syntatic.Source(new List<>(statements), eof.get()));
+        Bug.check(cursor.empty(), "There are tokens after the EOF!");
+        return Result.of(new Syntatic.Source(new List<>(statements), eof.get()));
     }
 
     /** Parse a statement. */
-    private Optional<Syntatic.Statement> parseStatement() {
+    private Result<Syntatic.Statement> parseStatement() {
         return parseDefinition();
     }
 
     /** Parse a definition. */
-    private Optional<Syntatic.Statement> parseDefinition() {
+    private Result<Syntatic.Statement> parseDefinition() {
         var name = consume(Token.Identifier.class);
-        if (name.isEmpty()) {
-            return Optional.empty();
+        if (name.empty()) {
+            return Result.ofUnexisting();
         }
         var separator = consume(Token.Mark.Colon.class);
-        if (separator.isEmpty()) {
+        if (separator.empty()) {
             error("Expected a `:` at the definition of `" + name.get().portion + "`!");
-            return Optional.empty();
+            return Result.ofUnexisting();
         }
         var type = parseExpression();
-        if (type.isEmpty()) {
+        if (type.empty()) {
             error("Expected the type at the definition of `" + name.get().portion + "`!");
-            return Optional.empty();
+            return Result.ofUnexisting();
         }
         var assignment = consume(Token.Mark.Equal.class);
-        if (assignment.isEmpty()) {
+        if (assignment.empty()) {
             error("Expected a `=` at the definition of `" + name.get().portion + "`!");
-            return Optional.empty();
+            return Result.ofUnexisting();
         }
         var value = parseExpression();
-        if (type.isEmpty()) {
+        if (type.empty()) {
             error("Expected the value at the definition of `" + name.get().portion + "`!");
-            return Optional.empty();
+            return Result.ofUnexisting();
         }
         var end = consume(Token.Mark.Semicolon.class);
-        if (end.isEmpty()) {
+        if (end.empty()) {
             error("Expected a `;` at the definition of `" + name.get().portion + "`!");
-            return Optional.empty();
+            return Result.ofUnexisting();
         }
-        return Optional.of(new Syntatic.Statement.Definition(name.get(), separator.get(), type.get(), assignment.get(),
+        return Result.of(new Syntatic.Statement.Definition(name.get(), separator.get(), type.get(), assignment.get(),
                 value.get(), end.get()));
     }
 
     /** Parse an expression. */
-    private Optional<Syntatic.Expression> parseExpression() {
+    private Result<Syntatic.Expression> parseExpression() {
         return parseTerm();
     }
 
     /** Parse a term. */
-    private Optional<Syntatic.Expression> parseTerm() {
+    private Result<Syntatic.Expression> parseTerm() {
         return parseBinary(this::parseFactor, Token.Mark.Plus.class, Token.Mark.Minus.class);
     }
 
     /** Parse a factor. */
-    private Optional<Syntatic.Expression> parseFactor() {
+    private Result<Syntatic.Expression> parseFactor() {
         return parseBinary(this::parseUnary, Token.Mark.Star.class, Token.Mark.ForwardSlash.class,
                 Token.Mark.Percent.class);
     }
 
     /** Parse a binary. */
     @SafeVarargs
-    private Optional<Syntatic.Expression> parseBinary(Supplier<Optional<Syntatic.Expression>> operand,
+    private Result<Syntatic.Expression> parseBinary(Supplier<Result<Syntatic.Expression>> operand,
             Class<? extends Token.Mark>... types) {
         var left = operand.get();
-        if (left.isEmpty()) {
-            return Optional.empty();
+        if (left.empty()) {
+            return Result.ofUnexisting();
         }
         var binary = left.get();
         while (true) {
             var operator = consume(types);
-            if (operator.isEmpty()) {
+            if (operator.empty()) {
                 break;
             }
             var right = operand.get();
-            if (right.isEmpty()) {
+            if (right.empty()) {
                 error("Expected the right hand side in the expression after the operator `" + operator.get().portion
                         + "`!");
-                return Optional.empty();
+                return Result.ofUnexisting();
             }
             binary = new Syntatic.Expression.Binary(operator.get(), binary, right.get());
         }
-        return Optional.of(binary);
+        return Result.of(binary);
     }
 
     /** Parse a unary. */
-    private Optional<Syntatic.Expression> parseUnary() {
+    private Result<Syntatic.Expression> parseUnary() {
         var operator = consume(Token.Mark.Plus.class, Token.Mark.Minus.class);
-        if (operator.isEmpty()) {
+        if (operator.empty()) {
             return parseGroup();
         }
         var operand = parseGroup();
-        if (operand.isEmpty()) {
+        if (operand.empty()) {
             error("Expected the operand in the expression after the operator `" + operator.get().portion + "`!");
-            return Optional.empty();
+            return Result.ofUnexisting();
         }
-        return Optional.of(new Syntatic.Expression.Unary(operator.get(), operand.get()));
+        return Result.of(new Syntatic.Expression.Unary(operator.get(), operand.get()));
     }
 
     /** Parse a group. */
-    private Optional<Syntatic.Expression> parseGroup() {
+    private Result<Syntatic.Expression> parseGroup() {
         var opening = consume(Token.Mark.OpeningBracket.class);
-        if (opening.isEmpty()) {
+        if (opening.empty()) {
             return parsePrimary();
         }
         var elevated = parseExpression();
-        if (elevated.isEmpty()) {
+        if (elevated.empty()) {
             error("Expected an expression after `(`!");
-            return Optional.empty();
+            return Result.ofUnexisting();
         }
         var closing = consume(Token.Mark.ClosingBracket.class);
-        if (closing.isEmpty()) {
+        if (closing.empty()) {
             error("Expected `)` at the end of the expression!");
         }
-        return Optional.of(new Syntatic.Expression.Group(elevated.get(), opening.get(), closing.get()));
+        return Result.of(new Syntatic.Expression.Group(elevated.get(), opening.get(), closing.get()));
     }
 
     /** Parse a primary. */
-    private Optional<Syntatic.Expression> parsePrimary() {
+    private Result<Syntatic.Expression> parsePrimary() {
         var name = consume(Token.Identifier.class);
-        if (name.isPresent()) {
-            return Optional.of(new Syntatic.Expression.Primary.Access(name.get()));
+        if (name.valid()) {
+            return Result.of(new Syntatic.Expression.Primary.Access(name.get()));
         }
         var value = consume(Token.Number.class, Token.Keyword.I1.class, Token.Keyword.I2.class, Token.Keyword.I4.class,
                 Token.Keyword.I8.class, Token.Keyword.IX.class, Token.Keyword.U1.class, Token.Keyword.U2.class,
                 Token.Keyword.U4.class, Token.Keyword.U8.class, Token.Keyword.UX.class, Token.Keyword.F4.class,
                 Token.Keyword.F8.class);
-        return Optional.of(new Syntatic.Expression.Primary.Literal(value.get()));
+        return Result.of(new Syntatic.Expression.Primary.Literal(value.get()));
     }
 }

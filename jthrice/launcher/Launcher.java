@@ -36,7 +36,7 @@ public class Launcher {
             }
             // Generator.generate(resolution, build);
             var parse = Parser.parse(resolution);
-            if (parse.isPresent()) {
+            if (parse.valid()) {
                 System.out.println(parse.get());
             }
             if (resolution.errors() > 0) {

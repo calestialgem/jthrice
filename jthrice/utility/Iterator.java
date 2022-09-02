@@ -4,25 +4,24 @@
 package jthrice.utility;
 
 import java.util.Objects;
-import java.util.Optional;
 
 /** Iterator over an immutable list. */
 public class Iterator<Element> {
     /** Iterator over the given list to the given index. */
-    public static <Element> Optional<Iterator<Element>> of(List<Element> iterated, int index) {
+    public static <Element> Result<Iterator<Element>> of(List<Element> iterated, int index) {
         if (iterated.exists(index)) {
-            return Optional.of(new Iterator<>(iterated, index));
+            return Result.of(new Iterator<>(iterated, index));
         }
-        return Optional.empty();
+        return Result.ofUnexisting();
     }
 
     /** Iterator to the first element of the given list. */
-    public static <Element> Optional<Iterator<Element>> ofFirst(List<Element> iterated) {
+    public static <Element> Result<Iterator<Element>> ofFirst(List<Element> iterated) {
         return of(iterated, 0);
     }
 
     /** Iterator to the last element of the given list. */
-    public static <Element> Optional<Iterator<Element>> ofLast(List<Element> iterated) {
+    public static <Element> Result<Iterator<Element>> ofLast(List<Element> iterated) {
         return of(iterated, iterated.size() - 1);
     }
 
@@ -45,22 +44,22 @@ public class Iterator<Element> {
     /** Iterated element after its casted to base of the given types. */
     @SafeVarargs
     @SuppressWarnings("unchecked")
-    public final <Base extends Element> Optional<Base> cast(Class<? extends Base>... deriveds) {
+    public final <Base extends Element> Result<Base> cast(Class<? extends Base>... deriveds) {
         for (var derived : deriveds) {
             if (derived.isInstance(get())) {
-                return Optional.of((Base) get());
+                return Result.of((Base) get());
             }
         }
-        return Optional.empty();
+        return Result.ofUnexisting();
     }
 
     /** Iterator to the next element. */
-    public Optional<Iterator<Element>> next() {
+    public Result<Iterator<Element>> next() {
         return of(iterated, index + 1);
     }
 
     /** Iterator to the previous element. */
-    public Optional<Iterator<Element>> previous() {
+    public Result<Iterator<Element>> previous() {
         return of(iterated, index - 1);
     }
 
