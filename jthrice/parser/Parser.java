@@ -70,7 +70,7 @@ public class Parser {
             statements.add(statement.get());
         }
         Bug.check(cursor.valid(), "There is no EOF!");
-        var eof = consume(Lexeme.Mark.EOF.class);
+        var eof = consume(Lexeme.Token.EOF.class);
         if (eof.empty()) {
             error("Expected the end of the file!");
             return Result.ofUnexisting();
@@ -90,7 +90,7 @@ public class Parser {
         if (name.empty()) {
             return Result.ofUnexisting();
         }
-        var separator = consume(Lexeme.Mark.Colon.class);
+        var separator = consume(Lexeme.Token.Colon.class);
         if (separator.empty()) {
             error("Expected a `:` at the definition of `" + name.get().portion + "`!");
             return Result.ofUnexisting();
@@ -100,7 +100,7 @@ public class Parser {
             error("Expected the type at the definition of `" + name.get().portion + "`!");
             return Result.ofUnexisting();
         }
-        var assignment = consume(Lexeme.Mark.Equal.class);
+        var assignment = consume(Lexeme.Token.Equal.class);
         if (assignment.empty()) {
             error("Expected a `=` at the definition of `" + name.get().portion + "`!");
             return Result.ofUnexisting();
@@ -110,7 +110,7 @@ public class Parser {
             error("Expected the value at the definition of `" + name.get().portion + "`!");
             return Result.ofUnexisting();
         }
-        var end = consume(Lexeme.Mark.Semicolon.class);
+        var end = consume(Lexeme.Token.Semicolon.class);
         if (end.empty()) {
             error("Expected a `;` at the definition of `" + name.get().portion + "`!");
             return Result.ofUnexisting();
@@ -126,19 +126,19 @@ public class Parser {
 
     /** Parse a term. */
     private Result<Syntatic.Expression> parseTerm() {
-        return parseBinary(this::parseFactor, Lexeme.Mark.Plus.class, Lexeme.Mark.Minus.class);
+        return parseBinary(this::parseFactor, Lexeme.Token.Plus.class, Lexeme.Token.Minus.class);
     }
 
     /** Parse a factor. */
     private Result<Syntatic.Expression> parseFactor() {
-        return parseBinary(this::parseUnary, Lexeme.Mark.Star.class, Lexeme.Mark.ForwardSlash.class,
-                Lexeme.Mark.Percent.class);
+        return parseBinary(this::parseUnary, Lexeme.Token.Star.class, Lexeme.Token.ForwardSlash.class,
+                Lexeme.Token.Percent.class);
     }
 
     /** Parse a binary. */
     @SafeVarargs
     private Result<Syntatic.Expression> parseBinary(Supplier<Result<Syntatic.Expression>> operand,
-            Class<? extends Lexeme.Mark>... types) {
+            Class<? extends Lexeme.Token>... types) {
         var left = operand.get();
         if (left.empty()) {
             return Result.ofUnexisting();
@@ -162,7 +162,7 @@ public class Parser {
 
     /** Parse a unary. */
     private Result<Syntatic.Expression> parseUnary() {
-        var operator = consume(Lexeme.Mark.Plus.class, Lexeme.Mark.Minus.class);
+        var operator = consume(Lexeme.Token.Plus.class, Lexeme.Token.Minus.class);
         if (operator.empty()) {
             return parseGroup();
         }
@@ -176,7 +176,7 @@ public class Parser {
 
     /** Parse a group. */
     private Result<Syntatic.Expression> parseGroup() {
-        var opening = consume(Lexeme.Mark.OpeningBracket.class);
+        var opening = consume(Lexeme.Token.OpeningBracket.class);
         if (opening.empty()) {
             return parsePrimary();
         }
@@ -185,7 +185,7 @@ public class Parser {
             error("Expected an expression after `(`!");
             return Result.ofUnexisting();
         }
-        var closing = consume(Lexeme.Mark.ClosingBracket.class);
+        var closing = consume(Lexeme.Token.ClosingBracket.class);
         if (closing.empty()) {
             error("Expected `)` at the end of the expression!");
         }

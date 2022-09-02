@@ -10,10 +10,10 @@ import java.util.Objects;
 import jthrice.utility.Result;
 
 /** Smallest meaningful group of characters in a source. */
-public sealed abstract class Lexeme permits Lexeme.Mark, Lexeme.Number, Lexeme.Keyword, Lexeme.Identifier {
+public sealed abstract class Lexeme permits Lexeme.Token, Lexeme.Number, Lexeme.Keyword, Lexeme.Identifier {
     /** Token at the given location. */
     public static Result<Lexeme> of(Location first) {
-        var mark = Mark.of(first);
+        var mark = Token.of(first);
         if (mark.valid()) {
             return mark;
         }
@@ -32,9 +32,9 @@ public sealed abstract class Lexeme permits Lexeme.Mark, Lexeme.Number, Lexeme.K
         return Result.ofUnexisting();
     }
 
-    /** Non-alphanumeric tokens. */
-    public static sealed abstract class Mark extends
-            Lexeme permits Mark.Plus, Mark.Minus, Mark.Star, Mark.ForwardSlash, Mark.Percent, Mark.Equal, Mark.Colon, Mark.Semicolon, Mark.OpeningBracket, Mark.ClosingBracket, Mark.EOF {
+    /** Non-alphanumeric character group. */
+    public static sealed abstract class Token extends
+            Lexeme permits Token.Plus, Token.Minus, Token.Star, Token.ForwardSlash, Token.Percent, Token.Equal, Token.Colon, Token.Semicolon, Token.OpeningBracket, Token.ClosingBracket, Token.EOF {
         /** Mark at the given location. */
         public static Result<Lexeme> of(Location first) {
             return switch (first.get()) {
@@ -54,83 +54,83 @@ public sealed abstract class Lexeme permits Lexeme.Mark, Lexeme.Number, Lexeme.K
         }
 
         /** Plus sign. */
-        public static final class Plus extends Mark {
+        public static final class Plus extends Token {
             public Plus(Portion portion) {
                 super(portion);
             }
         }
 
         /** Minus sign. */
-        public static final class Minus extends Mark {
+        public static final class Minus extends Token {
             public Minus(Portion portion) {
                 super(portion);
             }
         }
 
         /** Star. */
-        public static final class Star extends Mark {
+        public static final class Star extends Token {
             public Star(Portion portion) {
                 super(portion);
             }
         }
 
         /** Forward slash. */
-        public static final class ForwardSlash extends Mark {
+        public static final class ForwardSlash extends Token {
             public ForwardSlash(Portion portion) {
                 super(portion);
             }
         }
 
         /** Percent symbol. */
-        public static final class Percent extends Mark {
+        public static final class Percent extends Token {
             public Percent(Portion portion) {
                 super(portion);
             }
         }
 
         /** Equal sign. */
-        public static final class Equal extends Mark {
+        public static final class Equal extends Token {
             public Equal(Portion portion) {
                 super(portion);
             }
         }
 
         /** Colon. */
-        public static final class Colon extends Mark {
+        public static final class Colon extends Token {
             public Colon(Portion portion) {
                 super(portion);
             }
         }
 
         /** Semicolon. */
-        public static final class Semicolon extends Mark {
+        public static final class Semicolon extends Token {
             public Semicolon(Portion portion) {
                 super(portion);
             }
         }
 
         /** Opening bracket. */
-        public static final class OpeningBracket extends Mark {
+        public static final class OpeningBracket extends Token {
             public OpeningBracket(Portion portion) {
                 super(portion);
             }
         }
 
         /** Closing bracket. */
-        public static final class ClosingBracket extends Mark {
+        public static final class ClosingBracket extends Token {
             public ClosingBracket(Portion portion) {
                 super(portion);
             }
         }
 
         /** End of file character. */
-        public static final class EOF extends Mark {
+        public static final class EOF extends Token {
             public EOF(Portion portion) {
                 super(portion);
             }
         }
 
-        public Mark(Portion portion) {
+        public Token(Portion portion) {
             super(portion);
         }
 

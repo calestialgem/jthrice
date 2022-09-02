@@ -6,8 +6,8 @@ package jthrice.parser;
 import java.util.Objects;
 
 import jthrice.lexer.Lexeme;
-import jthrice.lexer.Lexeme.Mark.ClosingBracket;
-import jthrice.lexer.Lexeme.Mark.OpeningBracket;
+import jthrice.lexer.Lexeme.Token.ClosingBracket;
+import jthrice.lexer.Lexeme.Token.OpeningBracket;
 import jthrice.utility.List;
 
 /** Syntatic entities; hierarchical collection of tokens. */
@@ -17,9 +17,9 @@ public sealed abstract class Syntatic permits Syntatic.Source, Syntatic.Statemen
         /** Statements under the source file. */
         public final List<Statement> statements;
         /** End of the file. */
-        public final Lexeme.Mark.EOF eof;
+        public final Lexeme.Token.EOF eof;
 
-        public Source(List<Statement> statements, Lexeme.Mark.EOF eof) {
+        public Source(List<Statement> statements, Lexeme.Token.EOF eof) {
             this.statements = statements;
             this.eof = eof;
         }
@@ -56,19 +56,19 @@ public sealed abstract class Syntatic permits Syntatic.Source, Syntatic.Statemen
             /** Name of the defined variable. */
             public final Lexeme.Identifier name;
             /** Separator of name and type. */
-            public final Lexeme.Mark.Colon separator;
+            public final Lexeme.Token.Colon separator;
             /** Type expression. */
             public final Expression type;
             /** Assignment operator. */
-            public final Lexeme.Mark.Equal assignment;
+            public final Lexeme.Token.Equal assignment;
             /** Value expression. */
             public final Expression value;
             /** End of the statement. */
-            public final Lexeme.Mark.Semicolon end;
+            public final Lexeme.Token.Semicolon end;
 
-            public Definition(Lexeme.Identifier name, Lexeme.Mark.Colon separator, Expression type,
-                    Lexeme.Mark.Equal assignment, Expression value,
-                    Lexeme.Mark.Semicolon end) {
+            public Definition(Lexeme.Identifier name, Lexeme.Token.Colon separator, Expression type,
+                    Lexeme.Token.Equal assignment, Expression value,
+                    Lexeme.Token.Semicolon end) {
                 this.name = name;
                 this.separator = separator;
                 this.type = type;
@@ -178,9 +178,9 @@ public sealed abstract class Syntatic permits Syntatic.Source, Syntatic.Statemen
             /** Expression that is elevated. */
             public final Expression elevated;
             /** Start of the group. */
-            public final Lexeme.Mark.OpeningBracket opening;
+            public final Lexeme.Token.OpeningBracket opening;
             /** End of the group. */
-            public final Lexeme.Mark.ClosingBracket closing;
+            public final Lexeme.Token.ClosingBracket closing;
 
             public Group(Expression elevated, OpeningBracket opening, ClosingBracket closing) {
                 this.elevated = elevated;
@@ -215,11 +215,11 @@ public sealed abstract class Syntatic permits Syntatic.Source, Syntatic.Statemen
         /** Operation on an expression. */
         public static final class Unary extends Expression {
             /** Operator. */
-            public final Lexeme.Mark operator;
+            public final Lexeme.Token operator;
             /** Operand. */
             public final Expression operand;
 
-            public Unary(Lexeme.Mark operator, Expression operand) {
+            public Unary(Lexeme.Token operator, Expression operand) {
                 this.operator = operator;
                 this.operand = operand;
             }
@@ -250,13 +250,13 @@ public sealed abstract class Syntatic permits Syntatic.Source, Syntatic.Statemen
         /** Operation on two expressions. */
         public static final class Binary extends Expression {
             /** Operator. */
-            public final Lexeme.Mark operator;
+            public final Lexeme.Token operator;
             /** Left operand. */
             public final Expression left;
             /** Right operand. */
             public final Expression right;
 
-            public Binary(Lexeme.Mark operator, Expression left, Expression right) {
+            public Binary(Lexeme.Token operator, Expression left, Expression right) {
                 this.operator = operator;
                 this.left = left;
                 this.right = right;

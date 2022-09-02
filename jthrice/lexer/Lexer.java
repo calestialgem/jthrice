@@ -72,9 +72,9 @@ public class Lexer {
             }
             error("Could not lex the character!");
         }
-        Bug.check(!tokens.isEmpty() && tokens.get(tokens.size() - 1) instanceof Lexeme.Mark.EOF,
+        Bug.check(!tokens.isEmpty() && tokens.get(tokens.size() - 1) instanceof Lexeme.Token.EOF,
                 "There is no EOF character at the end of the source contents!");
-        Bug.check(tokens.stream().filter(token -> token instanceof Lexeme.Mark.EOF).count() == 1,
+        Bug.check(tokens.stream().filter(token -> token instanceof Lexeme.Token.EOF).count() == 1,
                 "There are EOF characters in the middle of the source contents!");
         return new List<>(tokens);
     }
@@ -86,17 +86,17 @@ public class Lexer {
         }
         Location first = cursor.get();
         return switch (first.get()) {
-            case '+' -> Result.of(new Lexeme.Mark.Plus(new Portion(first, first)));
-            case '-' -> Result.of(new Lexeme.Mark.Minus(new Portion(first, first)));
-            case '*' -> Result.of(new Lexeme.Mark.Star(new Portion(first, first)));
-            case '/' -> Result.of(new Lexeme.Mark.ForwardSlash(new Portion(first, first)));
-            case '%' -> Result.of(new Lexeme.Mark.Percent(new Portion(first, first)));
-            case '=' -> Result.of(new Lexeme.Mark.Equal(new Portion(first, first)));
-            case ':' -> Result.of(new Lexeme.Mark.Colon(new Portion(first, first)));
-            case ';' -> Result.of(new Lexeme.Mark.Semicolon(new Portion(first, first)));
-            case '(' -> Result.of(new Lexeme.Mark.OpeningBracket(new Portion(first, first)));
-            case ')' -> Result.of(new Lexeme.Mark.ClosingBracket(new Portion(first, first)));
-            case Source.EOF -> Result.of(new Lexeme.Mark.EOF(new Portion(first, first)));
+            case '+' -> Result.of(new Lexeme.Token.Plus(new Portion(first, first)));
+            case '-' -> Result.of(new Lexeme.Token.Minus(new Portion(first, first)));
+            case '*' -> Result.of(new Lexeme.Token.Star(new Portion(first, first)));
+            case '/' -> Result.of(new Lexeme.Token.ForwardSlash(new Portion(first, first)));
+            case '%' -> Result.of(new Lexeme.Token.Percent(new Portion(first, first)));
+            case '=' -> Result.of(new Lexeme.Token.Equal(new Portion(first, first)));
+            case ':' -> Result.of(new Lexeme.Token.Colon(new Portion(first, first)));
+            case ';' -> Result.of(new Lexeme.Token.Semicolon(new Portion(first, first)));
+            case '(' -> Result.of(new Lexeme.Token.OpeningBracket(new Portion(first, first)));
+            case ')' -> Result.of(new Lexeme.Token.ClosingBracket(new Portion(first, first)));
+            case Source.EOF -> Result.of(new Lexeme.Token.EOF(new Portion(first, first)));
             default -> Result.ofUnexisting();
         };
     }
