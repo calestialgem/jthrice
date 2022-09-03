@@ -31,13 +31,10 @@ public final class Lexer {
     private final Resolution resolution;
     /** Current character to be lexed. */
     private Result<Iterator<Character>> cursor;
-    /** Accumulator of lex results. */
-    private ArrayList<Lexeme> accumulator;
 
     private Lexer(Resolution resolution) {
         this.resolution = resolution;
         cursor = Iterator.ofFirst(List.ofString(resolution.source.contents));
-        accumulator = new ArrayList<>();
     }
 
     /**
@@ -73,22 +70,23 @@ public final class Lexer {
 
     /** Lex all the source contents. */
     private List<Lexeme> lex() {
+        var lexemes = new ArrayList<Lexeme>();
         while (cursor.valid()) {
             var lexeme = Result.or(this::lexToken, this::lexNumber, this::lexWord);
             if (lexeme.exists()) {
                 if (lexeme.valid()) {
-                    accumulator.add(lexeme.get());
+                    lexemes.add(lexeme.get());
                 }
             } else {
                 resolution.error("LEXER", currentPortion(), "Could not recognize the character!");
                 next();
             }
         }
-        Bug.check(!accumulator.isEmpty() && accumulator.get(accumulator.size() - 1) instanceof Lexeme.Token.EOF,
+        Bug.check(!lexemes.isEmpty() && lexemes.get(lexemes.size() - 1) instanceof Lexeme.Token.EOF,
                 "There is no EOF character at the end of the source contents!");
-        Bug.check(accumulator.stream().filter(token -> token instanceof Lexeme.Token.EOF).count() == 1,
+        Bug.check(lexemes.stream().filter(token -> token instanceof Lexeme.Token.EOF).count() == 1,
                 "There are EOF characters in the middle of the source contents!");
-        return new List<>(accumulator);
+        return new List<>(lexemes);
     }
 
     /** Lex a token. */
