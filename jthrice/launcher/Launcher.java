@@ -7,7 +7,6 @@ import java.io.IOException;
 import java.nio.file.Path;
 
 import jthrice.generator.Generator;
-import jthrice.parser.Parser;
 
 /** Launches the compiler. */
 public class Launcher {
@@ -34,11 +33,7 @@ public class Launcher {
                 e.printStackTrace();
                 continue;
             }
-            // Generator.generate(resolution, build);
-            var parse = Parser.parse(resolution);
-            if (parse.valid()) {
-                System.out.println(parse.get());
-            }
+            Generator.generate(resolution, build);
             if (resolution.errors() > 0) {
                 System.out.printf("There were %d errors in %s!%n", resolution.errors(), argument);
             }
