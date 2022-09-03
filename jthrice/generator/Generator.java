@@ -235,7 +235,7 @@ public class Generator {
 
   /** Generate the given new line. */
   private void generateNewLine(NewLine newLine) {
-    final var INDENTATION = "    ";
+    final var INDENTATION = "  ";
     this.buffer.append(System.lineSeparator());
     for (var i = 0; i < newLine.indentation; i++) {
       this.buffer.append(INDENTATION);
