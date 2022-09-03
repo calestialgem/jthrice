@@ -4,7 +4,6 @@
 package jthrice.lexer;
 
 import java.math.BigDecimal;
-import java.math.BigInteger;
 import java.util.Objects;
 
 /** Smallest meaningful group of characters in a source. */
@@ -95,53 +94,21 @@ public sealed abstract class Lexeme permits Lexeme.Token, Lexeme.Number, Lexeme.
   }
 
   /** Number literal. */
-  public static sealed abstract class Number
-    extends Lexeme permits Integer, Real {
-    public Number(Portion portion) {
-      super(portion);
-    }
-  }
-
-  /** Integer literal. */
-  public static final class Integer extends Number {
-    /** Value. */
-    public final BigInteger value;
-
-    public Integer(Portion portion, BigInteger value) {
-      super(portion);
-      this.value = value;
-    }
-
-    @Override
-    public int hashCode() {
-      return Objects.hash(this.value);
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-      if (this == obj) {
-        return true;
-      }
-      if (!(obj instanceof Integer other)) {
-        return false;
-      }
-      return Objects.equals(this.value, other.value);
-    }
-  }
-
-  /** Real literal. */
-  public static final class Real extends Number {
+  public static final class Number extends Lexeme {
     /** Value. */
     public final BigDecimal value;
 
-    public Real(Portion portion, BigDecimal value) {
+    public Number(Portion portion, BigDecimal value) {
       super(portion);
       this.value = value;
     }
 
     @Override
     public int hashCode() {
-      return Objects.hash(this.value);
+      final int prime  = 31;
+      int       result = super.hashCode();
+      result = prime * result + Objects.hash(value);
+      return result;
     }
 
     @Override
@@ -149,10 +116,14 @@ public sealed abstract class Lexeme permits Lexeme.Token, Lexeme.Number, Lexeme.
       if (this == obj) {
         return true;
       }
-      if (!(obj instanceof Real other)) {
+      if (!super.equals(obj)) {
         return false;
       }
-      return Objects.equals(this.value, other.value);
+      if (!(obj instanceof Number)) {
+        return false;
+      }
+      Number other = (Number) obj;
+      return Objects.equals(value, other.value);
     }
   }
 
@@ -184,8 +155,8 @@ public sealed abstract class Lexeme permits Lexeme.Token, Lexeme.Number, Lexeme.
   }
 
   /** Reserved identifier. */
-  public static sealed abstract class Keyword
-    extends Lexeme permits I1, I2, I4, I8, IX, U1, U2, U4, U8, UX, F4, F8 {
+  public static sealed abstract class Keyword extends
+    Lexeme permits I1, I2, I4, I8, IX, U1, U2, U4, U8, UX, F4, F8, Rinf {
     public Keyword(Portion portion) {
       super(portion);
     }
@@ -272,6 +243,13 @@ public sealed abstract class Lexeme permits Lexeme.Token, Lexeme.Number, Lexeme.
   /** Keyword `f8`; 8 byte, floating-point real. */
   public static final class F8 extends Keyword {
     public F8(Portion portion) {
+      super(portion);
+    }
+  }
+
+  /** Keyword `rinf`; infinite-precision, compile-time real. */
+  public static final class Rinf extends Keyword {
+    public Rinf(Portion portion) {
       super(portion);
     }
   }

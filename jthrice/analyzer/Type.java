@@ -29,12 +29,14 @@ public sealed abstract class Type permits Type.Scalar, Type.Meta {
   public static final Type F4   = new F4();
   /** 8 byte, floating-point real type. */
   public static final Type F8   = new F8();
+  /** Infinite-precision, compile-time real type. */
+  public static final Type RINF = new Rinf();
   /** Meta type; type type. */
   public static final Type META = new Meta();
 
   /** Independent, undivisible, built-in types. */
   public static sealed abstract class Scalar
-    extends Type permits Signed, Unsigned, Floating {
+    extends Type permits Signed, Unsigned, Floating, Rinf {
   }
 
   /** Integers with a bit for signedness. */
@@ -100,6 +102,10 @@ public sealed abstract class Type permits Type.Scalar, Type.Meta {
 
   /** 8 byte, floating-point real. */
   public static final class F8 extends Floating {
+  }
+
+  /** Infinite-precision, compile-time real. Type of any number literal. */
+  public static final class Rinf extends Scalar {
   }
 
   /** Meta type; type type. Type of any expression that results in a type. */

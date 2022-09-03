@@ -211,7 +211,7 @@ public final class Parser {
     var value = this.consume(Lexeme.class, Lexeme.I1.class, Lexeme.I2.class,
       Lexeme.I4.class, Lexeme.I8.class, Lexeme.IX.class, Lexeme.U1.class,
       Lexeme.U2.class, Lexeme.U4.class, Lexeme.U8.class, Lexeme.UX.class,
-      Lexeme.F4.class, Lexeme.F8.class);
+      Lexeme.F4.class, Lexeme.F8.class, Lexeme.Rinf.class);
     return Result.of(new Node.Literal(value.get()));
   }
 }

@@ -132,7 +132,7 @@ public final class Lexer {
       return Result.ofUnexisting();
     }
 
-    var value         = BigInteger.valueOf(digit);
+    var unscaled      = BigInteger.valueOf(digit);
     var decimalPlaces = Result.<java.lang.Integer>ofUnexisting();
     var last          = first;
 
@@ -151,9 +151,9 @@ public final class Lexer {
         break;
       }
 
-      value = value.multiply(BASE);
-      value = value.add(BigInteger.valueOf(digit));
-      last  = this.cursor.get();
+      unscaled = unscaled.multiply(BASE);
+      unscaled = unscaled.add(BigInteger.valueOf(digit));
+      last     = this.cursor.get();
 
       if (decimalPlaces.valid()) {
         decimalPlaces = Result.of(decimalPlaces.get() + 1);
@@ -162,11 +162,11 @@ public final class Lexer {
       }
     }
 
-    if (decimalPlaces.empty()) {
-      return Result.of(new Lexeme.Integer(this.portion(first, last), value));
-    }
-    return Result.of(new Lexeme.Real(this.portion(first, last),
-      new BigDecimal(value, decimalPlaces.get())));
+    var value = new BigDecimal(unscaled, switch (decimalPlaces) {
+      case Result.Valid<Integer> valid -> valid.value;
+      default -> 0;
+    });
+    return Result.of(new Lexeme.Number(this.portion(first, last), value));
   }
 
   /** Lex a keyword or an identifier. */
@@ -219,6 +219,7 @@ public final class Lexer {
       case "ux" -> Result.of(new Lexeme.UX(identifier.portion));
       case "f4" -> Result.of(new Lexeme.F4(identifier.portion));
       case "f8" -> Result.of(new Lexeme.F8(identifier.portion));
+      case "rinf" -> Result.of(new Lexeme.Rinf(identifier.portion));
       default -> Result.ofUnexisting();
     };
   }
