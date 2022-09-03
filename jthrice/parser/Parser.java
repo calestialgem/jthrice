@@ -15,7 +15,7 @@ import jthrice.utility.List;
 import jthrice.utility.Result;
 
 /** Parses a list of lexemes to a program node. */
-public class Parser {
+public final class Parser {
     /** Parse the source in the given resolution. */
     public static Result<Node.Program> parse(Resolution resolution) {
         var parser = new Parser(resolution, Lexer.lex(resolution));

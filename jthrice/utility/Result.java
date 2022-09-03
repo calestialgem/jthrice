@@ -7,25 +7,25 @@ import java.util.Objects;
 import java.util.function.Supplier;
 
 /** Result of an algorithm, which can be valid, invalid or unexisting. */
-public sealed abstract class Result<Return> permits Result.Valid<Return>, Result.Invalid<Return>, Result.Unexisting<Return> {
+public sealed abstract class Result<T> permits Result.Valid<T>, Result.Invalid<T>, Result.Unexisting<T> {
     /** Valid result. */
-    public static <Return> Result<Return> of(Return value) {
-        return new Valid<Return>(value);
+    public static <T> Result<T> of(T value) {
+        return new Valid<T>(value);
     }
 
     /** Invalid result. */
-    public static <Return> Result<Return> ofInvalid() {
-        return new Invalid<Return>();
+    public static <T> Result<T> ofInvalid() {
+        return new Invalid<T>();
     }
 
     /** Unexisting result. */
-    public static <Return> Result<Return> ofUnexisting() {
-        return new Unexisting<Return>();
+    public static <T> Result<T> ofUnexisting() {
+        return new Unexisting<T>();
     }
 
     /** The first existing result from the given ones. */
     @SafeVarargs
-    public static <Return> Result<Return> or(Supplier<Result<Return>>... resultSuppliers) {
+    public static <T> Result<T> or(Supplier<Result<T>>... resultSuppliers) {
         Bug.check(resultSuppliers.length >= 1, "There must be atleast one result supplier!");
         for (var resultSupplier : resultSuppliers) {
             var result = resultSupplier.get();
@@ -37,11 +37,11 @@ public sealed abstract class Result<Return> permits Result.Valid<Return>, Result
     }
 
     /** Result of finishing successfully. */
-    public static final class Valid<Return> extends Result<Return> {
+    public static final class Valid<T> extends Result<T> {
         /** Return value. */
-        public final Return value;
+        public final T value;
 
-        public Valid(Return value) {
+        public Valid(T value) {
             this.value = value;
         }
 
@@ -61,7 +61,7 @@ public sealed abstract class Result<Return> permits Result.Valid<Return>, Result
         }
 
         @Override
-        public Return get() {
+        public T get() {
             return value;
         }
 
@@ -91,7 +91,7 @@ public sealed abstract class Result<Return> permits Result.Valid<Return>, Result
     }
 
     /** Result of retuning half way because the input data is wrong. */
-    public static final class Invalid<Return> extends Result<Return> {
+    public static final class Invalid<T> extends Result<T> {
         @Override
         public boolean valid() {
             return false;
@@ -108,14 +108,14 @@ public sealed abstract class Result<Return> permits Result.Valid<Return>, Result
         }
 
         @Override
-        public Return get() {
+        public T get() {
             Bug.unreachable("Invalid!");
             return null;
         }
     }
 
     /** Result of returning in the begining because the data is not there. */
-    public static final class Unexisting<Return> extends Result<Return> {
+    public static final class Unexisting<T> extends Result<T> {
         @Override
         public boolean valid() {
             return false;
@@ -132,7 +132,7 @@ public sealed abstract class Result<Return> permits Result.Valid<Return>, Result
         }
 
         @Override
-        public Return get() {
+        public T get() {
             Bug.unreachable("Unexisting!");
             return null;
         }
@@ -158,7 +158,7 @@ public sealed abstract class Result<Return> permits Result.Valid<Return>, Result
     }
 
     /** Return value. */
-    public abstract Return get();
+    public abstract T get();
 
     @Override
     public int hashCode() {

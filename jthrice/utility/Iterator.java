@@ -6,9 +6,9 @@ package jthrice.utility;
 import java.util.Objects;
 
 /** Iterator over an immutable list. */
-public class Iterator<Element> {
+public final class Iterator<T> {
     /** Iterator over the given list to the given index. */
-    public static <Element> Result<Iterator<Element>> of(List<Element> iterated, int index) {
+    public static <T> Result<Iterator<T>> of(List<T> iterated, int index) {
         if (iterated.exists(index)) {
             return Result.of(new Iterator<>(iterated, index));
         }
@@ -16,35 +16,35 @@ public class Iterator<Element> {
     }
 
     /** Iterator to the first element of the given list. */
-    public static <Element> Result<Iterator<Element>> ofFirst(List<Element> iterated) {
+    public static <T> Result<Iterator<T>> ofFirst(List<T> iterated) {
         return of(iterated, 0);
     }
 
     /** Iterator to the last element of the given list. */
-    public static <Element> Result<Iterator<Element>> ofLast(List<Element> iterated) {
+    public static <T> Result<Iterator<T>> ofLast(List<T> iterated) {
         return of(iterated, iterated.size() - 1);
     }
 
     /** List that is iterated over. */
-    public final List<Element> iterated;
+    public final List<T> iterated;
     /** Index of the iterated element. */
     public final int index;
 
-    public Iterator(List<Element> iterated, int index) {
+    public Iterator(List<T> iterated, int index) {
         Bug.check(iterated.exists(index), "Unexisting iterator!");
         this.iterated = iterated;
         this.index = index;
     }
 
     /** Iterated element. */
-    public Element get() {
+    public T get() {
         return iterated.at(index);
     }
 
     /** Iterated element after its casted to base of the given types. */
     @SafeVarargs
     @SuppressWarnings("unchecked")
-    public final <Base extends Element> Result<Base> cast(Class<? extends Base>... deriveds) {
+    public final <Base extends T> Result<Base> cast(Class<? extends Base>... deriveds) {
         for (var derived : deriveds) {
             if (derived.isInstance(get())) {
                 return Result.of((Base) get());
@@ -54,12 +54,12 @@ public class Iterator<Element> {
     }
 
     /** Iterator to the next element. */
-    public Result<Iterator<Element>> next() {
+    public Result<Iterator<T>> next() {
         return of(iterated, index + 1);
     }
 
     /** Iterator to the previous element. */
-    public Result<Iterator<Element>> previous() {
+    public Result<Iterator<T>> previous() {
         return of(iterated, index - 1);
     }
 

@@ -8,7 +8,7 @@ import java.util.Objects;
 import java.util.function.Consumer;
 
 /** Immutable list. */
-public class List<Element> {
+public final class List<T> {
     /** List of the given stirng. */
     public static List<Character> ofString(String string) {
         var list = new ArrayList<Character>();
@@ -19,19 +19,19 @@ public class List<Element> {
     }
 
     /** Immutable copy of the given list. */
-    public static <Element> List<Element> of(java.util.List<Element> list) {
+    public static <T> List<T> of(java.util.List<T> list) {
         return new List<>(new ArrayList<>(list));
     }
 
     /** List of the given array. */
-    public static <Element> List<Element> of(Element[] array) {
+    public static <T> List<T> of(T[] array) {
         return of(java.util.List.of(array));
     }
 
     /** Underlying mutable list. */
-    private final ArrayList<Element> elements;
+    private final ArrayList<T> elements;
 
-    public List(ArrayList<Element> elements) {
+    public List(ArrayList<T> elements) {
         this.elements = elements;
     }
 
@@ -46,13 +46,13 @@ public class List<Element> {
     }
 
     /** Element at the given index. */
-    public Element at(int index) {
+    public T at(int index) {
         Bug.check(exists(index), "Unexisting element!");
         return elements.get(index);
     }
 
     /** Supply the elements to the given consumer. */
-    public void forEach(Consumer<? super Element> consumer) {
+    public void forEach(Consumer<? super T> consumer) {
         elements.forEach(consumer);
     }
 

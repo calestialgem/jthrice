@@ -4,7 +4,7 @@
 package jthrice.utility;
 
 /** Exception that shows that there is a bug in the code. */
-public class Bug extends RuntimeException {
+public final class Bug extends RuntimeException {
     /** Throw a `Bug` with the given message. */
     public static void unreachable(String message) throws Bug {
         throw new Bug(message);
