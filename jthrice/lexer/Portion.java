@@ -9,7 +9,7 @@ import java.util.Objects;
 import jthrice.utility.Bug;
 
 /** Portion of a string. */
-public class Portion {
+public final class Portion {
     /** Portion of the line the given location is in. */
     public static Portion ofLine(Location location) {
         return new Portion(location.start(), location.end());

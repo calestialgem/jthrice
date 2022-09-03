@@ -9,7 +9,7 @@ import jthrice.launcher.Source;
 import jthrice.utility.Bug;
 
 /** Location of a character in a source. */
-public class Location {
+public final class Location {
     /** Source that the location is in. */
     public final Source source;
     /** Index of the character in the string. */

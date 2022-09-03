@@ -15,7 +15,7 @@ import jthrice.utility.List;
 import jthrice.utility.Result;
 
 /** Groups the characters in a source file to a list of lexemes. */
-public class Lexer {
+public final class Lexer {
     /** Lex the source in the given resolution. */
     public static List<Lexeme> lex(Resolution resolution) {
         var lexer = new Lexer(resolution);
