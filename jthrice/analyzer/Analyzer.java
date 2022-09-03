@@ -8,7 +8,7 @@ import jthrice.parser.Node;
 import jthrice.parser.Parser;
 import jthrice.utility.Result;
 
-/** Analyzes a syntax tree for correctness and optimization. */
+/** Creates a program entity from a program node. */
 public class Analyzer {
     /** Analyze the source in the given resolution. */
     public static Result<Entity.Program> analyze(Resolution resolution) {
@@ -20,14 +20,14 @@ public class Analyzer {
         return analyzer.analyze();
     }
 
-    /** Resolution of the analyzed syntax object. */
+    /** Resolution of the analyzed program node. */
     private final Resolution resolution;
-    /** Root node. */
-    private final Node.Program nodeRoot;
+    /** Analyzed program node. */
+    private final Node.Program node;
 
-    public Analyzer(Resolution resolution, Node.Program nodeRoot) {
+    public Analyzer(Resolution resolution, Node.Program node) {
         this.resolution = resolution;
-        this.nodeRoot = nodeRoot;
+        this.node = node;
     }
 
     private Result<Entity.Program> analyze() {

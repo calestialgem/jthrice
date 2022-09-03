@@ -12,28 +12,28 @@ import jthrice.analyzer.Type;
 import jthrice.launcher.Resolution;
 import jthrice.utility.Bug;
 
-/** Generates the C source from the syntax tree. */
+/** Writes and compiles a C source from a program entity. */
 public class Generator {
     /** C compiler. */
     public static final String COMPILER = "clang";
 
     /** Generate the C source from the source in the given resolution. */
     public static void generate(Resolution resolution, Path build) {
-        var root = Analyzer.analyze(resolution);
-        if (root.empty()) {
+        var entity = Analyzer.analyze(resolution);
+        if (entity.empty()) {
             resolution.warning("GENERATOR", "Not continuing due to errors.");
             return;
         }
-        Generator generator = new Generator(resolution, build, root.get());
+        Generator generator = new Generator(resolution, build, entity.get());
         generator.generate();
     }
 
-    /** Resolution of the generated syntax object. */
+    /** Resolution of the generated program entity. */
     private final Resolution resolution;
     /** Path to the build folder. */
     private final Path build;
-    /** Top-level syntax object. */
-    private final Entity.Program root;
+    /** Generated program entity. */
+    private final Entity.Program entity;
     /** Buffer to append the code into. */
     private final StringBuilder buffer;
     /** Current level of indentation. */
@@ -53,10 +53,10 @@ public class Generator {
         return new NewLine(indentation);
     }
 
-    private Generator(Resolution resolution, Path build, Entity.Program root) {
+    private Generator(Resolution resolution, Path build, Entity.Program entity) {
         this.resolution = resolution;
         this.build = build;
-        this.root = root;
+        this.entity = entity;
         buffer = new StringBuilder();
         indentation = 0;
     }
@@ -70,7 +70,7 @@ public class Generator {
                 int main (int argc, char** argv) {
                 """);
         indentation = 1;
-        root.statements.forEach(statement -> generate(statement));
+        entity.statements.forEach(statement -> generate(statement));
         indentation = 0;
         generate("}");
         CompilerFlags compilerFlags = new CompilerFlags(resolution, COMPILER, build);
