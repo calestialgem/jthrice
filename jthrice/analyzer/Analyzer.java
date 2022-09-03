@@ -7,6 +7,7 @@ import jthrice.launcher.Resolution;
 import jthrice.lexer.Lexeme;
 import jthrice.parser.Node;
 import jthrice.parser.Parser;
+import jthrice.resolver.Type;
 import jthrice.utility.Bug;
 import jthrice.utility.List;
 import jthrice.utility.Result;

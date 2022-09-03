@@ -1,36 +1,12 @@
 // SPDX-FileCopyrightText: 2022 Cem Geçgel <gecgelcem@outlook.com>
 // SPDX-License-Identifier: GPL-3.0-or-later
 
-package jthrice.analyzer;
-
-import java.util.HashMap;
-import java.util.stream.Stream;
+package jthrice.resolver;
 
 import jthrice.lexer.Lexeme;
-import jthrice.utility.Map;
 
 /** Things that operate on expressions. */
 public sealed abstract class Operator permits Operator.Prefix, Operator.Postfix, Operator.Infix {
-  public static final Map<Class<? extends Lexeme.Token>, Operator> OPERATORS;
-
-  static {
-    var operators = new HashMap<Class<? extends Lexeme.Token>, Operator>();
-    Stream.of(Lexeme.Plus.class, Lexeme.Minus.class).forEach(token -> {
-      Stream
-        .of(Type.I1, Type.I2, Type.I4, Type.I8, Type.IX, Type.U1, Type.U2,
-          Type.U4, Type.U8, Type.UX, Type.F4, Type.F8, Type.RINF)
-        .forEach(type -> operators.put(token, new Prefix(token, type)));
-    });
-    Stream.of(Lexeme.Plus.class, Lexeme.Minus.class, Lexeme.Star.class,
-      Lexeme.ForwardSlash.class, Lexeme.Percent.class).forEach(token -> {
-        Stream
-          .of(Type.I1, Type.I2, Type.I4, Type.I8, Type.IX, Type.U1, Type.U2,
-            Type.U4, Type.U8, Type.UX, Type.F4, Type.F8, Type.RINF)
-          .forEach(type -> operators.put(token, new Infix(token, type, type)));
-      });
-    OPERATORS = new Map<>(operators);
-  }
-
   /** Operator that comes before an operand. */
   public static final class Prefix extends Operator {
     /** Type of the operand. */

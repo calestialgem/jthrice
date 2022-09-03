@@ -7,9 +7,9 @@ import java.nio.file.Path;
 
 import jthrice.analyzer.Analyzer;
 import jthrice.analyzer.Entity;
-import jthrice.analyzer.Name;
-import jthrice.analyzer.Type;
 import jthrice.launcher.Resolution;
+import jthrice.resolver.Name;
+import jthrice.resolver.Type;
 import jthrice.utility.Bug;
 
 /** Writes and compiles a C source from a program entity. */

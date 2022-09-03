@@ -45,6 +45,11 @@ public final class List<T> {
     return this.elements.get(index);
   }
 
+  /** Element at the given index from the end. */
+  public T atEnd(int index) {
+    return this.at(this.size() - 1 - index);
+  }
+
   /** Stream of the elements. */
   public Stream<T> stream() {
     return this.elements.stream();

@@ -4,6 +4,7 @@
 package jthrice.parser;
 
 import jthrice.lexer.Lexeme;
+import jthrice.lexer.Portion;
 import jthrice.utility.List;
 
 /** Hierarchical, context-free, collection of lexemes. */
@@ -16,6 +17,7 @@ public sealed abstract class Node permits Node.Program, Node.Statement, Node.Exp
     public final Lexeme.EOF      eof;
 
     public Program(List<Statement> statements, Lexeme.EOF eof) {
+      super(Portion.of(statements.at(0).portion, statements.atEnd(0).portion));
       this.statements = statements;
       this.eof        = eof;
     }
@@ -24,6 +26,9 @@ public sealed abstract class Node permits Node.Program, Node.Statement, Node.Exp
   /** Directives that are executed by the computer in order. */
   public static sealed abstract class Statement
     extends Node permits Definition {
+    public Statement(Portion portion) {
+      super(portion);
+    }
   }
 
   /** Creation of a variable. */
@@ -44,6 +49,7 @@ public sealed abstract class Node permits Node.Program, Node.Statement, Node.Exp
     public Definition(Lexeme.Identifier name, Lexeme.Colon separator,
       Expression type, Lexeme.Equal assignment, Expression value,
       Lexeme.Semicolon end) {
+      super(Portion.of(name.portion, end.portion));
       this.name       = name;
       this.separator  = separator;
       this.type       = type;
@@ -56,11 +62,17 @@ public sealed abstract class Node permits Node.Program, Node.Statement, Node.Exp
   /** Calculations and actions that lead to a value. */
   public static sealed abstract class Expression
     extends Node permits Primary, Group, Unary, Binary {
+    public Expression(Portion portion) {
+      super(portion);
+    }
   }
 
   /** Independent expression. */
   public static sealed abstract class Primary
     extends Expression permits Literal, Access {
+    public Primary(Portion portion) {
+      super(portion);
+    }
   }
 
   /** Hard coded value. */
@@ -69,6 +81,7 @@ public sealed abstract class Node permits Node.Program, Node.Statement, Node.Exp
     public final Lexeme value;
 
     public Literal(Lexeme value) {
+      super(value.portion);
       this.value = value;
     }
   }
@@ -79,6 +92,7 @@ public sealed abstract class Node permits Node.Program, Node.Statement, Node.Exp
     public final Lexeme.Identifier name;
 
     public Access(Lexeme.Identifier name) {
+      super(name.portion);
       this.name = name;
     }
   }
@@ -96,6 +110,7 @@ public sealed abstract class Node permits Node.Program, Node.Statement, Node.Exp
 
     public Group(Expression elevated, Lexeme.OpeningParentheses opening,
       Lexeme.ClosingParentheses closing) {
+      super(Portion.of(opening.portion, closing.portion));
       this.elevated = elevated;
       this.opening  = opening;
       this.closing  = closing;
@@ -110,6 +125,7 @@ public sealed abstract class Node permits Node.Program, Node.Statement, Node.Exp
     public final Expression   operand;
 
     public Unary(Lexeme.Token operator, Expression operand) {
+      super(Portion.of(operator.portion, operand.portion));
       this.operator = operator;
       this.operand  = operand;
     }
@@ -125,9 +141,22 @@ public sealed abstract class Node permits Node.Program, Node.Statement, Node.Exp
     public final Expression   right;
 
     public Binary(Lexeme.Token operator, Expression left, Expression right) {
+      super(Portion.of(left.portion, right.portion));
       this.operator = operator;
       this.left     = left;
       this.right    = right;
     }
+  }
+
+  /** Portion of the node in the source file. */
+  public final Portion portion;
+
+  public Node(Portion portion) {
+    this.portion = portion;
+  }
+
+  @Override
+  public String toString() {
+    return this.portion.toString();
   }
 }

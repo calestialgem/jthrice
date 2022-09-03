@@ -3,6 +3,8 @@
 
 package jthrice.analyzer;
 
+import jthrice.resolver.Name;
+import jthrice.resolver.Type;
 import jthrice.utility.List;
 
 /** An existince in a Thrice program. */

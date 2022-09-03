@@ -9,6 +9,14 @@ import jthrice.utility.Bug;
 
 /** Portion of a string. */
 public final class Portion {
+  /**
+   * Portion from the begining of the given first portion to the end of the
+   * given last portion.
+   */
+  public static Portion of(Portion first, Portion last) {
+    return new Portion(first.first, last.last);
+  }
+
   /** Portion of the line the given location is in. */
   public static Portion ofLine(Location location) {
     return new Portion(location.start(), location.end());

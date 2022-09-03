@@ -1,39 +1,10 @@
 // SPDX-FileCopyrightText: 2022 Cem Geçgel <gecgelcem@outlook.com>
 // SPDX-License-Identifier: GPL-3.0-or-later
 
-package jthrice.analyzer;
+package jthrice.resolver;
 
 /** Type of a value. */
 public sealed abstract class Type permits Type.Scalar, Type.Meta {
-  /** 1 byte, signed integer type. */
-  public static final Type I1   = new I1();
-  /** 2 byte, signed integer type. */
-  public static final Type I2   = new I2();
-  /** 4 byte, signed integer type. */
-  public static final Type I4   = new I4();
-  /** 8 byte, signed integer type. */
-  public static final Type I8   = new I8();
-  /** Pointer size, signed integer type. */
-  public static final Type IX   = new IX();
-  /** 1 byte, unsigned integer type. */
-  public static final Type U1   = new U1();
-  /** 2 byte, unsigned integer type. */
-  public static final Type U2   = new U2();
-  /** 4 byte, unsigned integer type. */
-  public static final Type U4   = new U4();
-  /** 8 byte, unsigned integer type. */
-  public static final Type U8   = new U8();
-  /** Pointer size, unsigned integer type. */
-  public static final Type UX   = new UX();
-  /** 4 byte, floating-point real type. */
-  public static final Type F4   = new F4();
-  /** 8 byte, floating-point real type. */
-  public static final Type F8   = new F8();
-  /** Infinite-precision, compile-time real type. */
-  public static final Type RINF = new Rinf();
-  /** Meta type; type type. */
-  public static final Type META = new Meta();
-
   /** Independent, undivisible, built-in types. */
   public static sealed abstract class Scalar
     extends Type permits Signed, Unsigned, Floating, Rinf {
