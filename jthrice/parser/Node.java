@@ -6,8 +6,6 @@ package jthrice.parser;
 import java.util.Objects;
 
 import jthrice.lexer.Lexeme;
-import jthrice.lexer.Lexeme.Token.ClosingParentheses;
-import jthrice.lexer.Lexeme.Token.OpeningParentheses;
 import jthrice.utility.List;
 
 /** Hierarchical, context-free, collection of lexemes. */
@@ -15,11 +13,11 @@ public sealed abstract class Node permits Node.Program, Node.Statement, Node.Exp
   /** Root node, which represent the whole program. */
   public static final class Program extends Node {
     /** Statements in the program. */
-    public final List<Statement>  statements;
+    public final List<Statement> statements;
     /** End of the file. */
-    public final Lexeme.Token.EOF eof;
+    public final Lexeme.EOF      eof;
 
-    public Program(List<Statement> statements, Lexeme.Token.EOF eof) {
+    public Program(List<Statement> statements, Lexeme.EOF eof) {
       this.statements = statements;
       this.eof        = eof;
     }
@@ -56,21 +54,21 @@ public sealed abstract class Node permits Node.Program, Node.Statement, Node.Exp
     /** Creation of a variable. */
     public static final class Definition extends Statement {
       /** Name of the defined variable. */
-      public final Lexeme.Identifier      name;
+      public final Lexeme.Name      name;
       /** Separator of name and type. */
-      public final Lexeme.Token.Colon     separator;
+      public final Lexeme.Colon     separator;
       /** Type expression. */
-      public final Expression             type;
+      public final Expression       type;
       /** Assignment operator. */
-      public final Lexeme.Token.Equal     assignment;
+      public final Lexeme.Equal     assignment;
       /** Value expression. */
-      public final Expression             value;
+      public final Expression       value;
       /** End of the statement. */
-      public final Lexeme.Token.Semicolon end;
+      public final Lexeme.Semicolon end;
 
-      public Definition(Lexeme.Identifier name, Lexeme.Token.Colon separator,
-        Expression type, Lexeme.Token.Equal assignment, Expression value,
-        Lexeme.Token.Semicolon end) {
+      public Definition(Lexeme.Name name, Lexeme.Colon separator,
+        Expression type, Lexeme.Equal assignment, Expression value,
+        Lexeme.Semicolon end) {
         this.name       = name;
         this.separator  = separator;
         this.type       = type;
@@ -149,9 +147,9 @@ public sealed abstract class Node permits Node.Program, Node.Statement, Node.Exp
       /** Value of a variable. */
       public static final class Access extends Primary {
         /** Name of the accessed variable. */
-        public final Lexeme.Identifier name;
+        public final Lexeme.Name name;
 
-        public Access(Lexeme.Identifier name) {
+        public Access(Lexeme.Name name) {
           this.name = name;
         }
 
@@ -183,14 +181,14 @@ public sealed abstract class Node permits Node.Program, Node.Statement, Node.Exp
      */
     public static final class Group extends Expression {
       /** Expression that is elevated. */
-      public final Expression                      elevated;
+      public final Expression                elevated;
       /** Start of the group. */
-      public final Lexeme.Token.OpeningParentheses opening;
+      public final Lexeme.OpeningParentheses opening;
       /** End of the group. */
-      public final Lexeme.Token.ClosingParentheses closing;
+      public final Lexeme.ClosingParentheses closing;
 
-      public Group(Expression elevated, OpeningParentheses opening,
-        ClosingParentheses closing) {
+      public Group(Expression elevated, Lexeme.OpeningParentheses opening,
+        Lexeme.ClosingParentheses closing) {
         this.elevated = elevated;
         this.opening  = opening;
         this.closing  = closing;

@@ -71,24 +71,23 @@ public class Analyzer {
     analyzeLiteral(Node.Expression.Primary.Literal literal) {
     return switch (literal.value) {
       case Lexeme.Number number -> switch (number) {
-        case Lexeme.Number.Integer integer ->
+        case Lexeme.Integer integer ->
           new Literal(Type.I8, integer.value.longValue());
-        case Lexeme.Number.Real real ->
-          new Literal(Type.I8, real.value.doubleValue());
+        case Lexeme.Real real -> new Literal(Type.I8, real.value.doubleValue());
       };
       case Lexeme.Keyword keyword -> switch (keyword) {
-        case Lexeme.Keyword.I1 i1 -> new Literal(Type.META, Type.I1);
-        case Lexeme.Keyword.I2 i2 -> new Literal(Type.META, Type.I2);
-        case Lexeme.Keyword.I4 i4 -> new Literal(Type.META, Type.I4);
-        case Lexeme.Keyword.I8 i8 -> new Literal(Type.META, Type.I8);
-        case Lexeme.Keyword.IX ix -> new Literal(Type.META, Type.IX);
-        case Lexeme.Keyword.U1 u1 -> new Literal(Type.META, Type.U1);
-        case Lexeme.Keyword.U2 u2 -> new Literal(Type.META, Type.U2);
-        case Lexeme.Keyword.U4 u4 -> new Literal(Type.META, Type.U4);
-        case Lexeme.Keyword.U8 u8 -> new Literal(Type.META, Type.U8);
-        case Lexeme.Keyword.UX ux -> new Literal(Type.META, Type.UX);
-        case Lexeme.Keyword.F4 f4 -> new Literal(Type.META, Type.F4);
-        case Lexeme.Keyword.F8 f8 -> new Literal(Type.META, Type.F8);
+        case Lexeme.I1 i1 -> new Literal(Type.META, Type.I1);
+        case Lexeme.I2 i2 -> new Literal(Type.META, Type.I2);
+        case Lexeme.I4 i4 -> new Literal(Type.META, Type.I4);
+        case Lexeme.I8 i8 -> new Literal(Type.META, Type.I8);
+        case Lexeme.IX ix -> new Literal(Type.META, Type.IX);
+        case Lexeme.U1 u1 -> new Literal(Type.META, Type.U1);
+        case Lexeme.U2 u2 -> new Literal(Type.META, Type.U2);
+        case Lexeme.U4 u4 -> new Literal(Type.META, Type.U4);
+        case Lexeme.U8 u8 -> new Literal(Type.META, Type.U8);
+        case Lexeme.UX ux -> new Literal(Type.META, Type.UX);
+        case Lexeme.F4 f4 -> new Literal(Type.META, Type.F4);
+        case Lexeme.F8 f8 -> new Literal(Type.META, Type.F8);
       };
       default -> throw new Bug("Literal value is invalid!");
     };

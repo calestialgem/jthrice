@@ -87,10 +87,10 @@ public final class Lexer {
     }
     Bug.check(
       !lexemes.isEmpty()
-        && lexemes.get(lexemes.size() - 1) instanceof Lexeme.Token.EOF,
+        && lexemes.get(lexemes.size() - 1) instanceof Lexeme.EOF,
       "There is no EOF character at the end of the source contents!");
     Bug.check(
-      lexemes.stream().filter(token -> token instanceof Lexeme.Token.EOF)
+      lexemes.stream().filter(token -> token instanceof Lexeme.EOF)
         .count() == 1,
       "There are EOF characters in the middle of the source contents!");
     return new List<>(lexemes);
@@ -99,20 +99,19 @@ public final class Lexer {
   /** Lex a token. */
   private Result<Lexeme> lexToken() {
     Result<Lexeme> token = switch (this.cursor.get().get().charValue()) {
-      case '+' -> Result.of(new Lexeme.Token.Plus(this.currentPortion()));
-      case '-' -> Result.of(new Lexeme.Token.Minus(this.currentPortion()));
-      case '*' -> Result.of(new Lexeme.Token.Star(this.currentPortion()));
-      case '/' ->
-        Result.of(new Lexeme.Token.ForwardSlash(this.currentPortion()));
-      case '%' -> Result.of(new Lexeme.Token.Percent(this.currentPortion()));
-      case '=' -> Result.of(new Lexeme.Token.Equal(this.currentPortion()));
-      case ':' -> Result.of(new Lexeme.Token.Colon(this.currentPortion()));
-      case ';' -> Result.of(new Lexeme.Token.Semicolon(this.currentPortion()));
+      case '+' -> Result.of(new Lexeme.Plus(this.currentPortion()));
+      case '-' -> Result.of(new Lexeme.Minus(this.currentPortion()));
+      case '*' -> Result.of(new Lexeme.Star(this.currentPortion()));
+      case '/' -> Result.of(new Lexeme.ForwardSlash(this.currentPortion()));
+      case '%' -> Result.of(new Lexeme.Percent(this.currentPortion()));
+      case '=' -> Result.of(new Lexeme.Equal(this.currentPortion()));
+      case ':' -> Result.of(new Lexeme.Colon(this.currentPortion()));
+      case ';' -> Result.of(new Lexeme.Semicolon(this.currentPortion()));
       case '(' ->
-        Result.of(new Lexeme.Token.OpeningParentheses(this.currentPortion()));
+        Result.of(new Lexeme.OpeningParentheses(this.currentPortion()));
       case ')' ->
-        Result.of(new Lexeme.Token.ClosingParentheses(this.currentPortion()));
-      case Source.EOF -> Result.of(new Lexeme.Token.EOF(this.currentPortion()));
+        Result.of(new Lexeme.ClosingParentheses(this.currentPortion()));
+      case Source.EOF -> Result.of(new Lexeme.EOF(this.currentPortion()));
       default -> Result.ofUnexisting();
     };
     if (token.valid()) {
@@ -164,10 +163,9 @@ public final class Lexer {
     }
 
     if (decimalPlaces.empty()) {
-      return Result
-        .of(new Lexeme.Number.Integer(this.portion(first, last), value));
+      return Result.of(new Lexeme.Integer(this.portion(first, last), value));
     }
-    return Result.of(new Lexeme.Number.Real(this.portion(first, last),
+    return Result.of(new Lexeme.Real(this.portion(first, last),
       new BigDecimal(value, decimalPlaces.get())));
   }
 
@@ -177,7 +175,7 @@ public final class Lexer {
     if (identifier.empty()) {
       return identifier;
     }
-    return Result.or(() -> lexKeyword((Lexeme.Identifier) identifier.get()),
+    return Result.or(() -> lexKeyword((Lexeme.Name) identifier.get()),
       () -> identifier);
   }
 
@@ -203,24 +201,24 @@ public final class Lexer {
       last = this.cursor.get();
     }
     return Result
-      .of(new Lexeme.Identifier(this.portion(first, last), value.toString()));
+      .of(new Lexeme.Name(this.portion(first, last), value.toString()));
   }
 
   /** Lex a keyword. */
-  private static Result<Lexeme> lexKeyword(Lexeme.Identifier identifier) {
+  private static Result<Lexeme> lexKeyword(Lexeme.Name identifier) {
     return switch (identifier.value) {
-      case "i1" -> Result.of(new Lexeme.Keyword.I1(identifier.portion));
-      case "i2" -> Result.of(new Lexeme.Keyword.I2(identifier.portion));
-      case "i4" -> Result.of(new Lexeme.Keyword.I4(identifier.portion));
-      case "i8" -> Result.of(new Lexeme.Keyword.I8(identifier.portion));
-      case "ix" -> Result.of(new Lexeme.Keyword.IX(identifier.portion));
-      case "u1" -> Result.of(new Lexeme.Keyword.U1(identifier.portion));
-      case "u2" -> Result.of(new Lexeme.Keyword.U2(identifier.portion));
-      case "u4" -> Result.of(new Lexeme.Keyword.U4(identifier.portion));
-      case "u8" -> Result.of(new Lexeme.Keyword.U8(identifier.portion));
-      case "ux" -> Result.of(new Lexeme.Keyword.UX(identifier.portion));
-      case "f4" -> Result.of(new Lexeme.Keyword.F4(identifier.portion));
-      case "f8" -> Result.of(new Lexeme.Keyword.F8(identifier.portion));
+      case "i1" -> Result.of(new Lexeme.I1(identifier.portion));
+      case "i2" -> Result.of(new Lexeme.I2(identifier.portion));
+      case "i4" -> Result.of(new Lexeme.I4(identifier.portion));
+      case "i8" -> Result.of(new Lexeme.I8(identifier.portion));
+      case "ix" -> Result.of(new Lexeme.IX(identifier.portion));
+      case "u1" -> Result.of(new Lexeme.U1(identifier.portion));
+      case "u2" -> Result.of(new Lexeme.U2(identifier.portion));
+      case "u4" -> Result.of(new Lexeme.U4(identifier.portion));
+      case "u8" -> Result.of(new Lexeme.U8(identifier.portion));
+      case "ux" -> Result.of(new Lexeme.UX(identifier.portion));
+      case "f4" -> Result.of(new Lexeme.F4(identifier.portion));
+      case "f8" -> Result.of(new Lexeme.F8(identifier.portion));
       default -> Result.ofUnexisting();
     };
   }

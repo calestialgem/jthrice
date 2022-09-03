@@ -70,7 +70,7 @@ public final class Parser {
       statements.add(statement.get());
     }
     Bug.check(this.cursor.valid(), "There is no EOF!");
-    var eof = this.consume(Lexeme.Token.EOF.class);
+    var eof = this.consume(Lexeme.EOF.class);
     if (eof.empty()) {
       this.error("Expected the end of the file!");
       return Result.ofUnexisting();
@@ -86,11 +86,11 @@ public final class Parser {
 
   /** Parse a definition. */
   private Result<Node.Statement> parseDefinition() {
-    var name = this.consume(Lexeme.Identifier.class);
+    var name = this.consume(Lexeme.Name.class);
     if (name.empty()) {
       return Result.ofUnexisting();
     }
-    var separator = this.consume(Lexeme.Token.Colon.class);
+    var separator = this.consume(Lexeme.Colon.class);
     if (separator.empty()) {
       this.error(
         "Expected a `:` at the definition of `" + name.get().portion + "`!");
@@ -102,7 +102,7 @@ public final class Parser {
         "Expected the type at the definition of `" + name.get().portion + "`!");
       return Result.ofUnexisting();
     }
-    var assignment = this.consume(Lexeme.Token.Equal.class);
+    var assignment = this.consume(Lexeme.Equal.class);
     if (assignment.empty()) {
       this.error(
         "Expected a `=` at the definition of `" + name.get().portion + "`!");
@@ -114,7 +114,7 @@ public final class Parser {
         + name.get().portion + "`!");
       return Result.ofUnexisting();
     }
-    var end = this.consume(Lexeme.Token.Semicolon.class);
+    var end = this.consume(Lexeme.Semicolon.class);
     if (end.empty()) {
       this.error(
         "Expected a `;` at the definition of `" + name.get().portion + "`!");
@@ -131,14 +131,14 @@ public final class Parser {
 
   /** Parse a term. */
   private Result<Node.Expression> parseTerm() {
-    return this.parseBinary(this::parseFactor, Lexeme.Token.Plus.class,
-      Lexeme.Token.Minus.class);
+    return this.parseBinary(this::parseFactor, Lexeme.Plus.class,
+      Lexeme.Minus.class);
   }
 
   /** Parse a factor. */
   private Result<Node.Expression> parseFactor() {
-    return this.parseBinary(this::parseUnary, Lexeme.Token.Star.class,
-      Lexeme.Token.ForwardSlash.class, Lexeme.Token.Percent.class);
+    return this.parseBinary(this::parseUnary, Lexeme.Star.class,
+      Lexeme.ForwardSlash.class, Lexeme.Percent.class);
   }
 
   /** Parse a binary. */
@@ -170,8 +170,7 @@ public final class Parser {
 
   /** Parse a unary. */
   private Result<Node.Expression> parseUnary() {
-    var operator = this.consume(Lexeme.Token.Plus.class,
-      Lexeme.Token.Minus.class);
+    var operator = this.consume(Lexeme.Plus.class, Lexeme.Minus.class);
     if (operator.empty()) {
       return this.parseGroup();
     }
@@ -186,7 +185,7 @@ public final class Parser {
 
   /** Parse a group. */
   private Result<Node.Expression> parseGroup() {
-    var opening = this.consume(Lexeme.Token.OpeningParentheses.class);
+    var opening = this.consume(Lexeme.OpeningParentheses.class);
     if (opening.empty()) {
       return this.parsePrimary();
     }
@@ -195,7 +194,7 @@ public final class Parser {
       this.error("Expected an expression after `(`!");
       return Result.ofUnexisting();
     }
-    var closing = this.consume(Lexeme.Token.ClosingParentheses.class);
+    var closing = this.consume(Lexeme.ClosingParentheses.class);
     if (closing.empty()) {
       this.error("Expected `)` at the end of the expression!");
     }
@@ -205,15 +204,14 @@ public final class Parser {
 
   /** Parse a primary. */
   private Result<Node.Expression> parsePrimary() {
-    var name = this.consume(Lexeme.Identifier.class);
+    var name = this.consume(Lexeme.Name.class);
     if (name.valid()) {
       return Result.of(new Node.Expression.Primary.Access(name.get()));
     }
-    var value = this.consume(Lexeme.Number.class, Lexeme.Keyword.I1.class,
-      Lexeme.Keyword.I2.class, Lexeme.Keyword.I4.class, Lexeme.Keyword.I8.class,
-      Lexeme.Keyword.IX.class, Lexeme.Keyword.U1.class, Lexeme.Keyword.U2.class,
-      Lexeme.Keyword.U4.class, Lexeme.Keyword.U8.class, Lexeme.Keyword.UX.class,
-      Lexeme.Keyword.F4.class, Lexeme.Keyword.F8.class);
+    var value = this.consume(Lexeme.class, Lexeme.I1.class, Lexeme.I2.class,
+      Lexeme.I4.class, Lexeme.I8.class, Lexeme.IX.class, Lexeme.U1.class,
+      Lexeme.U2.class, Lexeme.U4.class, Lexeme.U8.class, Lexeme.UX.class,
+      Lexeme.F4.class, Lexeme.F8.class);
     return Result.of(new Node.Expression.Primary.Literal(value.get()));
   }
 }
