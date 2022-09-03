@@ -56,20 +56,21 @@ public sealed abstract class Node permits Node.Program, Node.Statement, Node.Exp
   /** Creation of a variable. */
   public static final class Definition extends Statement {
     /** Name of the defined variable. */
-    public final Lexeme.Name      name;
+    public final Lexeme.Identifier name;
     /** Separator of name and type. */
-    public final Lexeme.Colon     separator;
+    public final Lexeme.Colon      separator;
     /** Type expression. */
-    public final Expression       type;
+    public final Expression        type;
     /** Assignment operator. */
-    public final Lexeme.Equal     assignment;
+    public final Lexeme.Equal      assignment;
     /** Value expression. */
-    public final Expression       value;
+    public final Expression        value;
     /** End of the statement. */
-    public final Lexeme.Semicolon end;
+    public final Lexeme.Semicolon  end;
 
-    public Definition(Lexeme.Name name, Lexeme.Colon separator, Expression type,
-      Lexeme.Equal assignment, Expression value, Lexeme.Semicolon end) {
+    public Definition(Lexeme.Identifier name, Lexeme.Colon separator,
+      Expression type, Lexeme.Equal assignment, Expression value,
+      Lexeme.Semicolon end) {
       this.name       = name;
       this.separator  = separator;
       this.type       = type;
@@ -151,9 +152,9 @@ public sealed abstract class Node permits Node.Program, Node.Statement, Node.Exp
   /** Value of a variable. */
   public static final class Access extends Primary {
     /** Name of the accessed variable. */
-    public final Lexeme.Name name;
+    public final Lexeme.Identifier name;
 
-    public Access(Lexeme.Name name) {
+    public Access(Lexeme.Identifier name) {
       this.name = name;
     }
 

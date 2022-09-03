@@ -8,7 +8,7 @@ import java.math.BigInteger;
 import java.util.Objects;
 
 /** Smallest meaningful group of characters in a source. */
-public sealed abstract class Lexeme permits Lexeme.Token, Lexeme.Number, Lexeme.Name, Lexeme.Keyword {
+public sealed abstract class Lexeme permits Lexeme.Token, Lexeme.Number, Lexeme.Identifier, Lexeme.Keyword {
   /** Non-alphanumeric character group. */
   public static sealed abstract class Token extends
     Lexeme permits Plus, Minus, Star, ForwardSlash, Percent, Equal, Colon, Semicolon, OpeningParentheses, ClosingParentheses, EOF {
@@ -157,11 +157,11 @@ public sealed abstract class Lexeme permits Lexeme.Token, Lexeme.Number, Lexeme.
   }
 
   /** Symbol name in definition or reference. */
-  public static final class Name extends Lexeme {
+  public static final class Identifier extends Lexeme {
     /** Value. */
     public final String value;
 
-    public Name(Portion portion, String value) {
+    public Identifier(Portion portion, String value) {
       super(portion);
       this.value = value;
     }
@@ -176,14 +176,14 @@ public sealed abstract class Lexeme permits Lexeme.Token, Lexeme.Number, Lexeme.
       if (this == obj) {
         return true;
       }
-      if (!(obj instanceof Name other)) {
+      if (!(obj instanceof Identifier other)) {
         return false;
       }
       return Objects.equals(this.value, other.value);
     }
   }
 
-  /** Reserved name. */
+  /** Reserved identifier. */
   public static sealed abstract class Keyword
     extends Lexeme permits I1, I2, I4, I8, IX, U1, U2, U4, U8, UX, F4, F8 {
     public Keyword(Portion portion) {

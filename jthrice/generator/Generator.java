@@ -98,14 +98,13 @@ public class Generator {
   /** Generate the given statement. */
   private void generateStatement(Entity.Statement statement) {
     switch (statement) {
-      case Entity.Statement.Definition definition ->
-        this.generateDefinition(definition);
+      case Entity.Definition definition -> this.generateDefinition(definition);
     }
     this.generate(this.newLine());
   }
 
   /** Generate the given definition. */
-  private void generateDefinition(Entity.Statement.Definition definition) {
+  private void generateDefinition(Entity.Definition definition) {
 
     this.generate(definition.type, definition.name, "=", definition.value, ";");
     switch (definition.type) {
@@ -192,39 +191,37 @@ public class Generator {
   /** Generate the given expression. */
   private void generateExpression(Entity.Expression expression) {
     switch (expression) {
-      case Entity.Expression.Primary primary -> this.generatePrimary(primary);
-      case Entity.Expression.Unary unary -> this.generateUnary(unary);
-      case Entity.Expression.Binary binary -> this.generateBinary(binary);
+      case Entity.Primary primary -> this.generatePrimary(primary);
+      case Entity.Unary unary -> this.generateUnary(unary);
+      case Entity.Binary binary -> this.generateBinary(binary);
     }
   }
 
   /** Generate the given primary expression. */
-  private void generatePrimary(Entity.Expression.Primary primary) {
+  private void generatePrimary(Entity.Primary primary) {
     switch (primary) {
-      case Entity.Expression.Primary.Literal literal ->
-        this.generateLiteral(literal);
-      case Entity.Expression.Primary.Access access ->
-        this.generateAccess(access);
+      case Entity.Literal literal -> this.generateLiteral(literal);
+      case Entity.Access access -> this.generateAccess(access);
     }
   }
 
   /** Generate the given literal primary expression. */
-  private void generateLiteral(Entity.Expression.Primary.Literal literal) {
+  private void generateLiteral(Entity.Literal literal) {
     this.generate(literal.value.toString());
   }
 
   /** Generate the given access primary expression. */
-  private void generateAccess(Entity.Expression.Primary.Access access) {
-    this.generate(access.name);
+  private void generateAccess(Entity.Access access) {
+    this.generate(access.variable);
   }
 
   /** Generate the given unary expression. */
-  private void generateUnary(Entity.Expression.Unary unary) {
+  private void generateUnary(Entity.Unary unary) {
     this.generate(unary.operator, unary.operand);
   }
 
   /** Generate the given binary expression. */
-  private void generateBinary(Entity.Expression.Binary binary) {
+  private void generateBinary(Entity.Binary binary) {
     this.generate(binary.left, binary.operator, binary.right);
   }
 

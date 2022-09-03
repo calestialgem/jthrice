@@ -86,7 +86,7 @@ public final class Parser {
 
   /** Parse a definition. */
   private Result<Node.Statement> parseDefinition() {
-    var name = this.consume(Lexeme.Name.class);
+    var name = this.consume(Lexeme.Identifier.class);
     if (name.empty()) {
       return Result.ofUnexisting();
     }
@@ -204,7 +204,7 @@ public final class Parser {
 
   /** Parse a primary. */
   private Result<Node.Expression> parsePrimary() {
-    var name = this.consume(Lexeme.Name.class);
+    var name = this.consume(Lexeme.Identifier.class);
     if (name.valid()) {
       return Result.of(new Node.Access(name.get()));
     }

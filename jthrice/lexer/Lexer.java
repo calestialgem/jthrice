@@ -175,7 +175,7 @@ public final class Lexer {
     if (identifier.empty()) {
       return identifier;
     }
-    return Result.or(() -> lexKeyword((Lexeme.Name) identifier.get()),
+    return Result.or(() -> lexKeyword((Lexeme.Identifier) identifier.get()),
       () -> identifier);
   }
 
@@ -201,11 +201,11 @@ public final class Lexer {
       last = this.cursor.get();
     }
     return Result
-      .of(new Lexeme.Name(this.portion(first, last), value.toString()));
+      .of(new Lexeme.Identifier(this.portion(first, last), value.toString()));
   }
 
   /** Lex a keyword. */
-  private static Result<Lexeme> lexKeyword(Lexeme.Name identifier) {
+  private static Result<Lexeme> lexKeyword(Lexeme.Identifier identifier) {
     return switch (identifier.value) {
       case "i1" -> Result.of(new Lexeme.I1(identifier.portion));
       case "i2" -> Result.of(new Lexeme.I2(identifier.portion));
