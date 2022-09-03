@@ -10,16 +10,16 @@ import jthrice.lexer.Lexeme.Token.ClosingParentheses;
 import jthrice.lexer.Lexeme.Token.OpeningParentheses;
 import jthrice.utility.List;
 
-/** Syntatic entities; hierarchical collection of tokens. */
-public sealed abstract class Syntatic permits Syntatic.Source, Syntatic.Statement, Syntatic.Expression {
-    /** Root of all the syntatic entities in a source file. */
-    public static final class Source extends Syntatic {
-        /** Statements under the source file. */
+/** Hierarchical, context-free, collection of lexemes. */
+public sealed abstract class Node permits Node.Program, Node.Statement, Node.Expression {
+    /** Root node, which represent the whole program. */
+    public static final class Program extends Node {
+        /** Statements in the program. */
         public final List<Statement> statements;
         /** End of the file. */
         public final Lexeme.Token.EOF eof;
 
-        public Source(List<Statement> statements, Lexeme.Token.EOF eof) {
+        public Program(List<Statement> statements, Lexeme.Token.EOF eof) {
             this.statements = statements;
             this.eof = eof;
         }
@@ -41,16 +41,16 @@ public sealed abstract class Syntatic permits Syntatic.Source, Syntatic.Statemen
             if (this == obj) {
                 return true;
             }
-            if (!(obj instanceof Source)) {
+            if (!(obj instanceof Program)) {
                 return false;
             }
-            Source other = (Source) obj;
+            Program other = (Program) obj;
             return Objects.equals(eof, other.eof) && Objects.equals(statements, other.statements);
         }
     }
 
     /** Directives that are executed by the computer in order. */
-    public static sealed abstract class Statement extends Syntatic permits Statement.Definition {
+    public static sealed abstract class Statement extends Node permits Statement.Definition {
         /** Creation of a variable. */
         public static final class Definition extends Statement {
             /** Name of the defined variable. */
@@ -105,12 +105,12 @@ public sealed abstract class Syntatic permits Syntatic.Source, Syntatic.Statemen
 
     /** Calculations and actions that lead to a value. */
     public static sealed abstract class Expression
-            extends Syntatic permits Expression.Primary, Expression.Group, Expression.Unary, Expression.Binary {
+            extends Node permits Expression.Primary, Expression.Group, Expression.Unary, Expression.Binary {
         /** Independent expression. */
         public static sealed abstract class Primary extends Expression permits Primary.Literal, Primary.Access {
             /** Hard coded value. */
             public static final class Literal extends Primary {
-                /** Token that carries the value. */
+                /** Lexeme that carries the value. */
                 public final Lexeme value;
 
                 public Literal(Lexeme value) {
