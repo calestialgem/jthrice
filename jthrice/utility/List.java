@@ -6,6 +6,7 @@ package jthrice.utility;
 import java.util.ArrayList;
 import java.util.Objects;
 import java.util.function.Consumer;
+import java.util.stream.Stream;
 
 /** Immutable list. */
 public final class List<T> {
@@ -54,6 +55,11 @@ public final class List<T> {
     /** Supply the elements to the given consumer. */
     public void forEach(Consumer<? super T> consumer) {
         elements.forEach(consumer);
+    }
+
+    /** Stream of the elements. */
+    public Stream<T> stream() {
+        return elements.stream();
     }
 
     @Override

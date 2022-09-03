@@ -6,6 +6,7 @@ package jthrice.analyzer;
 import jthrice.launcher.Resolution;
 import jthrice.parser.Node;
 import jthrice.parser.Parser;
+import jthrice.utility.List;
 import jthrice.utility.Result;
 
 /** Creates a program entity from a program node. */
@@ -31,6 +32,11 @@ public class Analyzer {
     }
 
     private Result<Entity.Program> analyze() {
+        return Result.of(new Entity.Program(List.of(node.statements.stream().map(this::analyzeStatement)
+                .filter(Result::valid).map(Result::get).toList())));
+    }
+
+    private Result<Entity.Statement> analyzeStatement(Node.Statement statement) {
         return Result.ofUnexisting();
     }
 }
