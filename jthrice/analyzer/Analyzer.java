@@ -32,9 +32,13 @@ public class Analyzer {
   }
 
   private Result<Entity.Program> analyze() {
-    return Result.of(new Entity.Program(
-      List.of(this.node.statements.stream().map(this::analyzeStatement)
-        .filter(Result::valid).map(Result::get).toList())));
+    var statements = List
+      .of(this.node.statements.stream().map(this::analyzeStatement)
+        .filter(Result::valid).map(Result::get).toList());
+    if (statements.size() < this.node.statements.size()) {
+      return Result.ofInvalid();
+    }
+    return Result.of(new Entity.Program(statements));
   }
 
   private Result<Entity.Statement> analyzeStatement(Node.Statement statement) {
