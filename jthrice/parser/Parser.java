@@ -120,7 +120,7 @@ public final class Parser {
         "Expected a `;` at the definition of `" + name.get().portion + "`!");
       return Result.ofUnexisting();
     }
-    return Result.of(new Node.Statement.Definition(name.get(), separator.get(),
+    return Result.of(new Node.Definition(name.get(), separator.get(),
       type.get(), assignment.get(), value.get(), end.get()));
   }
 
@@ -163,7 +163,7 @@ public final class Parser {
             + operator.get().portion + "`!");
         return Result.ofUnexisting();
       }
-      binary = new Node.Expression.Binary(operator.get(), binary, right.get());
+      binary = new Node.Binary(operator.get(), binary, right.get());
     }
     return Result.of(binary);
   }
@@ -180,7 +180,7 @@ public final class Parser {
         + operator.get().portion + "`!");
       return Result.ofUnexisting();
     }
-    return Result.of(new Node.Expression.Unary(operator.get(), operand.get()));
+    return Result.of(new Node.Unary(operator.get(), operand.get()));
   }
 
   /** Parse a group. */
@@ -198,20 +198,20 @@ public final class Parser {
     if (closing.empty()) {
       this.error("Expected `)` at the end of the expression!");
     }
-    return Result.of(
-      new Node.Expression.Group(elevated.get(), opening.get(), closing.get()));
+    return Result
+      .of(new Node.Group(elevated.get(), opening.get(), closing.get()));
   }
 
   /** Parse a primary. */
   private Result<Node.Expression> parsePrimary() {
     var name = this.consume(Lexeme.Name.class);
     if (name.valid()) {
-      return Result.of(new Node.Expression.Primary.Access(name.get()));
+      return Result.of(new Node.Access(name.get()));
     }
     var value = this.consume(Lexeme.class, Lexeme.I1.class, Lexeme.I2.class,
       Lexeme.I4.class, Lexeme.I8.class, Lexeme.IX.class, Lexeme.U1.class,
       Lexeme.U2.class, Lexeme.U4.class, Lexeme.U8.class, Lexeme.UX.class,
       Lexeme.F4.class, Lexeme.F8.class);
-    return Result.of(new Node.Expression.Primary.Literal(value.get()));
+    return Result.of(new Node.Literal(value.get()));
   }
 }

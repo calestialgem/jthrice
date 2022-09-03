@@ -50,246 +50,248 @@ public sealed abstract class Node permits Node.Program, Node.Statement, Node.Exp
 
   /** Directives that are executed by the computer in order. */
   public static sealed abstract class Statement
-    extends Node permits Statement.Definition {
-    /** Creation of a variable. */
-    public static final class Definition extends Statement {
-      /** Name of the defined variable. */
-      public final Lexeme.Name      name;
-      /** Separator of name and type. */
-      public final Lexeme.Colon     separator;
-      /** Type expression. */
-      public final Expression       type;
-      /** Assignment operator. */
-      public final Lexeme.Equal     assignment;
-      /** Value expression. */
-      public final Expression       value;
-      /** End of the statement. */
-      public final Lexeme.Semicolon end;
+    extends Node permits Definition {
+  }
 
-      public Definition(Lexeme.Name name, Lexeme.Colon separator,
-        Expression type, Lexeme.Equal assignment, Expression value,
-        Lexeme.Semicolon end) {
-        this.name       = name;
-        this.separator  = separator;
-        this.type       = type;
-        this.assignment = assignment;
-        this.value      = value;
-        this.end        = end;
-      }
+  /** Creation of a variable. */
+  public static final class Definition extends Statement {
+    /** Name of the defined variable. */
+    public final Lexeme.Name      name;
+    /** Separator of name and type. */
+    public final Lexeme.Colon     separator;
+    /** Type expression. */
+    public final Expression       type;
+    /** Assignment operator. */
+    public final Lexeme.Equal     assignment;
+    /** Value expression. */
+    public final Expression       value;
+    /** End of the statement. */
+    public final Lexeme.Semicolon end;
 
-      @Override
-      public String toString() {
-        return this.name.toString() + this.separator + this.type
-          + this.assignment + this.value + this.end;
-      }
+    public Definition(Lexeme.Name name, Lexeme.Colon separator, Expression type,
+      Lexeme.Equal assignment, Expression value, Lexeme.Semicolon end) {
+      this.name       = name;
+      this.separator  = separator;
+      this.type       = type;
+      this.assignment = assignment;
+      this.value      = value;
+      this.end        = end;
+    }
 
-      @Override
-      public int hashCode() {
-        return Objects.hash(this.assignment, this.end, this.name,
-          this.separator, this.type, this.value);
-      }
+    @Override
+    public String toString() {
+      return this.name.toString() + this.separator + this.type + this.assignment
+        + this.value + this.end;
+    }
 
-      @Override
-      public boolean equals(Object obj) {
-        if (this == obj) {
-          return true;
-        }
-        if (!(obj instanceof Definition other)) {
-          return false;
-        }
-        return Objects.equals(this.assignment, other.assignment)
-          && Objects.equals(this.end, other.end)
-          && Objects.equals(this.name, other.name)
-          && Objects.equals(this.separator, other.separator)
-          && Objects.equals(this.type, other.type)
-          && Objects.equals(this.value, other.value);
+    @Override
+    public int hashCode() {
+      return Objects.hash(this.assignment, this.end, this.name, this.separator,
+        this.type, this.value);
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+      if (this == obj) {
+        return true;
       }
+      if (!(obj instanceof Definition other)) {
+        return false;
+      }
+      return Objects.equals(this.assignment, other.assignment)
+        && Objects.equals(this.end, other.end)
+        && Objects.equals(this.name, other.name)
+        && Objects.equals(this.separator, other.separator)
+        && Objects.equals(this.type, other.type)
+        && Objects.equals(this.value, other.value);
     }
   }
 
   /** Calculations and actions that lead to a value. */
-  public static sealed abstract class Expression extends
-    Node permits Expression.Primary, Expression.Group, Expression.Unary, Expression.Binary {
-    /** Independent expression. */
-    public static sealed abstract class Primary
-      extends Expression permits Primary.Literal, Primary.Access {
-      /** Hard coded value. */
-      public static final class Literal extends Primary {
-        /** Lexeme that carries the value. */
-        public final Lexeme value;
+  public static sealed abstract class Expression
+    extends Node permits Primary, Group, Unary, Binary {
+  }
 
-        public Literal(Lexeme value) {
-          this.value = value;
-        }
+  /** Independent expression. */
+  public static sealed abstract class Primary
+    extends Expression permits Literal, Access {
+  }
 
-        @Override
-        public String toString() {
-          return "[" + this.value + "]";
-        }
+  /** Hard coded value. */
+  public static final class Literal extends Primary {
+    /** Lexeme that carries the value. */
+    public final Lexeme value;
 
-        @Override
-        public int hashCode() {
-          return Objects.hash(this.value);
-        }
-
-        @Override
-        public boolean equals(Object obj) {
-          if (this == obj) {
-            return true;
-          }
-          if (!(obj instanceof Literal other)) {
-            return false;
-          }
-          return Objects.equals(this.value, other.value);
-        }
-      }
-
-      /** Value of a variable. */
-      public static final class Access extends Primary {
-        /** Name of the accessed variable. */
-        public final Lexeme.Name name;
-
-        public Access(Lexeme.Name name) {
-          this.name = name;
-        }
-
-        @Override
-        public String toString() {
-          return "[" + this.name + "]";
-        }
-
-        @Override
-        public int hashCode() {
-          return Objects.hash(this.name);
-        }
-
-        @Override
-        public boolean equals(Object obj) {
-          if (this == obj) {
-            return true;
-          }
-          if (!(obj instanceof Access other)) {
-            return false;
-          }
-          return Objects.equals(this.name, other.name);
-        }
-      }
+    public Literal(Lexeme value) {
+      this.value = value;
     }
 
-    /**
-     * Grouping expression to elevate its position in associative ordering.
-     */
-    public static final class Group extends Expression {
-      /** Expression that is elevated. */
-      public final Expression                elevated;
-      /** Start of the group. */
-      public final Lexeme.OpeningParentheses opening;
-      /** End of the group. */
-      public final Lexeme.ClosingParentheses closing;
-
-      public Group(Expression elevated, Lexeme.OpeningParentheses opening,
-        Lexeme.ClosingParentheses closing) {
-        this.elevated = elevated;
-        this.opening  = opening;
-        this.closing  = closing;
-      }
-
-      @Override
-      public String toString() {
-        return "[" + this.opening + this.elevated + this.closing + "]";
-      }
-
-      @Override
-      public int hashCode() {
-        return Objects.hash(this.closing, this.elevated, this.opening);
-      }
-
-      @Override
-      public boolean equals(Object obj) {
-        if (this == obj) {
-          return true;
-        }
-        if (!(obj instanceof Group other)) {
-          return false;
-        }
-        return Objects.equals(this.closing, other.closing)
-          && Objects.equals(this.elevated, other.elevated)
-          && Objects.equals(this.opening, other.opening);
-      }
+    @Override
+    public String toString() {
+      return "[" + this.value + "]";
     }
 
-    /** Operation on an expression. */
-    public static final class Unary extends Expression {
-      /** Operator. */
-      public final Lexeme.Token operator;
-      /** Operand. */
-      public final Expression   operand;
-
-      public Unary(Lexeme.Token operator, Expression operand) {
-        this.operator = operator;
-        this.operand  = operand;
-      }
-
-      @Override
-      public String toString() {
-        return "[" + this.operator + this.operand + "]";
-      }
-
-      @Override
-      public int hashCode() {
-        return Objects.hash(this.operand, this.operator);
-      }
-
-      @Override
-      public boolean equals(Object obj) {
-        if (this == obj) {
-          return true;
-        }
-        if (!(obj instanceof Unary other)) {
-          return false;
-        }
-        return Objects.equals(this.operand, other.operand)
-          && Objects.equals(this.operator, other.operator);
-      }
+    @Override
+    public int hashCode() {
+      return Objects.hash(this.value);
     }
 
-    /** Operation on two expressions. */
-    public static final class Binary extends Expression {
-      /** Operator. */
-      public final Lexeme.Token operator;
-      /** Left operand. */
-      public final Expression   left;
-      /** Right operand. */
-      public final Expression   right;
-
-      public Binary(Lexeme.Token operator, Expression left, Expression right) {
-        this.operator = operator;
-        this.left     = left;
-        this.right    = right;
+    @Override
+    public boolean equals(Object obj) {
+      if (this == obj) {
+        return true;
       }
-
-      @Override
-      public String toString() {
-        return "[" + this.left + this.operator + this.right + "]";
+      if (!(obj instanceof Literal other)) {
+        return false;
       }
+      return Objects.equals(this.value, other.value);
+    }
+  }
 
-      @Override
-      public int hashCode() {
-        return Objects.hash(this.left, this.operator, this.right);
-      }
+  /** Value of a variable. */
+  public static final class Access extends Primary {
+    /** Name of the accessed variable. */
+    public final Lexeme.Name name;
 
-      @Override
-      public boolean equals(Object obj) {
-        if (this == obj) {
-          return true;
-        }
-        if (!(obj instanceof Binary other)) {
-          return false;
-        }
-        return Objects.equals(this.left, other.left)
-          && Objects.equals(this.operator, other.operator)
-          && Objects.equals(this.right, other.right);
+    public Access(Lexeme.Name name) {
+      this.name = name;
+    }
+
+    @Override
+    public String toString() {
+      return "[" + this.name + "]";
+    }
+
+    @Override
+    public int hashCode() {
+      return Objects.hash(this.name);
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+      if (this == obj) {
+        return true;
       }
+      if (!(obj instanceof Access other)) {
+        return false;
+      }
+      return Objects.equals(this.name, other.name);
+    }
+  }
+
+  /**
+   * Grouping expression to elevate its position in associative ordering.
+   */
+  public static final class Group extends Expression {
+    /** Expression that is elevated. */
+    public final Expression                elevated;
+    /** Start of the group. */
+    public final Lexeme.OpeningParentheses opening;
+    /** End of the group. */
+    public final Lexeme.ClosingParentheses closing;
+
+    public Group(Expression elevated, Lexeme.OpeningParentheses opening,
+      Lexeme.ClosingParentheses closing) {
+      this.elevated = elevated;
+      this.opening  = opening;
+      this.closing  = closing;
+    }
+
+    @Override
+    public String toString() {
+      return "[" + this.opening + this.elevated + this.closing + "]";
+    }
+
+    @Override
+    public int hashCode() {
+      return Objects.hash(this.closing, this.elevated, this.opening);
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+      if (this == obj) {
+        return true;
+      }
+      if (!(obj instanceof Group other)) {
+        return false;
+      }
+      return Objects.equals(this.closing, other.closing)
+        && Objects.equals(this.elevated, other.elevated)
+        && Objects.equals(this.opening, other.opening);
+    }
+  }
+
+  /** Operation on an expression. */
+  public static final class Unary extends Expression {
+    /** Operator. */
+    public final Lexeme.Token operator;
+    /** Operand. */
+    public final Expression   operand;
+
+    public Unary(Lexeme.Token operator, Expression operand) {
+      this.operator = operator;
+      this.operand  = operand;
+    }
+
+    @Override
+    public String toString() {
+      return "[" + this.operator + this.operand + "]";
+    }
+
+    @Override
+    public int hashCode() {
+      return Objects.hash(this.operand, this.operator);
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+      if (this == obj) {
+        return true;
+      }
+      if (!(obj instanceof Unary other)) {
+        return false;
+      }
+      return Objects.equals(this.operand, other.operand)
+        && Objects.equals(this.operator, other.operator);
+    }
+  }
+
+  /** Operation on two expressions. */
+  public static final class Binary extends Expression {
+    /** Operator. */
+    public final Lexeme.Token operator;
+    /** Left operand. */
+    public final Expression   left;
+    /** Right operand. */
+    public final Expression   right;
+
+    public Binary(Lexeme.Token operator, Expression left, Expression right) {
+      this.operator = operator;
+      this.left     = left;
+      this.right    = right;
+    }
+
+    @Override
+    public String toString() {
+      return "[" + this.left + this.operator + this.right + "]";
+    }
+
+    @Override
+    public int hashCode() {
+      return Objects.hash(this.left, this.operator, this.right);
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+      if (this == obj) {
+        return true;
+      }
+      if (!(obj instanceof Binary other)) {
+        return false;
+      }
+      return Objects.equals(this.left, other.left)
+        && Objects.equals(this.operator, other.operator)
+        && Objects.equals(this.right, other.right);
     }
   }
 }

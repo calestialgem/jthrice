@@ -52,23 +52,21 @@ public class Analyzer {
   private Result<Entity.Expression>
     analyzeExpression(Node.Expression expression) {
     return switch (expression) {
-      case Node.Expression.Primary primary -> analyzePrimary(primary);
-      case Node.Expression.Group group -> analyzeGroup(group);
-      case Node.Expression.Unary unary -> analyzeUnary(unary);
-      case Node.Expression.Binary binary -> analyzeBinary(binary);
+      case Node.Primary primary -> analyzePrimary(primary);
+      case Node.Group group -> analyzeGroup(group);
+      case Node.Unary unary -> analyzeUnary(unary);
+      case Node.Binary binary -> analyzeBinary(binary);
     };
   }
 
-  private Result<Entity.Expression>
-    analyzePrimary(Node.Expression.Primary primary) {
+  private Result<Entity.Expression> analyzePrimary(Node.Primary primary) {
     return switch (primary) {
-      case Node.Expression.Primary.Literal literal -> analyzeLiteral(literal);
-      case Node.Expression.Primary.Access access -> analyzeAccess(access);
+      case Node.Literal literal -> analyzeLiteral(literal);
+      case Node.Access access -> analyzeAccess(access);
     };
   }
 
-  private Entity.Expression
-    analyzeLiteral(Node.Expression.Primary.Literal literal) {
+  private Entity.Expression analyzeLiteral(Node.Literal literal) {
     return switch (literal.value) {
       case Lexeme.Number number -> switch (number) {
         case Lexeme.Integer integer ->
