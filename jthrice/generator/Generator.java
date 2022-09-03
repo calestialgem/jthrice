@@ -117,21 +117,21 @@ public class Generator {
   private void generatePrint(Type.Scalar scalar, Name name) {
     this.generate(this.newLine(), "printf(\"", name, " = %");
     switch (scalar) {
-      case Type.Scalar.Signed signed -> this.generate(switch (signed) {
-        case Type.Scalar.Signed.I1 i1 -> "hhi";
-        case Type.Scalar.Signed.I2 i2 -> "hi";
-        case Type.Scalar.Signed.I4 i4 -> "i";
-        case Type.Scalar.Signed.I8 i8 -> "lli";
-        case Type.Scalar.Signed.IX ix -> "lli";
+      case Type.Signed signed -> this.generate(switch (signed) {
+        case Type.I1 i1 -> "hhi";
+        case Type.I2 i2 -> "hi";
+        case Type.I4 i4 -> "i";
+        case Type.I8 i8 -> "lli";
+        case Type.IX ix -> "lli";
       });
-      case Type.Scalar.Unsigned unsigned -> this.generate(switch (unsigned) {
-        case Type.Scalar.Unsigned.U1 u1 -> "hhu";
-        case Type.Scalar.Unsigned.U2 u2 -> "hu";
-        case Type.Scalar.Unsigned.U4 u4 -> "u";
-        case Type.Scalar.Unsigned.U8 u8 -> "llu";
-        case Type.Scalar.Unsigned.UX ux -> "llu";
+      case Type.Unsigned unsigned -> this.generate(switch (unsigned) {
+        case Type.U1 u1 -> "hhu";
+        case Type.U2 u2 -> "hu";
+        case Type.U4 u4 -> "u";
+        case Type.U8 u8 -> "llu";
+        case Type.UX ux -> "llu";
       });
-      case Type.Scalar.Floating floating -> this.generate("f");
+      case Type.Floating floating -> this.generate("f");
     }
     this.generate("\n\");", this.newLine());
   }
@@ -147,39 +147,39 @@ public class Generator {
   /** Generate the given scalar type. */
   private void generateScalar(Type.Scalar scalar) {
     switch (scalar) {
-      case Type.Scalar.Signed signed -> this.generateSigned(signed);
-      case Type.Scalar.Unsigned unsigned -> this.generateUnsigned(unsigned);
-      case Type.Scalar.Floating floating -> this.generateFloating(floating);
+      case Type.Signed signed -> this.generateSigned(signed);
+      case Type.Unsigned unsigned -> this.generateUnsigned(unsigned);
+      case Type.Floating floating -> this.generateFloating(floating);
     }
   }
 
   /** Generate the given signed scalar type. */
-  private void generateSigned(Type.Scalar.Signed signed) {
+  private void generateSigned(Type.Signed signed) {
     switch (signed) {
-      case Type.Scalar.Signed.I1 i1 -> this.generateString("int8_t");
-      case Type.Scalar.Signed.I2 i2 -> this.generateString("int16_t");
-      case Type.Scalar.Signed.I4 i4 -> this.generateString("int32_t");
-      case Type.Scalar.Signed.I8 i8 -> this.generateString("int64_t");
-      case Type.Scalar.Signed.IX ix -> this.generateString("intptr_t");
+      case Type.I1 i1 -> this.generateString("int8_t");
+      case Type.I2 i2 -> this.generateString("int16_t");
+      case Type.I4 i4 -> this.generateString("int32_t");
+      case Type.I8 i8 -> this.generateString("int64_t");
+      case Type.IX ix -> this.generateString("intptr_t");
     }
   }
 
   /** Generate the given unsigned scalar type. */
-  private void generateUnsigned(Type.Scalar.Unsigned unsigned) {
+  private void generateUnsigned(Type.Unsigned unsigned) {
     switch (unsigned) {
-      case Type.Scalar.Unsigned.U1 u1 -> this.generateString("uint8_t");
-      case Type.Scalar.Unsigned.U2 u2 -> this.generateString("uint16_t");
-      case Type.Scalar.Unsigned.U4 u4 -> this.generateString("uint32_t");
-      case Type.Scalar.Unsigned.U8 u8 -> this.generateString("uint64_t");
-      case Type.Scalar.Unsigned.UX ux -> this.generateString("uintptr_t");
+      case Type.U1 u1 -> this.generateString("uint8_t");
+      case Type.U2 u2 -> this.generateString("uint16_t");
+      case Type.U4 u4 -> this.generateString("uint32_t");
+      case Type.U8 u8 -> this.generateString("uint64_t");
+      case Type.UX ux -> this.generateString("uintptr_t");
     }
   }
 
   /** Generate the given floating scalar type. */
-  private void generateFloating(Type.Scalar.Floating floating) {
+  private void generateFloating(Type.Floating floating) {
     switch (floating) {
-      case Type.Scalar.Floating.F4 f4 -> this.generateString("float");
-      case Type.Scalar.Floating.F8 f8 -> this.generateString("double");
+      case Type.F4 f4 -> this.generateString("float");
+      case Type.F8 f8 -> this.generateString("double");
     }
   }
 
