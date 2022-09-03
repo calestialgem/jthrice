@@ -10,73 +10,72 @@ import java.util.stream.Stream;
 
 /** Immutable list. */
 public final class List<T> {
-    /** List of the given stirng. */
-    public static List<Character> ofString(String string) {
-        var list = new ArrayList<Character>();
-        for (char c : string.toCharArray()) {
-            list.add(c);
-        }
-        return of(list);
+  /** List of the given stirng. */
+  public static List<Character> ofString(String string) {
+    var list = new ArrayList<Character>();
+    for (char c : string.toCharArray()) {
+      list.add(c);
     }
+    return List.of(list);
+  }
 
-    /** Immutable copy of the given list. */
-    public static <T> List<T> of(java.util.List<T> list) {
-        return new List<>(new ArrayList<>(list));
+  /** Immutable copy of the given list. */
+  public static <T> List<T> of(java.util.List<T> list) {
+    return new List<>(new ArrayList<>(list));
+  }
+
+  /** List of the given array. */
+  public static <T> List<T> of(T[] array) {
+    return List.of(java.util.List.of(array));
+  }
+
+  /** Underlying mutable list. */
+  private final ArrayList<T> elements;
+
+  public List(ArrayList<T> elements) {
+    this.elements = elements;
+  }
+
+  /** Amount of elements. */
+  public int size() {
+    return this.elements.size();
+  }
+
+  /** Whether there is an element at the given index. */
+  public boolean exists(int index) {
+    return index >= 0 && index < this.size();
+  }
+
+  /** Element at the given index. */
+  public T at(int index) {
+    Bug.check(this.exists(index), "Unexisting element!");
+    return this.elements.get(index);
+  }
+
+  /** Supply the elements to the given consumer. */
+  public void forEach(Consumer<? super T> consumer) {
+    this.elements.forEach(consumer);
+  }
+
+  /** Stream of the elements. */
+  public Stream<T> stream() {
+    return this.elements.stream();
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(this.elements);
+  }
+
+  @Override
+  @SuppressWarnings("rawtypes")
+  public boolean equals(Object obj) {
+    if (this == obj) {
+      return true;
     }
-
-    /** List of the given array. */
-    public static <T> List<T> of(T[] array) {
-        return of(java.util.List.of(array));
+    if (!(obj instanceof List other)) {
+      return false;
     }
-
-    /** Underlying mutable list. */
-    private final ArrayList<T> elements;
-
-    public List(ArrayList<T> elements) {
-        this.elements = elements;
-    }
-
-    /** Amount of elements. */
-    public int size() {
-        return elements.size();
-    }
-
-    /** Whether there is an element at the given index. */
-    public boolean exists(int index) {
-        return index >= 0 && index < size();
-    }
-
-    /** Element at the given index. */
-    public T at(int index) {
-        Bug.check(exists(index), "Unexisting element!");
-        return elements.get(index);
-    }
-
-    /** Supply the elements to the given consumer. */
-    public void forEach(Consumer<? super T> consumer) {
-        elements.forEach(consumer);
-    }
-
-    /** Stream of the elements. */
-    public Stream<T> stream() {
-        return elements.stream();
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(elements);
-    }
-
-    @Override
-    @SuppressWarnings("rawtypes")
-    public boolean equals(Object obj) {
-        if (this == obj) {
-            return true;
-        }
-        if (!(obj instanceof List)) {
-            return false;
-        }
-        List other = (List) obj;
-        return Objects.equals(elements, other.elements);
-    }
+    return Objects.equals(this.elements, other.elements);
+  }
 }

@@ -5,10 +5,10 @@ package jthrice.analyzer;
 
 /** Name of a variable. */
 public final class Name {
-    /** String value of the name. */
-    public final String value;
+  /** String value of the name. */
+  public final String value;
 
-    public Name(String value) {
-        this.value = value;
-    }
+  public Name(String value) {
+    this.value = value;
+  }
 }
