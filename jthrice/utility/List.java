@@ -14,17 +14,12 @@ public final class List<T> {
     for (char c : string.toCharArray()) {
       list.add(c);
     }
-    return List.of(list);
+    return new List<>(list);
   }
 
   /** Immutable copy of the given list. */
   public static <T> List<T> of(java.util.List<T> list) {
     return new List<>(new ArrayList<>(list));
-  }
-
-  /** List of the given array. */
-  public static <T> List<T> of(T[] array) {
-    return List.of(java.util.List.of(array));
   }
 
   /** Underlying mutable list. */
