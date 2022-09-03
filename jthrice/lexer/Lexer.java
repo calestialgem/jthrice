@@ -74,7 +74,7 @@ public final class Lexer {
     /** Lex all the source contents. */
     private List<Lexeme> lex() {
         while (cursor.valid()) {
-            var lexeme = Result.or(lexToken(), lexNumber(), lexWord());
+            var lexeme = Result.or(this::lexToken, this::lexNumber, this::lexWord);
             if (lexeme.exists()) {
                 if (lexeme.valid()) {
                     accumulator.add(lexeme.get());
@@ -93,7 +93,7 @@ public final class Lexer {
 
     /** Lex a token. */
     private Result<Lexeme> lexToken() {
-        return switch (cursor.get().get()) {
+        Result<Lexeme> token = switch (cursor.get().get().charValue()) {
             case '+' -> Result.of(new Lexeme.Token.Plus(currentPortion()));
             case '-' -> Result.of(new Lexeme.Token.Minus(currentPortion()));
             case '*' -> Result.of(new Lexeme.Token.Star(currentPortion()));
@@ -107,6 +107,10 @@ public final class Lexer {
             case Source.EOF -> Result.of(new Lexeme.Token.EOF(currentPortion()));
             default -> Result.ofUnexisting();
         };
+        if (token.valid()) {
+            next();
+        }
+        return token;
     }
 
     /** Lex a number. */
@@ -163,7 +167,7 @@ public final class Lexer {
         if (identifier.empty()) {
             return identifier;
         }
-        return Result.or(lexKeyword((Lexeme.Identifier) identifier.get()), identifier);
+        return Result.or(() -> lexKeyword((Lexeme.Identifier) identifier.get()), () -> identifier);
     }
 
     /** Lex an identifier. */

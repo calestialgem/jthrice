@@ -4,6 +4,7 @@
 package jthrice.utility;
 
 import java.util.Objects;
+import java.util.function.Supplier;
 
 /** Result of an algorithm, which can be valid, invalid or unexisting. */
 public sealed abstract class Result<Return> permits Result.Valid<Return>, Result.Invalid<Return>, Result.Unexisting<Return> {
@@ -24,9 +25,10 @@ public sealed abstract class Result<Return> permits Result.Valid<Return>, Result
 
     /** The first existing result from the given ones. */
     @SafeVarargs
-    public static <Return> Result<Return> or(Result<Return>... results) {
-        Bug.check(results.length >= 1, "There must be atleast one result!");
-        for (var result : results) {
+    public static <Return> Result<Return> or(Supplier<Result<Return>>... resultSuppliers) {
+        Bug.check(resultSuppliers.length >= 1, "There must be atleast one result supplier!");
+        for (var resultSupplier : resultSuppliers) {
+            var result = resultSupplier.get();
             if (result.exists()) {
                 return result;
             }

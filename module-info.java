@@ -3,7 +3,6 @@
 
 /** Thrice Java compiler module. */
 module jthrice.compiler {
-    exports jthrice;
     exports jthrice.analyzer;
     exports jthrice.generator;
     exports jthrice.launcher;
