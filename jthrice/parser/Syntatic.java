@@ -6,8 +6,8 @@ package jthrice.parser;
 import java.util.Objects;
 
 import jthrice.lexer.Lexeme;
-import jthrice.lexer.Lexeme.Token.ClosingBracket;
-import jthrice.lexer.Lexeme.Token.OpeningBracket;
+import jthrice.lexer.Lexeme.Token.ClosingParentheses;
+import jthrice.lexer.Lexeme.Token.OpeningParentheses;
 import jthrice.utility.List;
 
 /** Syntatic entities; hierarchical collection of tokens. */
@@ -178,11 +178,11 @@ public sealed abstract class Syntatic permits Syntatic.Source, Syntatic.Statemen
             /** Expression that is elevated. */
             public final Expression elevated;
             /** Start of the group. */
-            public final Lexeme.Token.OpeningBracket opening;
+            public final Lexeme.Token.OpeningParentheses opening;
             /** End of the group. */
-            public final Lexeme.Token.ClosingBracket closing;
+            public final Lexeme.Token.ClosingParentheses closing;
 
-            public Group(Expression elevated, OpeningBracket opening, ClosingBracket closing) {
+            public Group(Expression elevated, OpeningParentheses opening, ClosingParentheses closing) {
                 this.elevated = elevated;
                 this.opening = opening;
                 this.closing = closing;

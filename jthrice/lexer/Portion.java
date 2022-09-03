@@ -6,19 +6,10 @@ package jthrice.lexer;
 import java.io.PrintStream;
 import java.util.Objects;
 
-import jthrice.launcher.Source;
 import jthrice.utility.Bug;
 
 /** Portion of a string. */
 public class Portion {
-    /**
-     * Portion of the given source from the given first to the last index,
-     * inclusive.
-     */
-    public static Portion of(Source source, int first, int last) {
-        return new Portion(new Location(source, first), new Location(source, last));
-    }
-
     /** Portion of the line the given location is in. */
     public static Portion ofLine(Location location) {
         return new Portion(location.start(), location.end());
@@ -39,7 +30,6 @@ public class Portion {
     /** Location of the last character. */
     public final Location last;
 
-    /** Initialize with the given first and last locations. */
     public Portion(Location first, Location last) {
         Bug.check(first.source.equals(last.source), "The first and last locations are not from the same source!");
         Bug.check(first.index <= last.index, "The first location comes after the last location!");
@@ -52,7 +42,10 @@ public class Portion {
         return first.line < last.line;
     }
 
-    /** Print the line or lines the portion is in with the portion underlined. */
+    /**
+     * Print the line or lines the portion is in with the portion underlined to the
+     * given output stream.
+     */
     public void underline(PrintStream out) {
         if (!multiline()) {
             underlineSingle(out, false);
@@ -63,7 +56,10 @@ public class Portion {
         out.println();
     }
 
-    /** Print the line the portion is in with the portion underlined. */
+    /**
+     * Print the line the portion is in with the portion underlined to the given
+     * output stream. Prints `...` if the given continues flag is true.
+     */
     private void underlineSingle(PrintStream out, boolean continues) {
         var line = Portion.ofLine(first);
         out.printf("%8d | %s%n", line.first.line, line);

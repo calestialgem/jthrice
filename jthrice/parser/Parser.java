@@ -176,7 +176,7 @@ public class Parser {
 
     /** Parse a group. */
     private Result<Syntatic.Expression> parseGroup() {
-        var opening = consume(Lexeme.Token.OpeningBracket.class);
+        var opening = consume(Lexeme.Token.OpeningParentheses.class);
         if (opening.empty()) {
             return parsePrimary();
         }
@@ -185,7 +185,7 @@ public class Parser {
             error("Expected an expression after `(`!");
             return Result.ofUnexisting();
         }
-        var closing = consume(Lexeme.Token.ClosingBracket.class);
+        var closing = consume(Lexeme.Token.ClosingParentheses.class);
         if (closing.empty()) {
             error("Expected `)` at the end of the expression!");
         }

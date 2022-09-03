@@ -9,14 +9,22 @@ import java.util.function.Consumer;
 
 /** Immutable list. */
 public class List<Element> {
+    /** List of the given stirng. */
+    public static List<Character> ofString(String string) {
+        var list = new ArrayList<Character>();
+        for (char c : string.toCharArray()) {
+            list.add(c);
+        }
+        return of(list);
+    }
+
     /** Immutable copy of the given list. */
     public static <Element> List<Element> of(java.util.List<Element> list) {
         return new List<>(new ArrayList<>(list));
     }
 
     /** List of the given array. */
-    @SafeVarargs
-    public static <Element> List<Element> of(Element... array) {
+    public static <Element> List<Element> of(Element[] array) {
         return of(java.util.List.of(array));
     }
 
