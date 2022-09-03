@@ -226,7 +226,7 @@ public sealed abstract class Lexeme permits Lexeme.Token, Lexeme.Number, Lexeme.
             }
         }
 
-        /** Keyword `ix`; platform-pointer size, signed integer type. */
+        /** Keyword `ix`; pointer size, signed integer type. */
         public static final class IX extends Keyword {
             public IX(Portion portion) {
                 super(portion);
@@ -261,7 +261,7 @@ public sealed abstract class Lexeme permits Lexeme.Token, Lexeme.Number, Lexeme.
             }
         }
 
-        /** Keyword `ux`; platform-pointer size, unsigned integer type. */
+        /** Keyword `ux`; pointer size, unsigned integer type. */
         public static final class UX extends Keyword {
             public UX(Portion portion) {
                 super(portion);
