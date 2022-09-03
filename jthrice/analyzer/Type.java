@@ -6,7 +6,7 @@ package jthrice.analyzer;
 import java.util.Arrays;
 import java.util.Objects;
 
-/** Type of a value in Thrice. */
+/** Type of a value. */
 public sealed abstract class Type permits Type.Scalar, Type.Pointer, Type.Array, Type.Custom, Type.Meta {
     /** Integer type. */
     public static Scalar ofInteger(long size, boolean signedness) {
