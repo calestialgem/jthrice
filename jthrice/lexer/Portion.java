@@ -4,7 +4,6 @@
 package jthrice.lexer;
 
 import java.io.PrintStream;
-import java.util.Objects;
 
 import jthrice.utility.Bug;
 
@@ -31,7 +30,7 @@ public final class Portion {
   public final Location last;
 
   public Portion(Location first, Location last) {
-    Bug.check(first.source.equals(last.source),
+    Bug.check(first.source == last.source,
       "The first and last locations are not from the same source!");
     Bug.check(first.index <= last.index,
       "The first location comes after the last location!");
@@ -75,22 +74,5 @@ public final class Portion {
   @Override
   public String toString() {
     return this.first.source.sub(this.first.index, this.last.index);
-  }
-
-  @Override
-  public int hashCode() {
-    return Objects.hash(this.first, this.last);
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (this == obj) {
-      return true;
-    }
-    if (!(obj instanceof Portion other)) {
-      return false;
-    }
-    return Objects.equals(this.first, other.first)
-      && Objects.equals(this.last, other.last);
   }
 }

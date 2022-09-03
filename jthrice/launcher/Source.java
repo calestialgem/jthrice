@@ -6,7 +6,6 @@ package jthrice.launcher;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Objects;
 
 import jthrice.utility.Bug;
 
@@ -52,22 +51,5 @@ public class Source {
     Bug.check(this.exists(first), "First index out of contents!");
     Bug.check(this.exists(last), "Last index out of contents!");
     return this.contents.substring(first, last + 1);
-  }
-
-  @Override
-  public int hashCode() {
-    return Objects.hash(this.contents, this.path);
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (this == obj) {
-      return true;
-    }
-    if (!(obj instanceof Source other)) {
-      return false;
-    }
-    return Objects.equals(this.contents, other.contents)
-      && Objects.equals(this.path, other.path);
   }
 }

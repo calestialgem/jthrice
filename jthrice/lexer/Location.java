@@ -3,8 +3,6 @@
 
 package jthrice.lexer;
 
-import java.util.Objects;
-
 import jthrice.launcher.Source;
 import jthrice.utility.Bug;
 
@@ -64,22 +62,5 @@ public final class Location {
     }
     Bug.unreachable("Source file does not end with an empty line!");
     return null;
-  }
-
-  @Override
-  public int hashCode() {
-    return Objects.hash(this.column, this.index, this.line, this.source);
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (this == obj) {
-      return true;
-    }
-    if (!(obj instanceof Location other)) {
-      return false;
-    }
-    return this.column == other.column && this.index == other.index
-      && this.line == other.line && Objects.equals(this.source, other.source);
   }
 }

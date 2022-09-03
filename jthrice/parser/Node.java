@@ -3,8 +3,6 @@
 
 package jthrice.parser;
 
-import java.util.Objects;
-
 import jthrice.lexer.Lexeme;
 import jthrice.utility.List;
 
@@ -20,31 +18,6 @@ public sealed abstract class Node permits Node.Program, Node.Statement, Node.Exp
     public Program(List<Statement> statements, Lexeme.EOF eof) {
       this.statements = statements;
       this.eof        = eof;
-    }
-
-    @Override
-    public String toString() {
-      var builder = new StringBuilder();
-      this.statements.forEach(
-        statement -> builder.append(statement).append(System.lineSeparator()));
-      return builder.toString();
-    }
-
-    @Override
-    public int hashCode() {
-      return Objects.hash(this.eof, this.statements);
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-      if (this == obj) {
-        return true;
-      }
-      if (!(obj instanceof Program other)) {
-        return false;
-      }
-      return Objects.equals(this.eof, other.eof)
-        && Objects.equals(this.statements, other.statements);
     }
   }
 
@@ -78,34 +51,6 @@ public sealed abstract class Node permits Node.Program, Node.Statement, Node.Exp
       this.value      = value;
       this.end        = end;
     }
-
-    @Override
-    public String toString() {
-      return this.name.toString() + this.separator + this.type + this.assignment
-        + this.value + this.end;
-    }
-
-    @Override
-    public int hashCode() {
-      return Objects.hash(this.assignment, this.end, this.name, this.separator,
-        this.type, this.value);
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-      if (this == obj) {
-        return true;
-      }
-      if (!(obj instanceof Definition other)) {
-        return false;
-      }
-      return Objects.equals(this.assignment, other.assignment)
-        && Objects.equals(this.end, other.end)
-        && Objects.equals(this.name, other.name)
-        && Objects.equals(this.separator, other.separator)
-        && Objects.equals(this.type, other.type)
-        && Objects.equals(this.value, other.value);
-    }
   }
 
   /** Calculations and actions that lead to a value. */
@@ -126,27 +71,6 @@ public sealed abstract class Node permits Node.Program, Node.Statement, Node.Exp
     public Literal(Lexeme value) {
       this.value = value;
     }
-
-    @Override
-    public String toString() {
-      return "[" + this.value + "]";
-    }
-
-    @Override
-    public int hashCode() {
-      return Objects.hash(this.value);
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-      if (this == obj) {
-        return true;
-      }
-      if (!(obj instanceof Literal other)) {
-        return false;
-      }
-      return Objects.equals(this.value, other.value);
-    }
   }
 
   /** Value of a variable. */
@@ -156,27 +80,6 @@ public sealed abstract class Node permits Node.Program, Node.Statement, Node.Exp
 
     public Access(Lexeme.Identifier name) {
       this.name = name;
-    }
-
-    @Override
-    public String toString() {
-      return "[" + this.name + "]";
-    }
-
-    @Override
-    public int hashCode() {
-      return Objects.hash(this.name);
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-      if (this == obj) {
-        return true;
-      }
-      if (!(obj instanceof Access other)) {
-        return false;
-      }
-      return Objects.equals(this.name, other.name);
     }
   }
 
@@ -197,29 +100,6 @@ public sealed abstract class Node permits Node.Program, Node.Statement, Node.Exp
       this.opening  = opening;
       this.closing  = closing;
     }
-
-    @Override
-    public String toString() {
-      return "[" + this.opening + this.elevated + this.closing + "]";
-    }
-
-    @Override
-    public int hashCode() {
-      return Objects.hash(this.closing, this.elevated, this.opening);
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-      if (this == obj) {
-        return true;
-      }
-      if (!(obj instanceof Group other)) {
-        return false;
-      }
-      return Objects.equals(this.closing, other.closing)
-        && Objects.equals(this.elevated, other.elevated)
-        && Objects.equals(this.opening, other.opening);
-    }
   }
 
   /** Operation on an expression. */
@@ -232,28 +112,6 @@ public sealed abstract class Node permits Node.Program, Node.Statement, Node.Exp
     public Unary(Lexeme.Token operator, Expression operand) {
       this.operator = operator;
       this.operand  = operand;
-    }
-
-    @Override
-    public String toString() {
-      return "[" + this.operator + this.operand + "]";
-    }
-
-    @Override
-    public int hashCode() {
-      return Objects.hash(this.operand, this.operator);
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-      if (this == obj) {
-        return true;
-      }
-      if (!(obj instanceof Unary other)) {
-        return false;
-      }
-      return Objects.equals(this.operand, other.operand)
-        && Objects.equals(this.operator, other.operator);
     }
   }
 
@@ -270,29 +128,6 @@ public sealed abstract class Node permits Node.Program, Node.Statement, Node.Exp
       this.operator = operator;
       this.left     = left;
       this.right    = right;
-    }
-
-    @Override
-    public String toString() {
-      return "[" + this.left + this.operator + this.right + "]";
-    }
-
-    @Override
-    public int hashCode() {
-      return Objects.hash(this.left, this.operator, this.right);
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-      if (this == obj) {
-        return true;
-      }
-      if (!(obj instanceof Binary other)) {
-        return false;
-      }
-      return Objects.equals(this.left, other.left)
-        && Objects.equals(this.operator, other.operator)
-        && Objects.equals(this.right, other.right);
     }
   }
 }

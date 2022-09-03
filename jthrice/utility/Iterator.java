@@ -3,8 +3,6 @@
 
 package jthrice.utility;
 
-import java.util.Objects;
-
 /** Iterator over an immutable list. */
 public final class Iterator<T> {
   /** Iterator over the given list to the given index. */
@@ -62,23 +60,5 @@ public final class Iterator<T> {
   /** Iterator to the previous element. */
   public Result<Iterator<T>> previous() {
     return Iterator.of(this.iterated, this.index - 1);
-  }
-
-  @Override
-  public int hashCode() {
-    return Objects.hash(this.index, this.iterated);
-  }
-
-  @Override
-  @SuppressWarnings("rawtypes")
-  public boolean equals(Object obj) {
-    if (this == obj) {
-      return true;
-    }
-    if (!(obj instanceof Iterator other)) {
-      return false;
-    }
-    return this.index == other.index
-      && Objects.equals(this.iterated, other.iterated);
   }
 }

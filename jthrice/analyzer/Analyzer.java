@@ -102,5 +102,13 @@ public class Analyzer {
     return analyzeExpression(group.elevated);
   }
 
+  /** Analyze the given unary node. */
+  private Result<Entity.Expression> analyzeUnary(Node.Unary unary) {
+    return Result.ofUnexisting();
+  }
+
   /** Analyze the given binary node. */
+  private Result<Entity.Expression> analyzeBinary(Node.Binary binary) {
+    return Result.ofUnexisting();
+  }
 }

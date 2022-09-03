@@ -4,7 +4,6 @@
 package jthrice.lexer;
 
 import java.math.BigDecimal;
-import java.util.Objects;
 
 /** Smallest meaningful group of characters in a source. */
 public sealed abstract class Lexeme permits Lexeme.Token, Lexeme.Number, Lexeme.Identifier, Lexeme.Keyword {
@@ -102,29 +101,6 @@ public sealed abstract class Lexeme permits Lexeme.Token, Lexeme.Number, Lexeme.
       super(portion);
       this.value = value;
     }
-
-    @Override
-    public int hashCode() {
-      final int prime  = 31;
-      int       result = super.hashCode();
-      result = prime * result + Objects.hash(value);
-      return result;
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-      if (this == obj) {
-        return true;
-      }
-      if (!super.equals(obj)) {
-        return false;
-      }
-      if (!(obj instanceof Number)) {
-        return false;
-      }
-      Number other = (Number) obj;
-      return Objects.equals(value, other.value);
-    }
   }
 
   /** Symbol name in definition or reference. */
@@ -135,22 +111,6 @@ public sealed abstract class Lexeme permits Lexeme.Token, Lexeme.Number, Lexeme.
     public Identifier(Portion portion, String value) {
       super(portion);
       this.value = value;
-    }
-
-    @Override
-    public int hashCode() {
-      return Objects.hash(this.value);
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-      if (this == obj) {
-        return true;
-      }
-      if (!(obj instanceof Identifier other)) {
-        return false;
-      }
-      return Objects.equals(this.value, other.value);
     }
   }
 
@@ -264,15 +224,5 @@ public sealed abstract class Lexeme permits Lexeme.Token, Lexeme.Number, Lexeme.
   @Override
   public String toString() {
     return this.portion.toString();
-  }
-
-  @Override
-  public int hashCode() {
-    return this.getClass().hashCode();
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    return this.getClass().equals(obj.getClass());
   }
 }

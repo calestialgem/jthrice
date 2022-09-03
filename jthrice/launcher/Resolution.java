@@ -52,7 +52,7 @@ public class Resolution {
    */
   public void log(String author, Portion portion, String severity,
     String message) {
-    Bug.check(this.source.equals(portion.first.source),
+    Bug.check(this.source == portion.first.source,
       "The portion is not from the source!");
     System.out.printf("[%s] %s:%d:%d:%d:%d: %s: %s%n", author, this.source.path,
       portion.first.line, portion.first.column, portion.last.line,

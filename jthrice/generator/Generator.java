@@ -70,7 +70,7 @@ public class Generator {
                   int main (int argc, char** argv) {
                   """);
     this.indentation = 1;
-    this.entity.statements.forEach(this::generate);
+    this.entity.statements.stream().forEach(this::generate);
     this.indentation = 0;
     this.generate("}");
     var compilerFlags = new CompilerFlags(this.resolution, Generator.COMPILER,

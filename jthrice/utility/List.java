@@ -4,8 +4,6 @@
 package jthrice.utility;
 
 import java.util.ArrayList;
-import java.util.Objects;
-import java.util.function.Consumer;
 import java.util.stream.Stream;
 
 /** Immutable list. */
@@ -52,30 +50,8 @@ public final class List<T> {
     return this.elements.get(index);
   }
 
-  /** Supply the elements to the given consumer. */
-  public void forEach(Consumer<? super T> consumer) {
-    this.elements.forEach(consumer);
-  }
-
   /** Stream of the elements. */
   public Stream<T> stream() {
     return this.elements.stream();
-  }
-
-  @Override
-  public int hashCode() {
-    return Objects.hash(this.elements);
-  }
-
-  @Override
-  @SuppressWarnings("rawtypes")
-  public boolean equals(Object obj) {
-    if (this == obj) {
-      return true;
-    }
-    if (!(obj instanceof List other)) {
-      return false;
-    }
-    return Objects.equals(this.elements, other.elements);
   }
 }
