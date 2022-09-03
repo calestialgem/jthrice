@@ -3,10 +3,13 @@
 
 package jthrice.analyzer;
 
+import jthrice.analyzer.Entity.Definition;
 import jthrice.launcher.Resolution;
 import jthrice.lexer.Lexeme;
 import jthrice.parser.Node;
 import jthrice.parser.Parser;
+import jthrice.resolver.Resolver;
+import jthrice.resolver.Solution;
 import jthrice.resolver.Type;
 import jthrice.utility.Bug;
 import jthrice.utility.List;
@@ -16,30 +19,30 @@ import jthrice.utility.Result;
 public class Analyzer {
   /** Analyze the source in the given resolution. */
   public static Result<Entity.Program> analyze(Resolution resolution) {
-    var node = Parser.parse(resolution);
-    if (node.empty()) {
+    var solution = Resolver.resolve(resolution);
+    if (solution.empty()) {
       return Result.ofUnexisting();
     }
-    var analyzer = new Analyzer(resolution, node.get());
+    var analyzer = new Analyzer(resolution, solution.get());
     return analyzer.analyze();
   }
 
   /** Resolution of the analyzed program node. */
-  private final Resolution   resolution;
+  private final Resolution resolution;
   /** Analyzed program node. */
-  private final Node.Program node;
+  private final Solution   solution;
 
-  public Analyzer(Resolution resolution, Node.Program node) {
+  public Analyzer(Resolution resolution, Solution solution) {
     this.resolution = resolution;
-    this.node       = node;
+    this.solution   = solution;
   }
 
   /** Analyze the program node. */
   private Result<Entity.Program> analyze() {
     var statements = List
-      .of(this.node.statements.stream().map(this::analyzeStatement)
+      .of(this.solution.node.statements.stream().map(this::analyzeStatement)
         .filter(Result::valid).map(Result::get).toList());
-    if (statements.size() < this.node.statements.size()) {
+    if (statements.size() < this.solution.node.statements.size()) {
       return Result.ofInvalid();
     }
     return Result.of(new Entity.Program(statements));
@@ -47,7 +50,22 @@ public class Analyzer {
 
   /** Analyze the given statement node. */
   private Result<Entity.Statement> analyzeStatement(Node.Statement statement) {
-    return Result.ofUnexisting();
+    return switch (statement) {
+      case Node.Definition definition -> analyzeDefinition(definition);
+    };
+  }
+
+  /** Analyze the given definition node. */
+  private Result<Entity.Statement>
+    analyzeDefinition(Node.Definition definition) {
+    var type       = this.solution.types.at(definition.name.value);
+    var expression = analyzeExpression(definition.value);
+    if (expression.empty()) {
+      return Result.ofInvalid();
+    }
+    // TODO: Type checking!
+    return Result
+      .of(new Entity.Definition(definition.name, type, expression.get()));
   }
 
   /** Analyze the given expression node. */

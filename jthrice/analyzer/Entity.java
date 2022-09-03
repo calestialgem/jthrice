@@ -3,7 +3,7 @@
 
 package jthrice.analyzer;
 
-import jthrice.resolver.Name;
+import jthrice.lexer.Lexeme;
 import jthrice.resolver.Type;
 import jthrice.utility.List;
 
@@ -27,13 +27,13 @@ public sealed abstract class Entity permits Entity.Program, Entity.Statement, En
   /** Creation of a variable. */
   public static final class Definition extends Statement {
     /** Variable name. */
-    public final Name       name;
+    public final Lexeme.Identifier name;
     /** Varible type. */
-    public final Type       type;
+    public final Type              type;
     /** Variable value. */
-    public final Expression value;
+    public final Expression        value;
 
-    public Definition(Name name, Type type, Expression value) {
+    public Definition(Lexeme.Identifier name, Type type, Expression value) {
       this.name  = name;
       this.type  = type;
       this.value = value;
@@ -73,9 +73,9 @@ public sealed abstract class Entity permits Entity.Program, Entity.Statement, En
   /** Value of a variable. */
   public static final class Access extends Primary {
     /** Name of the accessed variable. */
-    public final Name variable;
+    public final Lexeme.Identifier variable;
 
-    public Access(Type type, Name variable) {
+    public Access(Type type, Lexeme.Identifier variable) {
       super(type);
       this.variable = variable;
     }
