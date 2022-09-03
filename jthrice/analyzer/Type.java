@@ -5,6 +5,20 @@ package jthrice.analyzer;
 
 /** Type of a value. */
 public sealed abstract class Type permits Type.Scalar, Type.Meta {
+  public static final Type I1   = new Scalar.Signed.I1();
+  public static final Type I2   = new Scalar.Signed.I2();
+  public static final Type I4   = new Scalar.Signed.I4();
+  public static final Type I8   = new Scalar.Signed.I8();
+  public static final Type IX   = new Scalar.Signed.IX();
+  public static final Type U1   = new Scalar.Unsigned.U1();
+  public static final Type U2   = new Scalar.Unsigned.U2();
+  public static final Type U4   = new Scalar.Unsigned.U4();
+  public static final Type U8   = new Scalar.Unsigned.U8();
+  public static final Type UX   = new Scalar.Unsigned.UX();
+  public static final Type F4   = new Scalar.Floating.F4();
+  public static final Type F8   = new Scalar.Floating.F8();
+  public static final Type META = new Meta();
+
   /** Independent, undivisible, built-in types. */
   public static sealed abstract class Scalar
     extends Type permits Scalar.Signed, Scalar.Unsigned, Scalar.Floating {
@@ -74,11 +88,5 @@ public sealed abstract class Type permits Type.Scalar, Type.Meta {
 
   /** Type type. */
   public static final class Meta extends Type {
-    /** Value. */
-    public final Type value;
-
-    public Meta(Type value) {
-      this.value = value;
-    }
   }
 }
