@@ -5,6 +5,7 @@ package jthrice.lexer;
 
 import java.math.*;
 import java.util.*;
+import java.util.function.*;
 
 import jthrice.launcher.*;
 import jthrice.utility.*;
@@ -17,11 +18,6 @@ public final class Lexer {
   public static List<Lexeme> lex(Resolution resolution) {
     var lexer = new Lexer(resolution);
     return lexer.lex();
-  }
-
-  /** Whether the given character is whitespace. */
-  public static boolean whitespace(char character) {
-    return character == ' ' || character == '\t' || character == '\n';
   }
 
   /** Resolution of the lexed source. */
@@ -38,38 +34,43 @@ public final class Lexer {
   /** Consumes the current character and returns whether the next character is
    * lexable, which means it exists and its not whitespace. */
   private boolean next() {
-    this.cursor = this.cursor.get().next();
-    var result = this.cursor.is();
-    while (this.cursor.is() && Lexer.whitespace(this.cursor.get().get())) {
-      this.cursor = this.cursor.get().next();
-      result      = false;
-    }
-    return result;
+    Function<Iterator<Character>, Boolean> whitespace = iterator -> iterator
+      .get() == ' ' || iterator.get() == '\t' || iterator.get() == '\n';
+    return this.cursor.map(old -> {
+      this.cursor = old.next();
+      return this.cursor.map(first -> {
+        while (this.cursor.map(whitespace, false)) {
+          this.cursor = this.cursor.bind(Iterator::next);
+        }
+        return !whitespace.apply(first);
+      }, false);
+    }, false);
   }
 
   /** Portion from the given first to the last character iterator. */
-  private Portion portion(Iterator<Character> first, Iterator<Character> last) {
-    return new Portion(new Location(this.resolution.source, first.index),
-      new Location(this.resolution.source, last.index));
+  private Maybe<Portion> portion(Iterator<Character> first,
+    Iterator<Character> last) {
+    return Portion.of(this.resolution.source, first.index, last.index);
   }
 
   /** Portion containing current character. */
-  private Portion currentPortion() {
-    return this.portion(this.cursor.get(), this.cursor.get());
+  private Maybe<Portion> currentPortion() {
+    return this.cursor.bind(current -> this.portion(current, current));
   }
 
   /** Lex all the source contents. */
   private List<Lexeme> lex() {
     var lexemes = new ArrayList<Lexeme>();
-    while (this.cursor.is()) {
+    while (this.cursor.exists()) {
       var lexeme = Maybe.or(this::lexToken, this::lexNumber, this::lexWord);
-      if (lexeme.is()) {
-        lexemes.add(lexeme.get());
-      } else {
-        this.resolution.error("LEXER", this.currentPortion(),
-          "Could not recognize the character!");
+      lexeme.use(lexemes::add, () -> {
+        this.currentPortion().use(
+          portion -> this.resolution.error("LEXER", portion,
+            "Could not recognize the character!"),
+          () -> this.resolution.error("LEXER",
+            "Try to lex but there are no characters!"));
         this.next();
-      }
+      });
     }
     Bug.check(
       !lexemes.isEmpty()
@@ -84,24 +85,20 @@ public final class Lexer {
 
   /** Lex a token. */
   private Maybe<Lexeme> lexToken() {
-    Maybe<Lexeme> token = switch (this.cursor.get().get().charValue()) {
-      case '+' -> Some.of(new Lexeme.Plus(this.currentPortion()));
-      case '-' -> Some.of(new Lexeme.Minus(this.currentPortion()));
-      case '*' -> Some.of(new Lexeme.Star(this.currentPortion()));
-      case '/' -> Some.of(new Lexeme.ForwardSlash(this.currentPortion()));
-      case '%' -> Some.of(new Lexeme.Percent(this.currentPortion()));
-      case '=' -> Some.of(new Lexeme.Equal(this.currentPortion()));
-      case ':' -> Some.of(new Lexeme.Colon(this.currentPortion()));
-      case ';' -> Some.of(new Lexeme.Semicolon(this.currentPortion()));
-      case '(' -> Some.of(new Lexeme.OpeningParentheses(this.currentPortion()));
-      case ')' -> Some.of(new Lexeme.ClosingParentheses(this.currentPortion()));
-      case Source.EOF -> Some.of(new Lexeme.EOF(this.currentPortion()));
-      default -> None.of();
-    };
-    if (token.is()) {
-      this.next();
-    }
-    return token;
+    return this.cursor.bind(current -> switch (current.get()) {
+      case '+' -> this.currentPortion().map(Lexeme.Plus::new);
+      case '-' -> this.currentPortion().map(Lexeme.Minus::new);
+      case '*' -> this.currentPortion().map(Lexeme.Star::new);
+      case '/' -> this.currentPortion().map(Lexeme.ForwardSlash::new);
+      case '%' -> this.currentPortion().map(Lexeme.Percent::new);
+      case '=' -> this.currentPortion().map(Lexeme.Equal::new);
+      case ':' -> this.currentPortion().map(Lexeme.Colon::new);
+      case ';' -> this.currentPortion().map(Lexeme.Semicolon::new);
+      case '(' -> this.currentPortion().map(Lexeme.OpeningParentheses::new);
+      case ')' -> this.currentPortion().map(Lexeme.ClosingParentheses::new);
+      case Source.EOF -> this.currentPortion().map(Lexeme.EOF::new);
+      default -> None.<Lexeme>of();
+    }).use(token -> this.next());
   }
 
   /** Lex a number. */
@@ -109,82 +106,94 @@ public final class Lexer {
     final var DIGITS = "0123456789";
     final var BASE   = BigInteger.valueOf(DIGITS.length());
 
-    var first   = this.cursor.get();
-    var current = first.get();
-    var digit   = DIGITS.indexOf(current);
-    if (digit == -1) {
-      return None.of();
-    }
+    Function<Character, Maybe<Integer>> toDigit = character -> {
+      var index = DIGITS.indexOf(character);
+      if (index == -1) {
+        return None.of();
+      }
+      return Some.of(index);
+    };
 
-    var unscaled      = BigInteger.valueOf(digit);
-    var decimalPlaces = None.<Integer>of();
-    var last          = first;
+    return this.cursor.bind(first -> toDigit.apply(first.get()).bind(start -> {
+      final class State {
+        public BigInteger          unscaled;
+        public Maybe<Integer>      scale;
+        public Iterator<Character> last;
+        public boolean             stop;
 
-    while (this.next()) {
-      current = this.cursor.get().get();
-      if (current == '.') {
-        if (decimalPlaces.is()) {
-          break;
+        public State(BigInteger unscaled, Maybe<Integer> scale,
+          Iterator<Character> last, boolean stop) {
+          this.unscaled = unscaled;
+          this.scale    = scale;
+          this.last     = last;
+          this.stop     = stop;
         }
-        decimalPlaces = Some.of(0);
-        continue;
       }
 
-      digit = DIGITS.indexOf(current);
-      if (digit == -1) {
-        break;
+      var state = new State(BigInteger.valueOf(start), None.of(), first, false);
+
+      while (this.next() && !state.stop) {
+        this.cursor.use(current -> {
+          toDigit.apply(current.get())
+            .use(digit -> new State(
+              state.unscaled.multiply(BASE).add(BigInteger.valueOf(digit)),
+              state.scale.map(i -> i + 1), current, false), () -> {
+                if (current.get() == '.' && state.scale.exists()) {
+                  state.stop = true;
+                } else {
+                  state.scale = Some.of(0);
+                }
+              });
+        });
       }
 
-      unscaled = unscaled.multiply(BASE);
-      unscaled = unscaled.add(BigInteger.valueOf(digit));
-      last     = this.cursor.get();
-
-      if (decimalPlaces.is()) {
-        decimalPlaces = Some.of(decimalPlaces.get() + 1);
-      }
-    }
-
-    var value = new BigDecimal(unscaled, switch (decimalPlaces) {
-      case Some<Integer> some -> some.value;
-      default -> 0;
-    });
-    return Some.of(new Lexeme.Number(this.portion(first, last), value));
+      var value = new BigDecimal(state.unscaled, state.scale.get(0));
+      return this.portion(first, state.last)
+        .map(portion -> new Lexeme.Number(portion, value));
+    }));
   }
 
   /** Lex a keyword or an identifier. */
   private Maybe<Lexeme> lexWord() {
-    var identifier = this.lexIdentifier();
-    if (identifier.not()) {
-      return identifier;
-    }
-    return Maybe.or(
-      () -> Lexer.lexKeyword((Lexeme.Identifier) identifier.get()),
-      () -> identifier);
+    return Maybe.tryBind(this.lexIdentifier(), Lexer::lexKeyword);
   }
 
   /** Lex an identifier. */
-  private Maybe<Lexeme> lexIdentifier() {
-    var first   = this.cursor.get();
-    var current = first.get();
-    if ((current < 'a' || current > 'z') && (current < 'A' || current > 'Z')
-      && current != '_') {
-      return None.of();
-    }
-
-    var value = new StringBuilder().append(current);
-    var last  = first;
-
-    while (this.next()) {
-      current = this.cursor.get().get();
-      if ((current < '0' || current > '9') && (current < 'a' || current > 'z')
-        && (current < 'A' || current > 'Z') && current != '_') {
-        break;
+  private Maybe<Lexeme.Identifier> lexIdentifier() {
+    return this.cursor.bind(first -> {
+      var start = first.get();
+      if ((start < 'a' || start > 'z') && (start < 'A' || start > 'Z')
+        && start != '_') {
+        return None.of();
       }
-      value.append(current);
-      last = this.cursor.get();
-    }
-    return Some
-      .of(new Lexeme.Identifier(this.portion(first, last), value.toString()));
+
+      final class State {
+        public Iterator<Character> last;
+        public boolean             stop;
+
+        public State(Iterator<Character> last, boolean stop) {
+          this.last = last;
+          this.stop = stop;
+        }
+      }
+
+      var state = new State(first, false);
+
+      while (this.next() && !state.stop) {
+        this.cursor.use(current -> {
+          var letter = current.get();
+          if ((letter < '0' || letter > '9') && (letter < 'a' || letter > 'z')
+            && (letter < 'A' || letter > 'Z') && letter != '_') {
+            state.stop = true;
+          } else {
+            state.last = current;
+          }
+        });
+      }
+
+      return this.portion(first, state.last)
+        .map(portion -> new Lexeme.Identifier(portion, portion.toString()));
+    });
   }
 
   /** Lex a keyword. */

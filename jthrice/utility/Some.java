@@ -21,13 +21,18 @@ public final class Some<T> extends Maybe<T> {
   }
 
   @Override
+  public boolean exists() {
+    return true;
+  }
+
+  @Override
   public <U extends T> T get(U fallback) {
     return this.value;
   }
 
   @Override
-  public Maybe<T> or(Supplier<Maybe<? extends T>> supplier) {
-    return this;
+  public T get(Supplier<? extends T> fallback) {
+    return this.value;
   }
 
   @Override
@@ -45,6 +50,17 @@ public final class Some<T> extends Maybe<T> {
   @Override
   public <U> Maybe<U> map(Function<? super T, ? extends U> mapper) {
     return Some.of(mapper.apply(this.value));
+  }
+
+  @Override
+  public <U> U map(Function<? super T, ? extends U> mapper, U fallback) {
+    return mapper.apply(this.value);
+  }
+
+  @Override
+  public <U> U map(Function<? super T, ? extends U> mapper,
+    Supplier<? extends U> fallback) {
+    return mapper.apply(this.value);
   }
 
   @Override

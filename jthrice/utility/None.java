@@ -21,14 +21,18 @@ public final class None<T> extends Maybe<T> {
   }
 
   @Override
+  public boolean exists() {
+    return false;
+  }
+
+  @Override
   public <U extends T> T get(U fallback) {
     return fallback;
   }
 
   @Override
-  @SuppressWarnings("unchecked")
-  public Maybe<T> or(Supplier<Maybe<? extends T>> supplier) {
-    return (Maybe<T>) supplier.get();
+  public T get(Supplier<? extends T> fallback) {
+    return fallback.get();
   }
 
   @Override
@@ -46,6 +50,17 @@ public final class None<T> extends Maybe<T> {
   @SuppressWarnings("unchecked")
   public <U> Maybe<U> map(Function<? super T, ? extends U> mapper) {
     return (Maybe<U>) this;
+  }
+
+  @Override
+  public <U> U map(Function<? super T, ? extends U> mapper, U fallback) {
+    return fallback;
+  }
+
+  @Override
+  public <U> U map(Function<? super T, ? extends U> mapper,
+    Supplier<? extends U> fallback) {
+    return fallback.get();
   }
 
   @Override
