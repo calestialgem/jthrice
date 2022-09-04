@@ -3,19 +3,11 @@
 
 package jthrice.analyzer;
 
-import jthrice.analyzer.Entity.Definition;
-import jthrice.launcher.Resolution;
-import jthrice.lexer.Lexeme;
-import jthrice.parser.Node;
-import jthrice.parser.Parser;
-import jthrice.resolver.Resolver;
-import jthrice.resolver.Solution;
-import jthrice.resolver.Type;
-import jthrice.utility.Bug;
-import jthrice.utility.List;
-import jthrice.utility.Maybe;
-import jthrice.utility.None;
-import jthrice.utility.Some;
+import jthrice.launcher.*;
+import jthrice.lexer.*;
+import jthrice.parser.*;
+import jthrice.resolver.*;
+import jthrice.utility.*;
 
 /** Creates a program entity from a program node. */
 public class Analyzer {
@@ -41,7 +33,7 @@ public class Analyzer {
 
   /** Analyze the program node. */
   private Maybe<Entity.Program> analyze() {
-    var statements = List.of(this.solution.node.statements.stream()
+    var statements = FixedList.of(this.solution.node.statements.stream()
       .map(this::analyzeStatement).filter(Maybe::is).map(Maybe::get).toList());
     if (statements.size() < this.solution.node.statements.size()) {
       return None.of();
@@ -52,7 +44,7 @@ public class Analyzer {
   /** Analyze the given statement node. */
   private Maybe<Entity.Statement> analyzeStatement(Node.Statement statement) {
     return switch (statement) {
-      case Node.Definition definition -> analyzeDefinition(definition);
+      case Node.Definition definition -> this.analyzeDefinition(definition);
     };
   }
 
@@ -60,7 +52,7 @@ public class Analyzer {
   private Maybe<Entity.Statement>
     analyzeDefinition(Node.Definition definition) {
     var type       = this.solution.types.at(definition.name.value);
-    var expression = analyzeExpression(definition.value);
+    var expression = this.analyzeExpression(definition.value);
     if (expression.not()) {
       return None.of();
     }
@@ -73,18 +65,18 @@ public class Analyzer {
   private Maybe<Entity.Expression>
     analyzeExpression(Node.Expression expression) {
     return switch (expression) {
-      case Node.Primary primary -> analyzePrimary(primary);
-      case Node.Group group -> analyzeGroup(group);
-      case Node.Unary unary -> analyzeUnary(unary);
-      case Node.Binary binary -> analyzeBinary(binary);
+      case Node.Primary primary -> this.analyzePrimary(primary);
+      case Node.Group group -> this.analyzeGroup(group);
+      case Node.Unary unary -> this.analyzeUnary(unary);
+      case Node.Binary binary -> this.analyzeBinary(binary);
     };
   }
 
   /** Analyze the given primary node. */
   private Maybe<Entity.Expression> analyzePrimary(Node.Primary primary) {
     return switch (primary) {
-      case Node.Literal literal -> analyzeLiteral(literal);
-      case Node.Access access -> analyzeAccess(access);
+      case Node.Literal literal -> Analyzer.analyzeLiteral(literal);
+      case Node.Access access -> this.analyzeAccess(access);
     };
   }
 
@@ -118,7 +110,7 @@ public class Analyzer {
 
   /** Analyze the given group node. */
   private Maybe<Entity.Expression> analyzeGroup(Node.Group group) {
-    return analyzeExpression(group.elevated);
+    return this.analyzeExpression(group.elevated);
   }
 
   /** Analyze the given unary node. */

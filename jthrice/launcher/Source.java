@@ -3,14 +3,10 @@
 
 package jthrice.launcher;
 
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
+import java.io.*;
+import java.nio.file.*;
 
-import jthrice.utility.Bug;
-import jthrice.utility.Coup;
-import jthrice.utility.Dud;
-import jthrice.utility.Result;
+import jthrice.utility.*;
 
 /** A UTF-8 source file. */
 public class Source {
@@ -24,7 +20,7 @@ public class Source {
    * file extension.
    */
   public static Result<Source, IOException> of(String name) {
-    var    path     = Path.of(name + '.' + EXTENSION).toAbsolutePath();
+    var    path     = Path.of(name + '.' + Source.EXTENSION).toAbsolutePath();
     String contents = null;
     try {
       contents = Files.readString(path);

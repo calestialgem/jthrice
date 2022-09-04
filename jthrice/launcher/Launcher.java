@@ -3,10 +3,10 @@
 
 package jthrice.launcher;
 
-import java.io.IOException;
-import java.nio.file.Path;
+import java.io.*;
+import java.nio.file.*;
 
-import jthrice.generator.Generator;
+import jthrice.generator.*;
 
 /** Launches the compiler. */
 public class Launcher {

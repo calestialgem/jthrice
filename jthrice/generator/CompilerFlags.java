@@ -3,14 +3,10 @@
 
 package jthrice.generator;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.PrintStream;
-import java.nio.file.Files;
-import java.nio.file.Path;
+import java.io.*;
+import java.nio.file.*;
 
-import jthrice.launcher.Resolution;
+import jthrice.launcher.*;
 
 /** Command line arguments, which will be passed to the C compiler. */
 class CompilerFlags {

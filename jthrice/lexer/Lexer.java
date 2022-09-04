@@ -3,23 +3,16 @@
 
 package jthrice.lexer;
 
-import java.math.BigDecimal;
-import java.math.BigInteger;
-import java.util.ArrayList;
+import java.math.*;
+import java.util.*;
 
-import jthrice.launcher.Resolution;
-import jthrice.launcher.Source;
-import jthrice.utility.Bug;
-import jthrice.utility.Iterator;
-import jthrice.utility.List;
-import jthrice.utility.Maybe;
-import jthrice.utility.None;
-import jthrice.utility.Some;
+import jthrice.launcher.*;
+import jthrice.utility.*;
 
 /** Groups the characters in a source file to a list of lexemes. */
 public final class Lexer {
   /** Lex the source in the given resolution. */
-  public static List<Lexeme> lex(Resolution resolution) {
+  public static FixedList<Lexeme> lex(Resolution resolution) {
     var lexer = new Lexer(resolution);
     return lexer.lex();
   }
@@ -30,14 +23,14 @@ public final class Lexer {
   }
 
   /** Resolution of the lexed source. */
-  private final Resolution           resolution;
+  private final Resolution                resolution;
   /** Current character to be lexed. */
-  private Maybe<Iterator<Character>> cursor;
+  private Maybe<FixedIterator<Character>> cursor;
 
   private Lexer(Resolution resolution) {
     this.resolution = resolution;
-    this.cursor     = Iterator
-      .ofFirst(List.ofString(resolution.source.contents));
+    this.cursor     = FixedIterator
+      .ofFirst(FixedList.ofString(resolution.source.contents));
   }
 
   /**
@@ -46,7 +39,7 @@ public final class Lexer {
    */
   private boolean next() {
     this.cursor = this.cursor.get().next();
-    boolean result = this.cursor.is();
+    var result = this.cursor.is();
     while (this.cursor.is() && Lexer.whitespace(this.cursor.get().get())) {
       this.cursor = this.cursor.get().next();
       result      = false;
@@ -55,7 +48,8 @@ public final class Lexer {
   }
 
   /** Portion from the given first to the last character iterator. */
-  private Portion portion(Iterator<Character> first, Iterator<Character> last) {
+  private Portion portion(FixedIterator<Character> first,
+    FixedIterator<Character> last) {
     return new Portion(new Location(this.resolution.source, first.index),
       new Location(this.resolution.source, last.index));
   }
@@ -66,7 +60,7 @@ public final class Lexer {
   }
 
   /** Lex all the source contents. */
-  private List<Lexeme> lex() {
+  private FixedList<Lexeme> lex() {
     var lexemes = new ArrayList<Lexeme>();
     while (this.cursor.is()) {
       var lexeme = Maybe.or(this::lexToken, this::lexNumber, this::lexWord);
@@ -86,7 +80,7 @@ public final class Lexer {
       lexemes.stream().filter(token -> token instanceof Lexeme.EOF)
         .count() == 1,
       "There are EOF characters in the middle of the source contents!");
-    return List.of(lexemes);
+    return FixedList.of(lexemes);
   }
 
   /** Lex a token. */
@@ -164,7 +158,8 @@ public final class Lexer {
     if (identifier.not()) {
       return identifier;
     }
-    return Maybe.or(() -> lexKeyword((Lexeme.Identifier) identifier.get()),
+    return Maybe.or(
+      () -> Lexer.lexKeyword((Lexeme.Identifier) identifier.get()),
       () -> identifier);
   }
 

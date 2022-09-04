@@ -3,18 +3,18 @@
 
 package jthrice.analyzer;
 
-import jthrice.lexer.Lexeme;
-import jthrice.resolver.Type;
-import jthrice.utility.List;
+import jthrice.lexer.*;
+import jthrice.resolver.*;
+import jthrice.utility.*;
 
 /** An existince in a Thrice program. */
 public sealed abstract class Entity permits Entity.Program, Entity.Statement, Entity.Expression {
   /** Root entity, which represents the whole program. */
   public static final class Program extends Entity {
     /** Statements in the program. */
-    public final List<Statement> statements;
+    public final FixedList<Statement> statements;
 
-    public Program(List<Statement> statements) {
+    public Program(FixedList<Statement> statements) {
       this.statements = statements;
     }
   }

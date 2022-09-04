@@ -3,36 +3,35 @@
 
 package jthrice.utility;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.stream.Stream;
+import java.util.*;
+import java.util.stream.*;
 
 /** Immutable list. */
-public final class List<T> {
+public final class FixedList<T> {
   /** List of the given string. */
-  public static List<Character> ofString(String string) {
+  public static FixedList<Character> ofString(String string) {
     var list = new ArrayList<Character>();
     for (char c : string.toCharArray()) {
       list.add(c);
     }
-    return List.of(list);
+    return FixedList.of(list);
   }
 
   /** Immutable copy of the given collection. */
-  public static <T> List<T> ofCopy(Collection<T> list) {
-    return List.of(java.util.List.copyOf(list));
+  public static <T> FixedList<T> ofCopy(Collection<T> list) {
+    return FixedList.of(List.copyOf(list));
   }
 
   /** Immutable view of the given list. */
-  public static <T> List<T> of(java.util.List<T> elements) {
-    return new List<>(elements);
+  public static <T> FixedList<T> of(List<T> elements) {
+    return new FixedList<>(elements);
   }
 
   /** Underlying mutable list. */
-  private final java.util.List<T> elements;
+  private final List<T> elements;
 
   /** Constructor. */
-  private List(java.util.List<T> elements) {
+  private FixedList(List<T> elements) {
     this.elements = elements;
   }
 

@@ -3,7 +3,7 @@
 
 package jthrice.lexer;
 
-import java.math.BigDecimal;
+import java.math.*;
 
 /** Smallest meaningful group of characters in a source. */
 public sealed abstract class Lexeme permits Lexeme.Token, Lexeme.Number, Lexeme.Identifier, Lexeme.Keyword {

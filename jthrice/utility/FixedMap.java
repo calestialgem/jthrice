@@ -3,25 +3,26 @@
 
 package jthrice.utility;
 
-import java.util.stream.Stream;
+import java.util.*;
+import java.util.stream.*;
 
 /** Immutable map. */
-public final class Map<K, V> {
+public final class FixedMap<K, V> {
   /** Immutable copy of the given map. */
-  public static <K, V> Map<K, V> ofCopy(java.util.Map<K, V> map) {
-    return Map.of(java.util.Map.copyOf(map));
+  public static <K, V> FixedMap<K, V> ofCopy(Map<K, V> map) {
+    return FixedMap.of(Map.copyOf(map));
   }
 
   /** Immutable view of the given map. */
-  public static <K, V> Map<K, V> of(java.util.Map<K, V> map) {
-    return Map.of(map);
+  public static <K, V> FixedMap<K, V> of(Map<K, V> map) {
+    return FixedMap.of(map);
   }
 
   /** Underlying mutable map. */
-  private final java.util.Map<K, V> entries;
+  private final Map<K, V> entries;
 
   /** Constructor. */
-  private Map(java.util.Map<K, V> entries) {
+  private FixedMap(Map<K, V> entries) {
     this.entries = entries;
   }
 
@@ -41,7 +42,7 @@ public final class Map<K, V> {
   }
 
   /** Stream of the entries. */
-  public Stream<java.util.Map.Entry<K, V>> stream() {
+  public Stream<Map.Entry<K, V>> stream() {
     return this.entries.entrySet().stream();
   }
 

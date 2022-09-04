@@ -3,9 +3,9 @@
 
 package jthrice.lexer;
 
-import java.io.PrintStream;
+import java.io.*;
 
-import jthrice.utility.Bug;
+import jthrice.utility.*;
 
 /** Portion of a string. */
 public final class Portion {

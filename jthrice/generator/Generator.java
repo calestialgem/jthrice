@@ -3,14 +3,12 @@
 
 package jthrice.generator;
 
-import java.nio.file.Path;
+import java.nio.file.*;
 
-import jthrice.analyzer.Analyzer;
-import jthrice.analyzer.Entity;
-import jthrice.launcher.Resolution;
-import jthrice.resolver.Name;
-import jthrice.resolver.Type;
-import jthrice.utility.Bug;
+import jthrice.analyzer.*;
+import jthrice.launcher.*;
+import jthrice.resolver.*;
+import jthrice.utility.*;
 
 /** Writes and compiles a C source from a program entity. */
 public class Generator {

@@ -3,17 +3,14 @@
 
 package jthrice.resolver;
 
-import java.util.HashMap;
-import java.util.stream.Stream;
+import java.util.*;
+import java.util.stream.*;
 
-import jthrice.launcher.Resolution;
-import jthrice.lexer.Lexeme;
+import jthrice.launcher.*;
+import jthrice.lexer.*;
+import jthrice.parser.*;
 import jthrice.parser.Node;
-import jthrice.parser.Parser;
-import jthrice.utility.Map;
-import jthrice.utility.Maybe;
-import jthrice.utility.None;
-import jthrice.utility.Some;
+import jthrice.utility.*;
 
 public final class Resolver {
   public static Maybe<Solution> resolve(Resolution resolution) {
@@ -40,14 +37,14 @@ public final class Resolver {
   }
 
   private Maybe<Solution> resolve() {
-    resolveBuiltin();
+    this.resolveBuiltin();
     var validStatements = this.node.statements.stream()
       .map(this::resolveStatement).count();
     if (validStatements < this.node.statements.size()) {
       return None.of();
     }
-    return Some.of(new Solution(this.node, Map.of(this.types),
-      Map.of(this.operators), Map.of(this.variables)));
+    return Some.of(new Solution(this.node, FixedMap.of(this.types),
+      FixedMap.of(this.operators), FixedMap.of(this.variables)));
   }
 
   private void resolveBuiltin() {
@@ -81,7 +78,7 @@ public final class Resolver {
 
   private Maybe<Void> resolveStatement(Node.Statement statement) {
     return switch (statement) {
-      case Node.Definition definition -> resolveDefinition(definition);
+      case Node.Definition definition -> this.resolveDefinition(definition);
     };
   }
 
@@ -95,7 +92,7 @@ public final class Resolver {
         "Previous definition was here.");
       return None.of();
     }
-    var type = resolveExpression(definition.type);
+    var type = this.resolveExpression(definition.type);
     if (type.not()) {
       this.resolution.error("RESOLVER", definition.type.portion,
         "Could not resolve the type!");
@@ -107,17 +104,17 @@ public final class Resolver {
 
   private Maybe<Type> resolveExpression(Node.Expression expression) {
     return switch (expression) {
-      case Node.Primary primary -> resolvePrimary(primary);
-      case Node.Group group -> resolveGroup(group);
-      case Node.Unary unary -> resolveUnary(unary);
-      case Node.Binary binary -> resolveBinary(binary);
+      case Node.Primary primary -> this.resolvePrimary(primary);
+      case Node.Group group -> this.resolveGroup(group);
+      case Node.Unary unary -> this.resolveUnary(unary);
+      case Node.Binary binary -> this.resolveBinary(binary);
     };
   }
 
   private Maybe<Type> resolvePrimary(Node.Primary primary) {
     return switch (primary) {
-      case Node.Literal literal -> resolveLiteral(literal);
-      case Node.Access access -> resolveAccess(access);
+      case Node.Literal literal -> this.resolveLiteral(literal);
+      case Node.Access access -> this.resolveAccess(access);
     };
   }
 
@@ -161,7 +158,7 @@ public final class Resolver {
   }
 
   private Maybe<Type> resolveGroup(Node.Group group) {
-    return resolveExpression(group.elevated);
+    return this.resolveExpression(group.elevated);
   }
 
   private Maybe<Type> resolveUnary(Node.Unary unary) {

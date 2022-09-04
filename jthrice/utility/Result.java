@@ -10,7 +10,7 @@ public sealed abstract class Result<T, E> permits Coup<T, E>, Dud<T, E> {
 
   /** Whether there is not a value. */
   public boolean not() {
-    return !is();
+    return !this.is();
   }
 
   /** Value. */

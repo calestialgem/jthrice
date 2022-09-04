@@ -3,7 +3,7 @@
 
 package jthrice.utility;
 
-import java.util.function.Supplier;
+import java.util.function.*;
 
 /** Container that maybe has a value. */
 public sealed abstract class Maybe<T> permits Some<T>, None<T> {
@@ -24,7 +24,7 @@ public sealed abstract class Maybe<T> permits Some<T>, None<T> {
 
   /** Whether there is not a value. */
   public boolean not() {
-    return !is();
+    return !this.is();
   }
 
   /** Value. */

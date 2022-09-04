@@ -3,18 +3,12 @@
 
 package jthrice.parser;
 
-import java.util.ArrayList;
-import java.util.function.Supplier;
+import java.util.*;
+import java.util.function.*;
 
-import jthrice.launcher.Resolution;
-import jthrice.lexer.Lexeme;
-import jthrice.lexer.Lexer;
-import jthrice.utility.Bug;
-import jthrice.utility.Iterator;
-import jthrice.utility.List;
-import jthrice.utility.Maybe;
-import jthrice.utility.None;
-import jthrice.utility.Some;
+import jthrice.launcher.*;
+import jthrice.lexer.*;
+import jthrice.utility.*;
 
 /** Parses a list of lexemes to a program node. */
 public final class Parser {
@@ -25,13 +19,13 @@ public final class Parser {
   }
 
   /** Resolution of the parsed lexemes. */
-  private final Resolution        resolution;
+  private final Resolution             resolution;
   /** Current lexeme to be parsed. */
-  private Maybe<Iterator<Lexeme>> cursor;
+  private Maybe<FixedIterator<Lexeme>> cursor;
 
-  private Parser(Resolution resolution, List<Lexeme> tokens) {
+  private Parser(Resolution resolution, FixedList<Lexeme> tokens) {
     this.resolution = resolution;
-    this.cursor     = Iterator.ofFirst(tokens);
+    this.cursor     = FixedIterator.ofFirst(tokens);
   }
 
   /** Give an error to the resolution about the current lexeme. */
@@ -78,7 +72,7 @@ public final class Parser {
       return None.of();
     }
     Bug.check(this.cursor.not(), "There are lexemes after the EOF!");
-    return Some.of(new Node.Program(List.of(statements), eof.get()));
+    return Some.of(new Node.Program(FixedList.of(statements), eof.get()));
   }
 
   /** Parse a statement. */

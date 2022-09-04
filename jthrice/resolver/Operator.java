@@ -3,7 +3,7 @@
 
 package jthrice.resolver;
 
-import jthrice.lexer.Lexeme;
+import jthrice.lexer.*;
 
 /** Things that operate on expressions. */
 public sealed abstract class Operator permits Operator.Prefix, Operator.Postfix, Operator.Infix {

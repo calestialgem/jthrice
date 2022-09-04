@@ -11,7 +11,7 @@ public final class None<T> extends Maybe<T> {
   /** None. */
   @SuppressWarnings("unchecked")
   public static <T> Maybe<T> of() {
-    return (None<T>) INSTANCE;
+    return (None<T>) None.INSTANCE;
   }
 
   /** Constructor. */
