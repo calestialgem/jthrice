@@ -7,26 +7,22 @@ import java.util.function.*;
 
 /** Container that maybe has a value. */
 public sealed abstract class Maybe<T> permits Some<T>, None<T> {
-  /** First some or none. */
-  @SafeVarargs
-  public static <T> Maybe<T> or(Supplier<Maybe<T>>... suppliers) {
-    for (var supplier : suppliers) {
-      var maybe = supplier.get();
-      if (maybe.is()) {
-        return maybe;
-      }
-    }
-    return None.of();
-  }
+  /** Contained value, if its there. Returns the given fallback, if its not
+   * there. */
+  public abstract <U extends T> T get(U fallback);
 
-  /** Whether there is a value. */
-  public abstract boolean is();
+  /** Supply the contained value to the given user, if its there. Returns
+   * this. */
+  public abstract Maybe<T> use(Consumer<? super T> user);
 
-  /** Whether there is not a value. */
-  public boolean not() {
-    return !this.is();
-  }
+  /** Supply the contained value to the given user, if its there. Runs the given
+   * fallback, if its not there. Returns thsi. */
+  public abstract Maybe<T> use(Consumer<? super T> user, Runnable fallback);
 
-  /** Value. */
-  public abstract T get();
+  /** Map the contained value using the given mapper, if its there. */
+  public abstract <U> Maybe<U> map(Function<? super T, ? extends U> mapper);
+
+  /** If does not contains a value, gets from the given supplier and returns
+   * that. Otherwise returns this. */
+  public abstract Maybe<T> or(Supplier<Maybe<? extends T>> supplier);
 }

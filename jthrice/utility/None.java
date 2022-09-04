@@ -3,6 +3,8 @@
 
 package jthrice.utility;
 
+import java.util.function.*;
+
 /** Maybe that does not contain a value. */
 public final class None<T> extends Maybe<T> {
   /** Shared instance. */
@@ -19,13 +21,30 @@ public final class None<T> extends Maybe<T> {
   }
 
   @Override
-  public boolean is() {
-    return false;
+  public <U extends T> T get(U fallback) {
+    return fallback;
   }
 
   @Override
-  public T get() {
-    Bug.unreachable("There is not a value!");
-    return null;
+  public Maybe<T> use(Consumer<? super T> user) {
+    return this;
+  }
+
+  @Override
+  public Maybe<T> use(Consumer<? super T> user, Runnable fallback) {
+    fallback.run();
+    return this;
+  }
+
+  @Override
+  @SuppressWarnings("unchecked")
+  public <U> Maybe<U> map(Function<? super T, ? extends U> mapper) {
+    return (Maybe<U>) this;
+  }
+
+  @Override
+  @SuppressWarnings("unchecked")
+  public Maybe<T> or(Supplier<Maybe<? extends T>> supplier) {
+    return (Maybe<T>) supplier.get();
   }
 }

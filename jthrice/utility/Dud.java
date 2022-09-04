@@ -21,6 +21,18 @@ public final class Dud<T, E> extends Result<T, E> {
   }
 
   @Override
+  public Result<T, E> use(Consumer<? super T> user) {
+    return this;
+  }
+
+  @Override
+  public Result<T, E> use(Consumer<? super T> user,
+    Consumer<? super E> fallback) {
+    fallback.accept(this.error);
+    return this;
+  }
+
+  @Override
   @SuppressWarnings("unchecked")
   public <U> Result<U, E> map(Function<? super T, ? extends U> mapper) {
     return (Result<U, E>) this;

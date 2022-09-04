@@ -21,6 +21,19 @@ public final class Coup<T, E> extends Result<T, E> {
   }
 
   @Override
+  public Result<T, E> use(Consumer<? super T> user) {
+    user.accept(this.value);
+    return this;
+  }
+
+  @Override
+  public Result<T, E> use(Consumer<? super T> user,
+    Consumer<? super E> fallback) {
+    user.accept(this.value);
+    return this;
+  }
+
+  @Override
   public <U> Result<U, E> map(Function<? super T, ? extends U> mapper) {
     return Coup.of(mapper.apply(this.value));
   }
