@@ -11,13 +11,13 @@ import jthrice.lexer.Lexeme;
 import jthrice.parser.Node;
 import jthrice.parser.Parser;
 import jthrice.utility.Map;
-import jthrice.utility.Result;
+import jthrice.utility.Maybe;
 
 public final class Resolver {
-  public static Result<Solution> resolve(Resolution resolution) {
+  public static Maybe<Solution> resolve(Resolution resolution) {
     var node = Parser.parse(resolution);
-    if (node.empty()) {
-      return Result.ofUnexisting();
+    if (node.not()) {
+      return Maybe.of();
     }
     var resolver = new Resolver(resolution, node.get());
     return resolver.resolve();
@@ -37,14 +37,14 @@ public final class Resolver {
     this.variables  = new HashMap<>();
   }
 
-  private Result<Solution> resolve() {
+  private Maybe<Solution> resolve() {
     resolveBuiltin();
     var validStatements = this.node.statements.stream()
       .map(this::resolveStatement).count();
     if (validStatements < this.node.statements.size()) {
-      return Result.ofInvalid();
+      return Maybe.of();
     }
-    return Result.of(new Solution(this.node, new Map<>(this.types),
+    return Maybe.of(new Solution(this.node, new Map<>(this.types),
       new Map<>(this.operators), new Map<>(this.variables)));
   }
 
@@ -77,13 +77,13 @@ public final class Resolver {
     this.types.putAll(arithmetic);
   }
 
-  private Result<Void> resolveStatement(Node.Statement statement) {
+  private Maybe<Void> resolveStatement(Node.Statement statement) {
     return switch (statement) {
       case Node.Definition definition -> resolveDefinition(definition);
     };
   }
 
-  private Result<Void> resolveDefinition(Node.Definition definition) {
+  private Maybe<Void> resolveDefinition(Node.Definition definition) {
     var same = this.variables.keySet().stream().filter(definition.name::equals)
       .findAny();
     if (same.isPresent()) {
@@ -91,19 +91,19 @@ public final class Resolver {
         "Another variable with the same name is already defined!");
       this.resolution.info("RESOLVER", same.get().portion,
         "Previous definition was here.");
-      return Result.ofInvalid();
+      return Maybe.of();
     }
     var type = resolveExpression(definition.type);
-    if (type.empty()) {
+    if (type.not()) {
       this.resolution.error("RESOLVER", definition.type.portion,
         "Could not resolve the type!");
-      return Result.ofInvalid();
+      return Maybe.of();
     }
     this.variables.put(definition.name, type.get());
-    return Result.of(null);
+    return Maybe.of(null);
   }
 
-  private Result<Type> resolveExpression(Node.Expression expression) {
+  private Maybe<Type> resolveExpression(Node.Expression expression) {
     return switch (expression) {
       case Node.Primary primary -> resolvePrimary(primary);
       case Node.Group group -> resolveGroup(group);
@@ -112,63 +112,63 @@ public final class Resolver {
     };
   }
 
-  private Result<Type> resolvePrimary(Node.Primary primary) {
+  private Maybe<Type> resolvePrimary(Node.Primary primary) {
     return switch (primary) {
       case Node.Literal literal -> resolveLiteral(literal);
       case Node.Access access -> resolveAccess(access);
     };
   }
 
-  private Result<Type> resolveLiteral(Node.Literal literal) {
+  private Maybe<Type> resolveLiteral(Node.Literal literal) {
     switch (literal.value) {
       case Lexeme.I1 i1:
-        return Result.of(this.types.get(i1.toString()));
+        return Maybe.of(this.types.get(i1.toString()));
       case Lexeme.I2 i2:
-        return Result.of(this.types.get(i2.toString()));
+        return Maybe.of(this.types.get(i2.toString()));
       case Lexeme.I4 i4:
-        return Result.of(this.types.get(i4.toString()));
+        return Maybe.of(this.types.get(i4.toString()));
       case Lexeme.I8 i8:
-        return Result.of(this.types.get(i8.toString()));
+        return Maybe.of(this.types.get(i8.toString()));
       case Lexeme.IX ix:
-        return Result.of(this.types.get(ix.toString()));
+        return Maybe.of(this.types.get(ix.toString()));
       case Lexeme.U1 u1:
-        return Result.of(this.types.get(u1.toString()));
+        return Maybe.of(this.types.get(u1.toString()));
       case Lexeme.U2 u2:
-        return Result.of(this.types.get(u2.toString()));
+        return Maybe.of(this.types.get(u2.toString()));
       case Lexeme.U4 u4:
-        return Result.of(this.types.get(u4.toString()));
+        return Maybe.of(this.types.get(u4.toString()));
       case Lexeme.U8 u8:
-        return Result.of(this.types.get(u8.toString()));
+        return Maybe.of(this.types.get(u8.toString()));
       case Lexeme.UX ux:
-        return Result.of(this.types.get(ux.toString()));
+        return Maybe.of(this.types.get(ux.toString()));
       case Lexeme.F4 f4:
-        return Result.of(this.types.get(f4.toString()));
+        return Maybe.of(this.types.get(f4.toString()));
       case Lexeme.F8 f8:
-        return Result.of(this.types.get(f8.toString()));
+        return Maybe.of(this.types.get(f8.toString()));
       default:
         this.resolution.error("RESOLVER", literal.portion, "Expected a type!");
-        return Result.ofInvalid();
+        return Maybe.of();
     }
   }
 
-  private Result<Type> resolveAccess(Node.Access access) {
+  private Maybe<Type> resolveAccess(Node.Access access) {
     if (this.types.containsKey(access.name.value)) {
-      return Result.of(this.types.get(access.name.value));
+      return Maybe.of(this.types.get(access.name.value));
     }
-    return Result.ofInvalid();
+    return Maybe.of();
   }
 
-  private Result<Type> resolveGroup(Node.Group group) {
+  private Maybe<Type> resolveGroup(Node.Group group) {
     return resolveExpression(group.elevated);
   }
 
-  private Result<Type> resolveUnary(Node.Unary unary) {
+  private Maybe<Type> resolveUnary(Node.Unary unary) {
     this.resolution.error("RESOLVER", unary.portion, "Expected a type!");
-    return Result.ofInvalid();
+    return Maybe.of();
   }
 
-  private Result<Type> resolveBinary(Node.Binary unary) {
+  private Maybe<Type> resolveBinary(Node.Binary unary) {
     this.resolution.error("RESOLVER", unary.portion, "Expected a type!");
-    return Result.ofInvalid();
+    return Maybe.of();
   }
 }

@@ -13,15 +13,15 @@ import jthrice.resolver.Solution;
 import jthrice.resolver.Type;
 import jthrice.utility.Bug;
 import jthrice.utility.List;
-import jthrice.utility.Result;
+import jthrice.utility.Maybe;
 
 /** Creates a program entity from a program node. */
 public class Analyzer {
   /** Analyze the source in the given resolution. */
-  public static Result<Entity.Program> analyze(Resolution resolution) {
+  public static Maybe<Entity.Program> analyze(Resolution resolution) {
     var solution = Resolver.resolve(resolution);
-    if (solution.empty()) {
-      return Result.ofUnexisting();
+    if (solution.not()) {
+      return Maybe.of();
     }
     var analyzer = new Analyzer(resolution, solution.get());
     return analyzer.analyze();
@@ -38,38 +38,37 @@ public class Analyzer {
   }
 
   /** Analyze the program node. */
-  private Result<Entity.Program> analyze() {
-    var statements = List
-      .of(this.solution.node.statements.stream().map(this::analyzeStatement)
-        .filter(Result::valid).map(Result::get).toList());
+  private Maybe<Entity.Program> analyze() {
+    var statements = List.of(this.solution.node.statements.stream()
+      .map(this::analyzeStatement).filter(Maybe::is).map(Maybe::get).toList());
     if (statements.size() < this.solution.node.statements.size()) {
-      return Result.ofInvalid();
+      return Maybe.of();
     }
-    return Result.of(new Entity.Program(statements));
+    return Maybe.of(new Entity.Program(statements));
   }
 
   /** Analyze the given statement node. */
-  private Result<Entity.Statement> analyzeStatement(Node.Statement statement) {
+  private Maybe<Entity.Statement> analyzeStatement(Node.Statement statement) {
     return switch (statement) {
       case Node.Definition definition -> analyzeDefinition(definition);
     };
   }
 
   /** Analyze the given definition node. */
-  private Result<Entity.Statement>
+  private Maybe<Entity.Statement>
     analyzeDefinition(Node.Definition definition) {
     var type       = this.solution.types.at(definition.name.value);
     var expression = analyzeExpression(definition.value);
-    if (expression.empty()) {
-      return Result.ofInvalid();
+    if (expression.not()) {
+      return Maybe.of();
     }
     // TODO: Type checking!
-    return Result
+    return Maybe
       .of(new Entity.Definition(definition.name, type, expression.get()));
   }
 
   /** Analyze the given expression node. */
-  private Result<Entity.Expression>
+  private Maybe<Entity.Expression>
     analyzeExpression(Node.Expression expression) {
     return switch (expression) {
       case Node.Primary primary -> analyzePrimary(primary);
@@ -80,7 +79,7 @@ public class Analyzer {
   }
 
   /** Analyze the given primary node. */
-  private Result<Entity.Expression> analyzePrimary(Node.Primary primary) {
+  private Maybe<Entity.Expression> analyzePrimary(Node.Primary primary) {
     return switch (primary) {
       case Node.Literal literal -> analyzeLiteral(literal);
       case Node.Access access -> analyzeAccess(access);
@@ -88,9 +87,8 @@ public class Analyzer {
   }
 
   /** Analyze the given literal node. */
-  private static Result<Entity.Expression>
-    analyzeLiteral(Node.Literal literal) {
-    return Result.of(switch (literal.value) {
+  private static Maybe<Entity.Expression> analyzeLiteral(Node.Literal literal) {
+    return Maybe.of(switch (literal.value) {
       case Lexeme.Number number -> new Entity.Literal(Type.RINF, number.value);
       case Lexeme.Keyword keyword -> switch (keyword) {
         case Lexeme.I1 i1 -> new Entity.Literal(Type.META, Type.I1);
@@ -112,22 +110,22 @@ public class Analyzer {
   }
 
   /** Analyze the given access node. */
-  private Result<Entity.Expression> analyzeAccess(Node.Access access) {
-    return Result.ofUnexisting();
+  private Maybe<Entity.Expression> analyzeAccess(Node.Access access) {
+    return Maybe.of();
   }
 
   /** Analyze the given group node. */
-  private Result<Entity.Expression> analyzeGroup(Node.Group group) {
+  private Maybe<Entity.Expression> analyzeGroup(Node.Group group) {
     return analyzeExpression(group.elevated);
   }
 
   /** Analyze the given unary node. */
-  private Result<Entity.Expression> analyzeUnary(Node.Unary unary) {
-    return Result.ofUnexisting();
+  private Maybe<Entity.Expression> analyzeUnary(Node.Unary unary) {
+    return Maybe.of();
   }
 
   /** Analyze the given binary node. */
-  private Result<Entity.Expression> analyzeBinary(Node.Binary binary) {
-    return Result.ofUnexisting();
+  private Maybe<Entity.Expression> analyzeBinary(Node.Binary binary) {
+    return Maybe.of();
   }
 }

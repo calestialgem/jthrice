@@ -6,20 +6,20 @@ package jthrice.utility;
 /** Iterator over an immutable list. */
 public final class Iterator<T> {
   /** Iterator over the given list to the given index. */
-  public static <T> Result<Iterator<T>> of(List<T> iterated, int index) {
+  public static <T> Maybe<Iterator<T>> of(List<T> iterated, int index) {
     if (iterated.exists(index)) {
-      return Result.of(new Iterator<>(iterated, index));
+      return Maybe.of(new Iterator<>(iterated, index));
     }
-    return Result.ofUnexisting();
+    return Maybe.of();
   }
 
   /** Iterator to the first element of the given list. */
-  public static <T> Result<Iterator<T>> ofFirst(List<T> iterated) {
+  public static <T> Maybe<Iterator<T>> ofFirst(List<T> iterated) {
     return Iterator.of(iterated, 0);
   }
 
   /** Iterator to the last element of the given list. */
-  public static <T> Result<Iterator<T>> ofLast(List<T> iterated) {
+  public static <T> Maybe<Iterator<T>> ofLast(List<T> iterated) {
     return Iterator.of(iterated, iterated.size() - 1);
   }
 
@@ -42,23 +42,23 @@ public final class Iterator<T> {
   /** Iterated element after its casted to base of the given types. */
   @SafeVarargs
   @SuppressWarnings("unchecked")
-  public final <Base extends T> Result<Base>
+  public final <Base extends T> Maybe<Base>
     cast(Class<? extends Base>... deriveds) {
     for (var derived : deriveds) {
       if (derived.isInstance(this.get())) {
-        return Result.of((Base) this.get());
+        return Maybe.of((Base) this.get());
       }
     }
-    return Result.ofUnexisting();
+    return Maybe.of();
   }
 
   /** Iterator to the next element. */
-  public Result<Iterator<T>> next() {
+  public Maybe<Iterator<T>> next() {
     return Iterator.of(this.iterated, this.index + 1);
   }
 
   /** Iterator to the previous element. */
-  public Result<Iterator<T>> previous() {
+  public Maybe<Iterator<T>> previous() {
     return Iterator.of(this.iterated, this.index - 1);
   }
 }

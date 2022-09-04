@@ -20,7 +20,7 @@ public class Generator {
   /** Generate the C source from the source in the given resolution. */
   public static void generate(Resolution resolution, Path build) {
     var entity = Analyzer.analyze(resolution);
-    if (entity.empty()) {
+    if (entity.not()) {
       resolution.warning("GENERATOR", "Not continuing due to errors.");
       return;
     }
