@@ -8,9 +8,9 @@ public final class Iterator<T> {
   /** Iterator over the given list to the given index. */
   public static <T> Maybe<Iterator<T>> of(List<T> iterated, int index) {
     if (iterated.exists(index)) {
-      return Maybe.of(new Iterator<>(iterated, index));
+      return Some.of(new Iterator<>(iterated, index));
     }
-    return Maybe.of();
+    return None.of();
   }
 
   /** Iterator to the first element of the given list. */
@@ -28,8 +28,8 @@ public final class Iterator<T> {
   /** Index of the iterated element. */
   public final int     index;
 
-  public Iterator(List<T> iterated, int index) {
-    Bug.check(iterated.exists(index), "Unexisting iterator!");
+  /** Constructor. */
+  private Iterator(List<T> iterated, int index) {
     this.iterated = iterated;
     this.index    = index;
   }
@@ -46,10 +46,10 @@ public final class Iterator<T> {
     cast(Class<? extends Base>... deriveds) {
     for (var derived : deriveds) {
       if (derived.isInstance(this.get())) {
-        return Maybe.of((Base) this.get());
+        return Some.of((Base) this.get());
       }
     }
-    return Maybe.of();
+    return None.of();
   }
 
   /** Iterator to the next element. */

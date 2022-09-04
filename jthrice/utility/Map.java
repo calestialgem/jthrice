@@ -3,20 +3,25 @@
 
 package jthrice.utility;
 
-import java.util.HashMap;
 import java.util.stream.Stream;
 
 /** Immutable map. */
 public final class Map<K, V> {
   /** Immutable copy of the given map. */
+  public static <K, V> Map<K, V> ofCopy(java.util.Map<K, V> map) {
+    return Map.of(java.util.Map.copyOf(map));
+  }
+
+  /** Immutable view of the given map. */
   public static <K, V> Map<K, V> of(java.util.Map<K, V> map) {
-    return new Map<>(new HashMap<>(map));
+    return Map.of(map);
   }
 
   /** Underlying mutable map. */
-  private final HashMap<K, V> entries;
+  private final java.util.Map<K, V> entries;
 
-  public Map(HashMap<K, V> entries) {
+  /** Constructor. */
+  private Map(java.util.Map<K, V> entries) {
     this.entries = entries;
   }
 

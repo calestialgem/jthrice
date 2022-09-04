@@ -8,6 +8,9 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 
 import jthrice.utility.Bug;
+import jthrice.utility.Coup;
+import jthrice.utility.Dud;
+import jthrice.utility.Result;
 
 /** A UTF-8 source file. */
 public class Source {
@@ -16,6 +19,24 @@ public class Source {
   /** File extension of Thrice source files. */
   public static final String EXTENSION = "tr";
 
+  /**
+   * Source from the file with the given relative path, which does not have the
+   * file extension.
+   */
+  public static Result<Source, IOException> of(String name) {
+    var    path     = Path.of(name + '.' + EXTENSION).toAbsolutePath();
+    String contents = null;
+    try {
+      contents = Files.readString(path);
+    } catch (IOException e) {
+      return Dud.of(e);
+    }
+    contents  = contents.replace("\r", "");
+    contents += Source.EOF;
+    contents += '\n';
+    return Coup.of(new Source(name, path, contents));
+  }
+
   /** Name of the source file without the file extensions. */
   public final String name;
   /** Path to the source file. */
@@ -23,11 +44,11 @@ public class Source {
   /** Contents of the source file. */
   public final String contents;
 
-  public Source(String name) throws IOException {
+  /** Constructor. */
+  private Source(String name, Path path, String contents) {
     this.name     = name;
-    this.path     = Path.of(name + '.' + Source.EXTENSION).toAbsolutePath();
-    this.contents = Files.readString(this.path).replace("\r", "") + Source.EOF
-      + '\n';
+    this.path     = path;
+    this.contents = contents;
   }
 
   /** Amount of characters. */

@@ -132,8 +132,7 @@ public class Generator {
         case Type.UX ux -> "llu";
       });
       case Type.Floating floating -> this.generate("f");
-      case Type.Rinf rinf ->
-        throw new Bug("There is an undeduced `rinf` type!");
+      case Type.Rinf rinf -> throw Bug.of("There is an undeduced `rinf` type!");
     }
     this.generate("\n\");", this.newLine());
   }
@@ -152,8 +151,7 @@ public class Generator {
       case Type.Signed signed -> this.generateSigned(signed);
       case Type.Unsigned unsigned -> this.generateUnsigned(unsigned);
       case Type.Floating floating -> this.generateFloating(floating);
-      case Type.Rinf ring ->
-        throw new Bug("There is an undeduced `rinf` type!");
+      case Type.Rinf ring -> throw Bug.of("There is an undeduced `rinf` type!");
     }
   }
 

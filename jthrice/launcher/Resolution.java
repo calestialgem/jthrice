@@ -8,6 +8,11 @@ import jthrice.utility.Bug;
 
 /** Resolution of a source file. */
 public class Resolution {
+  /** Clean resolution of the given source. */
+  public static Resolution of(Source source) {
+    return new Resolution(source, 0, 0);
+  }
+
   /** Source file. */
   public final Source source;
   /** Amount of errors that originated in the source file. */
@@ -15,10 +20,11 @@ public class Resolution {
   /** Amount of warnings that originated in the source file. */
   private int         warnings;
 
-  public Resolution(Source source) {
+  /** Constructor. */
+  private Resolution(Source source, int errors, int warnings) {
     this.source   = source;
-    this.errors   = 0;
-    this.warnings = 0;
+    this.errors   = errors;
+    this.warnings = warnings;
   }
 
   /**

@@ -9,7 +9,7 @@ public final class Bug extends RuntimeException {
 
   /** Throw a `Bug` with the given message. */
   public static void unreachable(String message) throws Bug {
-    throw new Bug(message);
+    throw Bug.of(message);
   }
 
   /**
@@ -21,7 +21,13 @@ public final class Bug extends RuntimeException {
     }
   }
 
-  public Bug(String message) {
+  /** Bug with the given message. */
+  public static Bug of(String message) {
+    return new Bug(message);
+  }
+
+  /** Constructor. */
+  private Bug(String message) {
     super(message);
   }
 }

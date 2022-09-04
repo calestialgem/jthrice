@@ -13,6 +13,7 @@ import jthrice.utility.Bug;
 import jthrice.utility.Iterator;
 import jthrice.utility.List;
 import jthrice.utility.Maybe;
+import jthrice.utility.None;
 import jthrice.utility.Some;
 
 /** Groups the characters in a source file to a list of lexemes. */
@@ -85,26 +86,24 @@ public final class Lexer {
       lexemes.stream().filter(token -> token instanceof Lexeme.EOF)
         .count() == 1,
       "There are EOF characters in the middle of the source contents!");
-    return new List<>(lexemes);
+    return List.of(lexemes);
   }
 
   /** Lex a token. */
   private Maybe<Lexeme> lexToken() {
     Maybe<Lexeme> token = switch (this.cursor.get().get().charValue()) {
-      case '+' -> Maybe.of(new Lexeme.Plus(this.currentPortion()));
-      case '-' -> Maybe.of(new Lexeme.Minus(this.currentPortion()));
-      case '*' -> Maybe.of(new Lexeme.Star(this.currentPortion()));
-      case '/' -> Maybe.of(new Lexeme.ForwardSlash(this.currentPortion()));
-      case '%' -> Maybe.of(new Lexeme.Percent(this.currentPortion()));
-      case '=' -> Maybe.of(new Lexeme.Equal(this.currentPortion()));
-      case ':' -> Maybe.of(new Lexeme.Colon(this.currentPortion()));
-      case ';' -> Maybe.of(new Lexeme.Semicolon(this.currentPortion()));
-      case '(' ->
-        Maybe.of(new Lexeme.OpeningParentheses(this.currentPortion()));
-      case ')' ->
-        Maybe.of(new Lexeme.ClosingParentheses(this.currentPortion()));
-      case Source.EOF -> Maybe.of(new Lexeme.EOF(this.currentPortion()));
-      default -> Maybe.of();
+      case '+' -> Some.of(new Lexeme.Plus(this.currentPortion()));
+      case '-' -> Some.of(new Lexeme.Minus(this.currentPortion()));
+      case '*' -> Some.of(new Lexeme.Star(this.currentPortion()));
+      case '/' -> Some.of(new Lexeme.ForwardSlash(this.currentPortion()));
+      case '%' -> Some.of(new Lexeme.Percent(this.currentPortion()));
+      case '=' -> Some.of(new Lexeme.Equal(this.currentPortion()));
+      case ':' -> Some.of(new Lexeme.Colon(this.currentPortion()));
+      case ';' -> Some.of(new Lexeme.Semicolon(this.currentPortion()));
+      case '(' -> Some.of(new Lexeme.OpeningParentheses(this.currentPortion()));
+      case ')' -> Some.of(new Lexeme.ClosingParentheses(this.currentPortion()));
+      case Source.EOF -> Some.of(new Lexeme.EOF(this.currentPortion()));
+      default -> None.of();
     };
     if (token.is()) {
       this.next();
@@ -121,11 +120,11 @@ public final class Lexer {
     var current = first.get();
     var digit   = DIGITS.indexOf(current);
     if (digit == -1) {
-      return Maybe.of();
+      return None.of();
     }
 
     var unscaled      = BigInteger.valueOf(digit);
-    var decimalPlaces = Maybe.<java.lang.Integer>of();
+    var decimalPlaces = None.<Integer>of();
     var last          = first;
 
     while (this.next()) {
@@ -134,7 +133,7 @@ public final class Lexer {
         if (decimalPlaces.is()) {
           break;
         }
-        decimalPlaces = Maybe.of(0);
+        decimalPlaces = Some.of(0);
         continue;
       }
 
@@ -148,7 +147,7 @@ public final class Lexer {
       last     = this.cursor.get();
 
       if (decimalPlaces.is()) {
-        decimalPlaces = Maybe.of(decimalPlaces.get() + 1);
+        decimalPlaces = Some.of(decimalPlaces.get() + 1);
       }
     }
 
@@ -156,7 +155,7 @@ public final class Lexer {
       case Some<Integer> some -> some.value;
       default -> 0;
     });
-    return Maybe.of(new Lexeme.Number(this.portion(first, last), value));
+    return Some.of(new Lexeme.Number(this.portion(first, last), value));
   }
 
   /** Lex a keyword or an identifier. */
@@ -175,7 +174,7 @@ public final class Lexer {
     var current = first.get();
     if ((current < 'a' || current > 'z') && (current < 'A' || current > 'Z')
       && current != '_') {
-      return Maybe.of();
+      return None.of();
     }
 
     var value = new StringBuilder().append(current);
@@ -190,27 +189,27 @@ public final class Lexer {
       value.append(current);
       last = this.cursor.get();
     }
-    return Maybe
+    return Some
       .of(new Lexeme.Identifier(this.portion(first, last), value.toString()));
   }
 
   /** Lex a keyword. */
   private static Maybe<Lexeme> lexKeyword(Lexeme.Identifier identifier) {
     return switch (identifier.value) {
-      case "i1" -> Maybe.of(new Lexeme.I1(identifier.portion));
-      case "i2" -> Maybe.of(new Lexeme.I2(identifier.portion));
-      case "i4" -> Maybe.of(new Lexeme.I4(identifier.portion));
-      case "i8" -> Maybe.of(new Lexeme.I8(identifier.portion));
-      case "ix" -> Maybe.of(new Lexeme.IX(identifier.portion));
-      case "u1" -> Maybe.of(new Lexeme.U1(identifier.portion));
-      case "u2" -> Maybe.of(new Lexeme.U2(identifier.portion));
-      case "u4" -> Maybe.of(new Lexeme.U4(identifier.portion));
-      case "u8" -> Maybe.of(new Lexeme.U8(identifier.portion));
-      case "ux" -> Maybe.of(new Lexeme.UX(identifier.portion));
-      case "f4" -> Maybe.of(new Lexeme.F4(identifier.portion));
-      case "f8" -> Maybe.of(new Lexeme.F8(identifier.portion));
-      case "rinf" -> Maybe.of(new Lexeme.Rinf(identifier.portion));
-      default -> Maybe.of();
+      case "i1" -> Some.of(new Lexeme.I1(identifier.portion));
+      case "i2" -> Some.of(new Lexeme.I2(identifier.portion));
+      case "i4" -> Some.of(new Lexeme.I4(identifier.portion));
+      case "i8" -> Some.of(new Lexeme.I8(identifier.portion));
+      case "ix" -> Some.of(new Lexeme.IX(identifier.portion));
+      case "u1" -> Some.of(new Lexeme.U1(identifier.portion));
+      case "u2" -> Some.of(new Lexeme.U2(identifier.portion));
+      case "u4" -> Some.of(new Lexeme.U4(identifier.portion));
+      case "u8" -> Some.of(new Lexeme.U8(identifier.portion));
+      case "ux" -> Some.of(new Lexeme.UX(identifier.portion));
+      case "f4" -> Some.of(new Lexeme.F4(identifier.portion));
+      case "f8" -> Some.of(new Lexeme.F8(identifier.portion));
+      case "rinf" -> Some.of(new Lexeme.Rinf(identifier.portion));
+      default -> None.of();
     };
   }
 }

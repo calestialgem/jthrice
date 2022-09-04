@@ -7,16 +7,6 @@ import java.util.function.Supplier;
 
 /** Container that maybe has a value. */
 public sealed abstract class Maybe<T> permits Some<T>, None<T> {
-  /** Maybe that contains the given value. */
-  public static <T> Maybe<T> of(T value) {
-    return Some.of(value);
-  }
-
-  /** Maybe that does not contain a value. */
-  public static <T> Maybe<T> of() {
-    return None.of();
-  }
-
   /** First some or none. */
   @SafeVarargs
   public static <T> Maybe<T> or(Supplier<Maybe<T>>... suppliers) {
@@ -26,7 +16,7 @@ public sealed abstract class Maybe<T> permits Some<T>, None<T> {
         return maybe;
       }
     }
-    return of();
+    return None.of();
   }
 
   /** Whether there is a value. */

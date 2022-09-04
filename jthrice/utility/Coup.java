@@ -3,18 +3,18 @@
 
 package jthrice.utility;
 
-/** Maybe that contains a value. */
-public final class Some<T> extends Maybe<T> {
-  /** Some containing the given value. */
-  public static <T> Maybe<T> of(T value) {
-    return new Some<>(value);
+/** Result that has a value. */
+public final class Coup<T, E> extends Result<T, E> {
+  /** Coup that contains the given value. */
+  public static <T, E> Result<T, E> of(T value) {
+    return new Coup<>(value);
   }
 
   /** Value. */
   public final T value;
 
   /** Constructor. */
-  private Some(T value) {
+  private Coup(T value) {
     this.value = value;
   }
 
@@ -26,5 +26,11 @@ public final class Some<T> extends Maybe<T> {
   @Override
   public T get() {
     return this.value;
+  }
+
+  @Override
+  public E error() {
+    Bug.unreachable("There is not an error!");
+    return null;
   }
 }

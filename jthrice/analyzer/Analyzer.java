@@ -14,6 +14,8 @@ import jthrice.resolver.Type;
 import jthrice.utility.Bug;
 import jthrice.utility.List;
 import jthrice.utility.Maybe;
+import jthrice.utility.None;
+import jthrice.utility.Some;
 
 /** Creates a program entity from a program node. */
 public class Analyzer {
@@ -21,7 +23,7 @@ public class Analyzer {
   public static Maybe<Entity.Program> analyze(Resolution resolution) {
     var solution = Resolver.resolve(resolution);
     if (solution.not()) {
-      return Maybe.of();
+      return None.of();
     }
     var analyzer = new Analyzer(resolution, solution.get());
     return analyzer.analyze();
@@ -42,9 +44,9 @@ public class Analyzer {
     var statements = List.of(this.solution.node.statements.stream()
       .map(this::analyzeStatement).filter(Maybe::is).map(Maybe::get).toList());
     if (statements.size() < this.solution.node.statements.size()) {
-      return Maybe.of();
+      return None.of();
     }
-    return Maybe.of(new Entity.Program(statements));
+    return Some.of(new Entity.Program(statements));
   }
 
   /** Analyze the given statement node. */
@@ -60,10 +62,10 @@ public class Analyzer {
     var type       = this.solution.types.at(definition.name.value);
     var expression = analyzeExpression(definition.value);
     if (expression.not()) {
-      return Maybe.of();
+      return None.of();
     }
     // TODO: Type checking!
-    return Maybe
+    return Some
       .of(new Entity.Definition(definition.name, type, expression.get()));
   }
 
@@ -88,7 +90,7 @@ public class Analyzer {
 
   /** Analyze the given literal node. */
   private static Maybe<Entity.Expression> analyzeLiteral(Node.Literal literal) {
-    return Maybe.of(switch (literal.value) {
+    return Some.of(switch (literal.value) {
       case Lexeme.Number number -> new Entity.Literal(Type.RINF, number.value);
       case Lexeme.Keyword keyword -> switch (keyword) {
         case Lexeme.I1 i1 -> new Entity.Literal(Type.META, Type.I1);
@@ -105,13 +107,13 @@ public class Analyzer {
         case Lexeme.F8 f8 -> new Entity.Literal(Type.META, Type.F8);
         case Lexeme.Rinf rinf -> new Entity.Literal(Type.META, Type.RINF);
       };
-      default -> throw new Bug("Literal value is invalid!");
+      default -> throw Bug.of("Literal value is invalid!");
     });
   }
 
   /** Analyze the given access node. */
   private Maybe<Entity.Expression> analyzeAccess(Node.Access access) {
-    return Maybe.of();
+    return None.of();
   }
 
   /** Analyze the given group node. */
@@ -121,11 +123,11 @@ public class Analyzer {
 
   /** Analyze the given unary node. */
   private Maybe<Entity.Expression> analyzeUnary(Node.Unary unary) {
-    return Maybe.of();
+    return None.of();
   }
 
   /** Analyze the given binary node. */
   private Maybe<Entity.Expression> analyzeBinary(Node.Binary binary) {
-    return Maybe.of();
+    return None.of();
   }
 }

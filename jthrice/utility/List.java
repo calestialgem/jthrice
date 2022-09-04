@@ -4,28 +4,35 @@
 package jthrice.utility;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.stream.Stream;
 
 /** Immutable list. */
 public final class List<T> {
-  /** List of the given stirng. */
+  /** List of the given string. */
   public static List<Character> ofString(String string) {
     var list = new ArrayList<Character>();
     for (char c : string.toCharArray()) {
       list.add(c);
     }
-    return new List<>(list);
+    return List.of(list);
   }
 
-  /** Immutable copy of the given list. */
-  public static <T> List<T> of(java.util.List<T> list) {
-    return new List<>(new ArrayList<>(list));
+  /** Immutable copy of the given collection. */
+  public static <T> List<T> ofCopy(Collection<T> list) {
+    return List.of(java.util.List.copyOf(list));
+  }
+
+  /** Immutable view of the given list. */
+  public static <T> List<T> of(java.util.List<T> elements) {
+    return new List<>(elements);
   }
 
   /** Underlying mutable list. */
-  private final ArrayList<T> elements;
+  private final java.util.List<T> elements;
 
-  public List(ArrayList<T> elements) {
+  /** Constructor. */
+  private List(java.util.List<T> elements) {
     this.elements = elements;
   }
 

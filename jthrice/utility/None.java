@@ -10,7 +10,7 @@ public final class None<T> extends Maybe<T> {
 
   /** None. */
   @SuppressWarnings("unchecked")
-  public static <T> None<T> of() {
+  public static <T> Maybe<T> of() {
     return (None<T>) INSTANCE;
   }
 
