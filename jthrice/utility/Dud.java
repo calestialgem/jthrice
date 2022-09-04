@@ -3,6 +3,8 @@
 
 package jthrice.utility;
 
+import java.util.function.*;
+
 /** Result that has an error. */
 public final class Dud<T, E> extends Result<T, E> {
   /** Dud that contains the given error. */
@@ -19,18 +21,8 @@ public final class Dud<T, E> extends Result<T, E> {
   }
 
   @Override
-  public boolean is() {
-    return false;
-  }
-
-  @Override
-  public T get() {
-    Bug.unreachable("There is not a value!");
-    return null;
-  }
-
-  @Override
-  public E error() {
-    return this.error;
+  @SuppressWarnings("unchecked")
+  public <U> Result<U, E> map(Function<? super T, ? extends U> mapper) {
+    return (Result<U, E>) this;
   }
 }

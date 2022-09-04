@@ -3,6 +3,8 @@
 
 package jthrice.utility;
 
+import java.util.function.*;
+
 /** Result that has a value. */
 public final class Coup<T, E> extends Result<T, E> {
   /** Coup that contains the given value. */
@@ -19,18 +21,7 @@ public final class Coup<T, E> extends Result<T, E> {
   }
 
   @Override
-  public boolean is() {
-    return true;
-  }
-
-  @Override
-  public T get() {
-    return this.value;
-  }
-
-  @Override
-  public E error() {
-    Bug.unreachable("There is not an error!");
-    return null;
+  public <U> Result<U, E> map(Function<? super T, ? extends U> mapper) {
+    return Coup.of(mapper.apply(this.value));
   }
 }

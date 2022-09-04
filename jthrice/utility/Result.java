@@ -3,19 +3,11 @@
 
 package jthrice.utility;
 
+import java.util.function.*;
+
 /** Container that can have a value or an error. */
 public sealed abstract class Result<T, E> permits Coup<T, E>, Dud<T, E> {
-  /** Whether there is a value. */
-  public abstract boolean is();
-
-  /** Whether there is not a value. */
-  public boolean not() {
-    return !this.is();
-  }
-
-  /** Value. */
-  public abstract T get();
-
-  /** Error. */
-  public abstract E error();
+  /** Map the contained value using the given mapper, if its there. If error is
+   * contained, propagates it. */
+  public abstract <U> Result<U,E> map(Function<? super T, ? extends U> mapper);
 }

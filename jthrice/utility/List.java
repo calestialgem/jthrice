@@ -7,31 +7,31 @@ import java.util.*;
 import java.util.stream.*;
 
 /** Immutable list. */
-public final class FixedList<T> {
+public final class List<T> {
   /** List of the given string. */
-  public static FixedList<Character> ofString(String string) {
+  public static List<Character> ofString(String string) {
     var list = new ArrayList<Character>();
     for (char c : string.toCharArray()) {
       list.add(c);
     }
-    return FixedList.of(list);
+    return List.of(list);
   }
 
   /** Immutable copy of the given collection. */
-  public static <T> FixedList<T> ofCopy(Collection<T> list) {
-    return FixedList.of(List.copyOf(list));
+  public static <T> List<T> ofCopy(Collection<T> list) {
+    return List.of(java.util.List.copyOf(list));
   }
 
   /** Immutable view of the given list. */
-  public static <T> FixedList<T> of(List<T> elements) {
-    return new FixedList<>(elements);
+  public static <T> List<T> of(java.util.List<T> elements) {
+    return new List<>(elements);
   }
 
   /** Underlying mutable list. */
-  private final List<T> elements;
+  private final java.util.List<T> elements;
 
   /** Constructor. */
-  private FixedList(List<T> elements) {
+  private List(java.util.List<T> elements) {
     this.elements = elements;
   }
 

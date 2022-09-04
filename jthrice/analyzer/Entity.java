@@ -12,9 +12,9 @@ public sealed abstract class Entity permits Entity.Program, Entity.Statement, En
   /** Root entity, which represents the whole program. */
   public static final class Program extends Entity {
     /** Statements in the program. */
-    public final FixedList<Statement> statements;
+    public final List<Statement> statements;
 
-    public Program(FixedList<Statement> statements) {
+    public Program(List<Statement> statements) {
       this.statements = statements;
     }
   }

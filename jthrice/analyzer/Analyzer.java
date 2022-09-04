@@ -33,7 +33,7 @@ public class Analyzer {
 
   /** Analyze the program node. */
   private Maybe<Entity.Program> analyze() {
-    var statements = FixedList.of(this.solution.node.statements.stream()
+    var statements = List.of(this.solution.node.statements.stream()
       .map(this::analyzeStatement).filter(Maybe::is).map(Maybe::get).toList());
     if (statements.size() < this.solution.node.statements.size()) {
       return None.of();

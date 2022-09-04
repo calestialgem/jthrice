@@ -13,8 +13,7 @@ public class Resolution {
   /** Clean resolution of the file at the given relative path, which does not
    * have the file extension. */
   public static Result<Resolution, IOException> of(String name) {
-    var source = Source.of(name);
-    return new Resolution(source, 0, 0);
+    return Source.of(name).map(source -> new Resolution(source, 0, 0));
   }
 
   /** Source file. */

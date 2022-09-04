@@ -11,11 +11,11 @@ public sealed abstract class Node permits Node.Program, Node.Statement, Node.Exp
   /** Root node, which represent the whole program. */
   public static final class Program extends Node {
     /** Statements in the program. */
-    public final FixedList<Statement> statements;
+    public final List<Statement> statements;
     /** End of the file. */
-    public final Lexeme.EOF           eof;
+    public final Lexeme.EOF      eof;
 
-    public Program(FixedList<Statement> statements, Lexeme.EOF eof) {
+    public Program(List<Statement> statements, Lexeme.EOF eof) {
       super(Portion.of(statements.at(0).portion, statements.atEnd(0).portion));
       this.statements = statements;
       this.eof        = eof;

@@ -7,6 +7,7 @@ import java.io.*;
 import java.nio.file.*;
 
 import jthrice.generator.*;
+import jthrice.utility.*;
 
 /** Launches the compiler. */
 public class Launcher {
@@ -25,22 +26,23 @@ public class Launcher {
     }
     var build = Path.of("build");
     for (var argument : arguments) {
-      Resolution resolution = null;
-      try {
-        resolution = new Resolution(new Source(argument));
-      } catch (IOException e) {
-        System.out.println("Could not read the file!");
-        e.printStackTrace();
-        continue;
-      }
-      Generator.generate(resolution, build);
-      if (resolution.errors() > 0) {
-        System.out.printf("There were %d errors in %s!%n", resolution.errors(),
-          argument);
-      }
-      if (resolution.warnings() > 0) {
-        System.out.printf("There were %d warnings in %s!%n",
-          resolution.warnings(), argument);
+      switch (Resolution.of(argument)) {
+        case Coup<Resolution, IOException> coup -> {
+          var resolution = coup.value;
+          Generator.generate(resolution, build);
+          if (resolution.errors() > 0) {
+            System.out.printf("There were %d errors in %s!%n",
+              resolution.errors(), argument);
+          }
+          if (resolution.warnings() > 0) {
+            System.out.printf("There were %d warnings in %s!%n",
+              resolution.warnings(), argument);
+          }
+        }
+        case Dud<Resolution, IOException> dud -> {
+          System.out.printf("Could not read file %s!%nError: %s%n", argument,
+            dud.error.getLocalizedMessage());
+        }
       }
     }
   }

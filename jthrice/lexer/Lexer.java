@@ -8,11 +8,13 @@ import java.util.*;
 
 import jthrice.launcher.*;
 import jthrice.utility.*;
+import jthrice.utility.Iterator;
+import jthrice.utility.List;
 
 /** Groups the characters in a source file to a list of lexemes. */
 public final class Lexer {
   /** Lex the source in the given resolution. */
-  public static FixedList<Lexeme> lex(Resolution resolution) {
+  public static List<Lexeme> lex(Resolution resolution) {
     var lexer = new Lexer(resolution);
     return lexer.lex();
   }
@@ -23,14 +25,14 @@ public final class Lexer {
   }
 
   /** Resolution of the lexed source. */
-  private final Resolution                resolution;
+  private final Resolution           resolution;
   /** Current character to be lexed. */
-  private Maybe<FixedIterator<Character>> cursor;
+  private Maybe<Iterator<Character>> cursor;
 
   private Lexer(Resolution resolution) {
     this.resolution = resolution;
-    this.cursor     = FixedIterator
-      .ofFirst(FixedList.ofString(resolution.source.contents));
+    this.cursor     = Iterator
+      .ofFirst(List.ofString(resolution.source.contents));
   }
 
   /** Consumes the current character and returns whether the next character is
@@ -46,8 +48,7 @@ public final class Lexer {
   }
 
   /** Portion from the given first to the last character iterator. */
-  private Portion portion(FixedIterator<Character> first,
-    FixedIterator<Character> last) {
+  private Portion portion(Iterator<Character> first, Iterator<Character> last) {
     return new Portion(new Location(this.resolution.source, first.index),
       new Location(this.resolution.source, last.index));
   }
@@ -58,7 +59,7 @@ public final class Lexer {
   }
 
   /** Lex all the source contents. */
-  private FixedList<Lexeme> lex() {
+  private List<Lexeme> lex() {
     var lexemes = new ArrayList<Lexeme>();
     while (this.cursor.is()) {
       var lexeme = Maybe.or(this::lexToken, this::lexNumber, this::lexWord);
@@ -78,7 +79,7 @@ public final class Lexer {
       lexemes.stream().filter(token -> token instanceof Lexeme.EOF)
         .count() == 1,
       "There are EOF characters in the middle of the source contents!");
-    return FixedList.of(lexemes);
+    return List.of(lexemes);
   }
 
   /** Lex a token. */

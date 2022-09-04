@@ -11,6 +11,7 @@ import jthrice.lexer.*;
 import jthrice.parser.*;
 import jthrice.parser.Node;
 import jthrice.utility.*;
+import jthrice.utility.Map;
 
 public final class Resolver {
   public static Maybe<Solution> resolve(Resolution resolution) {
@@ -43,8 +44,8 @@ public final class Resolver {
     if (validStatements < this.node.statements.size()) {
       return None.of();
     }
-    return Some.of(new Solution(this.node, FixedMap.of(this.types),
-      FixedMap.of(this.operators), FixedMap.of(this.variables)));
+    return Some.of(new Solution(this.node, Map.of(this.types),
+      Map.of(this.operators), Map.of(this.variables)));
   }
 
   private void resolveBuiltin() {
