@@ -26,6 +26,11 @@ public final class Some<T> extends Maybe<T> {
   }
 
   @Override
+  public Maybe<T> or(Supplier<Maybe<? extends T>> supplier) {
+    return this;
+  }
+
+  @Override
   public Maybe<T> use(Consumer<? super T> user) {
     user.accept(this.value);
     return this;
@@ -43,7 +48,8 @@ public final class Some<T> extends Maybe<T> {
   }
 
   @Override
-  public Maybe<T> or(Supplier<Maybe<? extends T>> supplier) {
-    return this;
+  @SuppressWarnings("unchecked")
+  public <U> Maybe<U> bind(Function<? super T, Maybe<? extends U>> binder) {
+    return (Maybe<U>) binder.apply(this.value);
   }
 }

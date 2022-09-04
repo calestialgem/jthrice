@@ -37,4 +37,11 @@ public final class Dud<T, E> extends Result<T, E> {
   public <U> Result<U, E> map(Function<? super T, ? extends U> mapper) {
     return (Result<U, E>) this;
   }
+
+  @Override
+  @SuppressWarnings("unchecked")
+  public <U> Result<U, E>
+    bind(Function<? super T, Result<? extends U, ? extends E>> binder) {
+    return (Result<U, E>) this;
+  }
 }

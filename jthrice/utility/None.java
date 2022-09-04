@@ -26,6 +26,12 @@ public final class None<T> extends Maybe<T> {
   }
 
   @Override
+  @SuppressWarnings("unchecked")
+  public Maybe<T> or(Supplier<Maybe<? extends T>> supplier) {
+    return (Maybe<T>) supplier.get();
+  }
+
+  @Override
   public Maybe<T> use(Consumer<? super T> user) {
     return this;
   }
@@ -44,7 +50,7 @@ public final class None<T> extends Maybe<T> {
 
   @Override
   @SuppressWarnings("unchecked")
-  public Maybe<T> or(Supplier<Maybe<? extends T>> supplier) {
-    return (Maybe<T>) supplier.get();
+  public <U> Maybe<U> bind(Function<? super T, Maybe<? extends U>> binder) {
+    return (Maybe<U>) this;
   }
 }

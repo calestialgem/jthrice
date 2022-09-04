@@ -16,7 +16,12 @@ public sealed abstract class Result<T, E> permits Coup<T, E>, Dud<T, E> {
   public abstract Result<T, E> use(Consumer<? super T> user,
     Consumer<? super E> fallback);
 
-  /** Map the contained value using the given mapper, if its there. If error is
+  /** Supply the contained value to the given mapper, if its there. If error is
    * contained, propagates it. */
   public abstract <U> Result<U, E> map(Function<? super T, ? extends U> mapper);
+
+  /** Supply the contained value to the given binder, if its there. Returns the
+   * output after flatening it. */
+  public abstract <U> Result<U, E>
+    bind(Function<? super T, Result<? extends U, ? extends E>> binder);
 }

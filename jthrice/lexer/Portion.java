@@ -30,16 +30,21 @@ public final class Portion {
     return new Portion(location, location.end());
   }
 
+  /** Portion from the given start location to the given end location. */
+  public static Maybe<Portion> of(Location first, Location last) {
+    if (first.source != last.source || first.index <= last.index) {
+      return None.of();
+    }
+    return Some.of(new Portion(first, last));
+  }
+
   /** Location of the first character. */
   public final Location first;
   /** Location of the last character. */
   public final Location last;
 
-  public Portion(Location first, Location last) {
-    Bug.check(first.source == last.source,
-      "The first and last locations are not from the same source!");
-    Bug.check(first.index <= last.index,
-      "The first location comes after the last location!");
+  /** Constructor. */
+  private Portion(Location first, Location last) {
     this.first = first;
     this.last  = last;
   }
