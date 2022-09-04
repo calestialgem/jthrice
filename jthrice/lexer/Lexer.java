@@ -33,10 +33,8 @@ public final class Lexer {
       .ofFirst(FixedList.ofString(resolution.source.contents));
   }
 
-  /**
-   * Consumes the current character and returns whether the next character is
-   * lexable, which means it exists and its not whitespace.
-   */
+  /** Consumes the current character and returns whether the next character is
+   * lexable, which means it exists and its not whitespace. */
   private boolean next() {
     this.cursor = this.cursor.get().next();
     var result = this.cursor.is();

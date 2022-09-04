@@ -12,9 +12,7 @@ public final class Bug extends RuntimeException {
     throw Bug.of(message);
   }
 
-  /**
-   * If the condition does not hold, throw a `Bug` with the given message.
-   */
+  /** If the condition does not hold, throw a `Bug` with the given message. */
   public static void check(boolean condition, String message) throws Bug {
     if (!condition) {
       Bug.unreachable(message);

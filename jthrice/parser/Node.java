@@ -96,9 +96,7 @@ public sealed abstract class Node permits Node.Program, Node.Statement, Node.Exp
     }
   }
 
-  /**
-   * Grouping expression to elevate its position in associative ordering.
-   */
+  /** Grouping expression to elevate its position in associative ordering. */
   public static final class Group extends Expression {
     /** Expression that is elevated. */
     public final Expression                elevated;

@@ -60,10 +60,8 @@ public sealed abstract class Type permits Type.Scalar, Type.Meta {
   public static final class UX extends Unsigned {
   }
 
-  /**
-   * Real numbers stored as sign, fraction and exponent such that the position
-   * of the decimal point can vary.
-   */
+  /** Real numbers stored as sign, fraction and exponent such that the position
+   * of the decimal point can vary. */
   public static sealed abstract class Floating extends Scalar permits F4, F8 {
   }
 

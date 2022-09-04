@@ -15,10 +15,8 @@ public class Source {
   /** File extension of Thrice source files. */
   public static final String EXTENSION = "tr";
 
-  /**
-   * Source from the file with the given relative path, which does not have the
-   * file extension.
-   */
+  /** Source from the file at the given relative path, which does not have the
+   * file extension. */
   public static Result<Source, IOException> of(String name) {
     var    path     = Path.of(name + '.' + Source.EXTENSION).toAbsolutePath();
     String contents = null;

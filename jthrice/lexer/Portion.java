@@ -9,10 +9,8 @@ import jthrice.utility.*;
 
 /** Portion of a string. */
 public final class Portion {
-  /**
-   * Portion from the begining of the given first portion to the end of the
-   * given last portion.
-   */
+  /** Portion from the begining of the given first portion to the end of the
+   * given last portion. */
   public static Portion of(Portion first, Portion last) {
     return new Portion(first.first, last.last);
   }
@@ -51,10 +49,8 @@ public final class Portion {
     return this.first.line < this.last.line;
   }
 
-  /**
-   * Print the line or lines the portion is in with the portion underlined to
-   * the given output stream.
-   */
+  /** Print the line or lines the portion is in with the portion underlined to
+   * the given output stream. */
   public void underline(PrintStream out) {
     if (!this.multiline()) {
       this.underlineSingle(out, false);
@@ -65,10 +61,8 @@ public final class Portion {
     out.println();
   }
 
-  /**
-   * Print the line the portion is in with the portion underlined to the given
-   * output stream. Prints `...` if the given continues flag is true.
-   */
+  /** Print the line the portion is in with the portion underlined to the given
+   * output stream. Prints `...` if the given continues flag is true. */
   private void underlineSingle(PrintStream out, boolean continues) {
     var line = Portion.ofLine(this.first);
     out.printf("%8d | %s%n", line.first.line, line);

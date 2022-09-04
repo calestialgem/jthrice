@@ -38,10 +38,8 @@ public final class Parser {
     this.cursor = this.cursor.get().next();
   }
 
-  /**
-   * Get the current lexeme if it exists and its of one of the given types.
-   * Consume the lexeme if its returned.
-   */
+  /** Get the current lexeme if it exists and its of one of the given types.
+   * Consume the lexeme if its returned. */
   @SafeVarargs
   private <T extends Lexeme> Maybe<T> consume(Class<? extends T>... types) {
     if (this.cursor.not()) {
