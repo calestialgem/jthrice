@@ -40,6 +40,7 @@ public class Launcher {
     } catch (Exception e) {
       System.out.printf("Could not process %s!%nError: %s%n", name,
         e.getLocalizedMessage());
+      e.printStackTrace();
     }
   }
 
