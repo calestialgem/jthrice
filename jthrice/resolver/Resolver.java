@@ -13,7 +13,7 @@ import jthrice.parser.*;
 public final class Resolver {
   /** Resolves the given program node and report to the given resolution. */
   public static Solution resolve(Resolution resolution, Node.Program program) {
-    var     solution = Resolver.builtin();
+    var solution = Resolver.builtin();
     var failed   = false;
     for (var statement : program.statements) {
       if (!Resolver.resolveStatement(resolution, solution, statement)) {

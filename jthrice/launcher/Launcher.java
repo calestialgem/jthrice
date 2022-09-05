@@ -7,6 +7,7 @@ import java.util.stream.*;
 
 import jthrice.lexer.*;
 import jthrice.parser.*;
+import jthrice.resolver.*;
 
 /** Launches the compiler. */
 public class Launcher {
@@ -27,8 +28,13 @@ public class Launcher {
     var resolution = Resolution.of(source.name);
     var lexemes    = Lexer.lex(resolution, source);
     var node       = Parser.parse(resolution, lexemes);
-    if (node != null) {
-      System.out.println(node);
+    var solution   = Resolver.resolve(resolution, node);
+    if (solution != null) {
+      System.out.println("Types:");
+      System.out.println(solution.types);
+      System.out.println();
+      System.out.println("Variables:");
+      System.out.println(solution.variables);
     }
     resolution.report();
   }

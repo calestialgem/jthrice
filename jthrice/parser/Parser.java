@@ -231,7 +231,7 @@ public final class Parser {
   private static Node.Expression parseUnary(Resolution resolution,
     Cursor cursor) {
     if (!(cursor.next() instanceof Lexeme.Token operator)) {
-      return parseGroup(resolution, cursor);
+      return Parser.parseGroup(resolution, cursor);
     }
     switch (operator) {
       case Lexeme.Plus plus:
@@ -239,7 +239,7 @@ public final class Parser {
       case Lexeme.Minus minus:
         break;
       default:
-        return parseGroup(resolution, cursor);
+        return Parser.parseGroup(resolution, cursor);
     }
 
     if (!cursor.consume().has()) {

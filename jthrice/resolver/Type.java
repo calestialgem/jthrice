@@ -96,12 +96,22 @@ public sealed abstract class Type permits Type.Scalar, Type.Meta {
     /** Constructor. */
     private I1() {
     }
+
+    @Override
+    public String toString() {
+      return "i1";
+    }
   }
 
   /** 2 byte, signed integer. */
   public static final class I2 extends Signed {
     /** Constructor. */
     private I2() {
+    }
+
+    @Override
+    public String toString() {
+      return "i2";
     }
   }
 
@@ -110,6 +120,11 @@ public sealed abstract class Type permits Type.Scalar, Type.Meta {
     /** Constructor. */
     private I4() {
     }
+
+    @Override
+    public String toString() {
+      return "i4";
+    }
   }
 
   /** 8 byte, signed integer. */
@@ -117,12 +132,22 @@ public sealed abstract class Type permits Type.Scalar, Type.Meta {
     /** Constructor. */
     private I8() {
     }
+
+    @Override
+    public String toString() {
+      return "i8";
+    }
   }
 
   /** Pointer size, signed integer. */
   public static final class Ix extends Signed {
     /** Constructor. */
     private Ix() {
+    }
+
+    @Override
+    public String toString() {
+      return "ix";
     }
   }
 
@@ -139,12 +164,22 @@ public sealed abstract class Type permits Type.Scalar, Type.Meta {
     /** Constructor. */
     private U1() {
     }
+
+    @Override
+    public String toString() {
+      return "u1";
+    }
   }
 
   /** 2 byte, unsigned integer. */
   public static final class U2 extends Unsigned {
     /** Constructor. */
     private U2() {
+    }
+
+    @Override
+    public String toString() {
+      return "u2";
     }
   }
 
@@ -153,6 +188,11 @@ public sealed abstract class Type permits Type.Scalar, Type.Meta {
     /** Constructor. */
     private U4() {
     }
+
+    @Override
+    public String toString() {
+      return "u4";
+    }
   }
 
   /** 8 byte, unsigned integer. */
@@ -160,12 +200,22 @@ public sealed abstract class Type permits Type.Scalar, Type.Meta {
     /** Constructor. */
     private U8() {
     }
+
+    @Override
+    public String toString() {
+      return "u8";
+    }
   }
 
   /** Pointer size, unsigned integer. */
   public static final class Ux extends Unsigned {
     /** Constructor. */
     private Ux() {
+    }
+
+    @Override
+    public String toString() {
+      return "ux";
     }
   }
 
@@ -182,12 +232,22 @@ public sealed abstract class Type permits Type.Scalar, Type.Meta {
     /** Constructor. */
     private F4() {
     }
+
+    @Override
+    public String toString() {
+      return "f4";
+    }
   }
 
   /** 8 byte, floating-point real. */
   public static final class F8 extends Floating {
     /** Constructor. */
     private F8() {
+    }
+
+    @Override
+    public String toString() {
+      return "f8";
     }
   }
 
@@ -196,12 +256,22 @@ public sealed abstract class Type permits Type.Scalar, Type.Meta {
     /** Constructor. */
     private Rinf() {
     }
+
+    @Override
+    public String toString() {
+      return "rinf";
+    }
   }
 
   /** Meta type; type type. Type of any expression that results in a type. */
   public static final class Meta extends Type {
     /** Constructor. */
     private Meta() {
+    }
+
+    @Override
+    public String toString() {
+      return "type";
     }
   }
 
