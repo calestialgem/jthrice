@@ -9,7 +9,7 @@ import jthrice.launcher.*;
 class Chunk {
   /** Chunk starting at the given index in the given source. */
   static Chunk of(Source source, int index) {
-    return new Chunk(source, index, index + 1);
+    return new Chunk(source, index, index);
   }
 
   /** Source the chunk is in. */
@@ -42,8 +42,8 @@ class Chunk {
     return this;
   }
 
-  /** Create the portion. Returns null if it was not grown at least once. */
+  /** Create the portion. Returns null if no character was taken. */
   Portion get() {
-    return Portion.of(this.source, this.first, this.last);
+    return Portion.of(this.source, this.first, this.last - 1);
   }
 }
