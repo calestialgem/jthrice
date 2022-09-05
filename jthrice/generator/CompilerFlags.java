@@ -25,8 +25,8 @@ class CompilerFlags {
     this.resolution = resolution;
     this.command    = command;
     this.build      = build;
-    this.code       = build.resolve(resolution.source.name + ".c");
-    this.executable = build.resolve(resolution.source.name + ".exe");
+    this.code       = build.resolve(resolution.name + ".c");
+    this.executable = build.resolve(resolution.name + ".exe");
   }
 
   /** Write the given C source code to the output file. */
