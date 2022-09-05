@@ -120,14 +120,14 @@ public class Generator {
         case Type.I2 i2 -> "hi";
         case Type.I4 i4 -> "i";
         case Type.I8 i8 -> "lli";
-        case Type.IX ix -> "lli";
+        case Type.Ix ix -> "lli";
       });
       case Type.Unsigned unsigned -> this.generate(switch (unsigned) {
         case Type.U1 u1 -> "hhu";
         case Type.U2 u2 -> "hu";
         case Type.U4 u4 -> "u";
         case Type.U8 u8 -> "llu";
-        case Type.UX ux -> "llu";
+        case Type.Ux ux -> "llu";
       });
       case Type.Floating floating -> this.generate("f");
       case Type.Rinf rinf -> throw Bug.of("There is an undeduced `rinf` type!");
@@ -160,7 +160,7 @@ public class Generator {
       case Type.I2 i2 -> this.generateString("int16_t");
       case Type.I4 i4 -> this.generateString("int32_t");
       case Type.I8 i8 -> this.generateString("int64_t");
-      case Type.IX ix -> this.generateString("intptr_t");
+      case Type.Ix ix -> this.generateString("intptr_t");
     }
   }
 
@@ -171,7 +171,7 @@ public class Generator {
       case Type.U2 u2 -> this.generateString("uint16_t");
       case Type.U4 u4 -> this.generateString("uint32_t");
       case Type.U8 u8 -> this.generateString("uint64_t");
-      case Type.UX ux -> this.generateString("uintptr_t");
+      case Type.Ux ux -> this.generateString("uintptr_t");
     }
   }
 

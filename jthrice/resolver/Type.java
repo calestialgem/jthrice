@@ -12,7 +12,7 @@ public sealed abstract class Type permits Type.Scalar, Type.Meta {
 
   /** Integers with a bit for signedness. */
   public static sealed abstract class Signed
-    extends Scalar permits I1, I2, I4, I8, IX {
+    extends Scalar permits I1, I2, I4, I8, Ix {
   }
 
   /** 1 byte, signed integer. */
@@ -32,12 +32,12 @@ public sealed abstract class Type permits Type.Scalar, Type.Meta {
   }
 
   /** Pointer size, signed integer. */
-  public static final class IX extends Signed {
+  public static final class Ix extends Signed {
   }
 
   /** Integers without a sign bit. */
   public static sealed abstract class Unsigned
-    extends Scalar permits U1, U2, U4, U8, UX {
+    extends Scalar permits U1, U2, U4, U8, Ux {
   }
 
   /** 1 byte, unsigned integer. */
@@ -57,7 +57,7 @@ public sealed abstract class Type permits Type.Scalar, Type.Meta {
   }
 
   /** Pointer size, unsigned integer. */
-  public static final class UX extends Unsigned {
+  public static final class Ux extends Unsigned {
   }
 
   /** Real numbers stored as sign, fraction and exponent such that the position

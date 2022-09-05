@@ -54,12 +54,12 @@ public final class Resolver {
     arithmetic.put("i2", new Type.I2());
     arithmetic.put("i4", new Type.I4());
     arithmetic.put("i8", new Type.I8());
-    arithmetic.put("ix", new Type.IX());
+    arithmetic.put("ix", new Type.Ix());
     arithmetic.put("u1", new Type.U1());
     arithmetic.put("u2", new Type.U2());
     arithmetic.put("u4", new Type.U4());
     arithmetic.put("u8", new Type.U8());
-    arithmetic.put("ux", new Type.UX());
+    arithmetic.put("ux", new Type.Ux());
     arithmetic.put("f4", new Type.F4());
     arithmetic.put("f8", new Type.F8());
     arithmetic.put("rinf", new Type.Rinf());
@@ -129,7 +129,7 @@ public final class Resolver {
         return Some.of(this.types.get(i4.toString()));
       case Lexeme.I8 i8:
         return Some.of(this.types.get(i8.toString()));
-      case Lexeme.IX ix:
+      case Lexeme.Ix ix:
         return Some.of(this.types.get(ix.toString()));
       case Lexeme.U1 u1:
         return Some.of(this.types.get(u1.toString()));
@@ -139,7 +139,7 @@ public final class Resolver {
         return Some.of(this.types.get(u4.toString()));
       case Lexeme.U8 u8:
         return Some.of(this.types.get(u8.toString()));
-      case Lexeme.UX ux:
+      case Lexeme.Ux ux:
         return Some.of(this.types.get(ux.toString()));
       case Lexeme.F4 f4:
         return Some.of(this.types.get(f4.toString()));

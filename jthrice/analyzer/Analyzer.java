@@ -89,12 +89,12 @@ public class Analyzer {
         case Lexeme.I2 i2 -> new Entity.Literal(Type.META, Type.I2);
         case Lexeme.I4 i4 -> new Entity.Literal(Type.META, Type.I4);
         case Lexeme.I8 i8 -> new Entity.Literal(Type.META, Type.I8);
-        case Lexeme.IX ix -> new Entity.Literal(Type.META, Type.IX);
+        case Lexeme.Ix ix -> new Entity.Literal(Type.META, Type.Ix);
         case Lexeme.U1 u1 -> new Entity.Literal(Type.META, Type.U1);
         case Lexeme.U2 u2 -> new Entity.Literal(Type.META, Type.U2);
         case Lexeme.U4 u4 -> new Entity.Literal(Type.META, Type.U4);
         case Lexeme.U8 u8 -> new Entity.Literal(Type.META, Type.U8);
-        case Lexeme.UX ux -> new Entity.Literal(Type.META, Type.UX);
+        case Lexeme.Ux ux -> new Entity.Literal(Type.META, Type.Ux);
         case Lexeme.F4 f4 -> new Entity.Literal(Type.META, Type.F4);
         case Lexeme.F8 f8 -> new Entity.Literal(Type.META, Type.F8);
         case Lexeme.Rinf rinf -> new Entity.Literal(Type.META, Type.RINF);
