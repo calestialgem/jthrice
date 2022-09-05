@@ -21,6 +21,27 @@ public final class Dud<T, E> extends Result<T, E> {
   }
 
   @Override
+  public boolean exists() {
+    return false;
+  }
+
+  @Override
+  public T get() {
+    Bug.unreachable("There is not a value!");
+    return null;
+  }
+
+  @Override
+  public <U extends T> T get(U fallback) {
+    return fallback;
+  }
+
+  @Override
+  public E error() {
+    return this.error;
+  }
+
+  @Override
   public Result<T, E> use(Consumer<? super T> user) {
     return this;
   }

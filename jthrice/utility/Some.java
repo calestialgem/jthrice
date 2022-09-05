@@ -26,6 +26,11 @@ public final class Some<T> extends Maybe<T> {
   }
 
   @Override
+  public T get() {
+    return this.value;
+  }
+
+  @Override
   public <U extends T> T get(U fallback) {
     return this.value;
   }

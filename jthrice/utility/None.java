@@ -26,6 +26,12 @@ public final class None<T> extends Maybe<T> {
   }
 
   @Override
+  public T get() {
+    Bug.unreachable("Value does not exist!");
+    return null;
+  }
+
+  @Override
   public <U extends T> T get(U fallback) {
     return fallback;
   }

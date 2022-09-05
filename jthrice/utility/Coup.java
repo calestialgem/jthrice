@@ -21,6 +21,27 @@ public final class Coup<T, E> extends Result<T, E> {
   }
 
   @Override
+  public boolean exists() {
+    return true;
+  }
+
+  @Override
+  public T get() {
+    return this.value;
+  }
+
+  @Override
+  public <U extends T> T get(U fallback) {
+    return this.value;
+  }
+
+  @Override
+  public E error() {
+    Bug.unreachable("There is not an error!");
+    return null;
+  }
+
+  @Override
   public Result<T, E> use(Consumer<? super T> user) {
     user.accept(this.value);
     return this;

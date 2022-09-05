@@ -83,6 +83,14 @@ public sealed abstract class Maybe<T> permits Some<T>, None<T> {
   /** Whether contains a value. */
   public abstract boolean exists();
 
+  /** Whether does not contain a value. */
+  public boolean empty() {
+    return !exists();
+  }
+
+  /** Contained value. The caller should guarantee that a value exists. */
+  public abstract T get();
+
   /** Contained value, if it exists. Returns the given fallback, if it does not
    * exist. */
   public abstract <U extends T> T get(U fallback);
