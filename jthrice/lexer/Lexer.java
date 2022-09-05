@@ -10,22 +10,22 @@ import jthrice.launcher.*;
 
 /** Groups the characters in a source file to a list of lexemes. */
 public final class Lexer {
-  /** Lex the source in the given resolution. */
-  public static List<Lexeme> lex(Resolution resolution) {
+  /** Lex the given source and report to the given resolution. */
+  public static List<Lexeme> lex(Resolution resolution, Source source) {
     var   lexemes = new ArrayList<Lexeme>();
     Chunk unknown = null;
 
-    for (var index = 0; resolution.source.exists(index); index++) {
-      if (Lexer.isWhitespace(resolution.source.at(index))) {
+    for (var index = 0; source.exists(index); index++) {
+      if (Lexer.isWhitespace(source.at(index))) {
         unknown = Lexer.report(resolution, unknown);
         continue;
       }
 
-      var lexeme = Lexer.lexToken(resolution.source, index);
+      var lexeme = Lexer.lexToken(source, index);
       if (lexeme == null) {
-        lexeme = Lexer.lexNumber(resolution.source, index);
+        lexeme = Lexer.lexNumber(source, index);
         if (lexeme == null) {
-          lexeme = Lexer.lexWord(resolution.source, index);
+          lexeme = Lexer.lexWord(source, index);
         }
       }
 
@@ -37,7 +37,7 @@ public final class Lexer {
       }
 
       if (unknown == null) {
-        unknown = Chunk.of(resolution.source, index);
+        unknown = Chunk.of(source, index);
       }
       unknown.consume();
     }

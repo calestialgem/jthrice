@@ -3,10 +3,9 @@
 
 package jthrice.launcher;
 
-import java.nio.file.*;
 import java.util.stream.*;
 
-import jthrice.generator.*;
+import jthrice.lexer.*;
 
 /** Launches the compiler. */
 public class Launcher {
@@ -23,22 +22,16 @@ public class Launcher {
   }
 
   /** Compile the source file in the given resolution. */
-  public static void compile(Resolution resolution) {
-    Generator.generate(resolution, Path.of("build"));
-    if (resolution.errors() > 0) {
-      System.out.printf("There were %d errors in %s!%n", resolution.errors(),
-        resolution.source.name);
-    }
-    if (resolution.warnings() > 0) {
-      System.out.printf("There were %d warnings in %s!%n",
-        resolution.warnings(), resolution.source.name);
-    }
+  public static void compile(Source source) {
+    var resolution = Resolution.of(source.name);
+    var lexemes    = Lexer.lex(resolution, source);
+    resolution.report();
   }
 
   /** Process the source file at the given relative path. */
   public static void process(String name) {
     try {
-      Launcher.compile(Resolution.of(name));
+      Launcher.compile(Source.of(name));
     } catch (Exception e) {
       System.out.printf("Could not process %s!%nError: %s%n", name,
         e.getLocalizedMessage());

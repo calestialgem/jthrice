@@ -3,35 +3,32 @@
 
 package jthrice.launcher;
 
-import java.io.*;
-
 import jthrice.lexer.*;
 
 /** Resolution of a source file. */
 public class Resolution {
-  /** Clean resolution of the file at the given relative path, which does not
-   * have the file extension. */
-  public static Resolution of(String name) throws IOException {
-    return new Resolution(Source.of(name), 0, 0);
+  /** Clean resolution of the file with the given relative path. */
+  public static Resolution of(String name) {
+    return new Resolution(name, 0, 0);
   }
 
-  /** Source file. */
-  public final Source source;
+  /** Relative path to the file. */
+  public final String name;
   /** Amount of errors that originated in the source file. */
   private int         errors;
   /** Amount of warnings that originated in the source file. */
   private int         warnings;
 
   /** Constructor. */
-  private Resolution(Source source, int errors, int warnings) {
-    this.source   = source;
+  private Resolution(String name, int errors, int warnings) {
+    this.name     = name;
     this.errors   = errors;
     this.warnings = warnings;
   }
 
   /** Log the given message from the given author at the given log level. */
   private void log(String author, String severity, String message) {
-    System.out.printf("[%s] %s: %s: %s%n", author, this.source.path, severity,
+    System.out.printf("[%s] %s: %s: %s%n", author, this.name, severity,
       message);
   }
 
@@ -56,7 +53,7 @@ public class Resolution {
    * source at the given log level. */
   public void log(String author, Portion portion, String severity,
     String message) {
-    System.out.printf("[%s] %s:%d:%d:%d:%d: %s: %s%n", author, this.source.path,
+    System.out.printf("[%s] %s:%d:%d:%d:%d: %s: %s%n", author, this.name,
       portion.first.line, portion.first.column, portion.last.line,
       portion.last.column, severity, message);
     portion.underline(System.out);
@@ -82,13 +79,13 @@ public class Resolution {
     this.log(author, portion, "info", message);
   }
 
-  /** Amount of errors that originated in the source file. */
-  public int errors() {
-    return this.errors;
-  }
-
-  /** Amount of warnings that originated in the source file. */
-  public int warnings() {
-    return this.warnings;
+  /** Report the amount of errors and warnings to the user. */
+  void report() {
+    if (this.errors > 0) {
+      info("LAUNCHER", "There were %d errors!".formatted(this.errors));
+    }
+    if (this.warnings > 0) {
+      info("LAUNCHER", "There were %d warnings!".formatted(this.warnings));
+    }
   }
 }
