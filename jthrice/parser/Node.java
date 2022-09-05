@@ -3,8 +3,9 @@
 
 package jthrice.parser;
 
+import java.util.*;
+
 import jthrice.lexer.*;
-import jthrice.utility.*;
 
 /** Hierarchical, context-free, collection of lexemes. */
 public sealed abstract class Node permits Node.Program, Node.Statement, Node.Expression {
@@ -15,8 +16,10 @@ public sealed abstract class Node permits Node.Program, Node.Statement, Node.Exp
     /** End of the file. */
     public final Lexeme.EOF      eof;
 
-    public Program(List<Statement> statements, Lexeme.EOF eof) {
-      super(Portion.of(statements.at(0).portion, statements.atEnd(0).portion));
+    /** Constructor. */
+    Program(List<Statement> statements, Lexeme.EOF eof) {
+      super(Portion.of(statements.get(0).portion,
+        statements.get(statements.size() - 1).portion));
       this.statements = statements;
       this.eof        = eof;
     }
@@ -25,7 +28,8 @@ public sealed abstract class Node permits Node.Program, Node.Statement, Node.Exp
   /** Directives that are executed by the computer in order. */
   public static sealed abstract class Statement
     extends Node permits Definition {
-    public Statement(Portion portion) {
+    /** Constructor. */
+    Statement(Portion portion) {
       super(portion);
     }
   }
@@ -45,9 +49,9 @@ public sealed abstract class Node permits Node.Program, Node.Statement, Node.Exp
     /** End of the statement. */
     public final Lexeme.Semicolon  end;
 
-    public Definition(Lexeme.Identifier name, Lexeme.Colon separator,
-      Expression type, Lexeme.Equal assignment, Expression value,
-      Lexeme.Semicolon end) {
+    /** Constructor. */
+    Definition(Lexeme.Identifier name, Lexeme.Colon separator, Expression type,
+      Lexeme.Equal assignment, Expression value, Lexeme.Semicolon end) {
       super(Portion.of(name.portion, end.portion));
       this.name       = name;
       this.separator  = separator;
@@ -60,37 +64,32 @@ public sealed abstract class Node permits Node.Program, Node.Statement, Node.Exp
 
   /** Calculations and actions that lead to a value. */
   public static sealed abstract class Expression
-    extends Node permits Primary, Group, Unary, Binary {
-    public Expression(Portion portion) {
-      super(portion);
-    }
-  }
-
-  /** Independent expression. */
-  public static sealed abstract class Primary
-    extends Expression permits Literal, Access {
-    public Primary(Portion portion) {
+    extends Node permits Literal, Access, Group, Unary, Binary {
+    /** Constructor. */
+    Expression(Portion portion) {
       super(portion);
     }
   }
 
   /** Hard coded value. */
-  public static final class Literal extends Primary {
+  public static final class Literal extends Expression {
     /** Lexeme that carries the value. */
     public final Lexeme value;
 
-    public Literal(Lexeme value) {
+    /** Constructor. */
+    Literal(Lexeme value) {
       super(value.portion);
       this.value = value;
     }
   }
 
   /** Value of a variable. */
-  public static final class Access extends Primary {
+  public static final class Access extends Expression {
     /** Name of the accessed variable. */
     public final Lexeme.Identifier name;
 
-    public Access(Lexeme.Identifier name) {
+    /** Constructor. */
+    Access(Lexeme.Identifier name) {
       super(name.portion);
       this.name = name;
     }
@@ -105,7 +104,8 @@ public sealed abstract class Node permits Node.Program, Node.Statement, Node.Exp
     /** End of the group. */
     public final Lexeme.ClosingParentheses closing;
 
-    public Group(Expression elevated, Lexeme.OpeningParentheses opening,
+    /** Constructor. */
+    Group(Expression elevated, Lexeme.OpeningParentheses opening,
       Lexeme.ClosingParentheses closing) {
       super(Portion.of(opening.portion, closing.portion));
       this.elevated = elevated;
@@ -121,7 +121,8 @@ public sealed abstract class Node permits Node.Program, Node.Statement, Node.Exp
     /** Operand. */
     public final Expression   operand;
 
-    public Unary(Lexeme.Token operator, Expression operand) {
+    /** Constructor. */
+    Unary(Lexeme.Token operator, Expression operand) {
       super(Portion.of(operator.portion, operand.portion));
       this.operator = operator;
       this.operand  = operand;
@@ -137,7 +138,8 @@ public sealed abstract class Node permits Node.Program, Node.Statement, Node.Exp
     /** Right operand. */
     public final Expression   right;
 
-    public Binary(Lexeme.Token operator, Expression left, Expression right) {
+    /** Constructor. */
+    Binary(Lexeme.Token operator, Expression left, Expression right) {
       super(Portion.of(left.portion, right.portion));
       this.operator = operator;
       this.left     = left;
@@ -148,7 +150,8 @@ public sealed abstract class Node permits Node.Program, Node.Statement, Node.Exp
   /** Portion of the node in the source file. */
   public final Portion portion;
 
-  public Node(Portion portion) {
+  /** Constructor. */
+  Node(Portion portion) {
     this.portion = portion;
   }
 

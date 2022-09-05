@@ -82,10 +82,10 @@ public class Resolution {
   /** Report the amount of errors and warnings to the user. */
   void report() {
     if (this.errors > 0) {
-      info("LAUNCHER", "There were %d errors!".formatted(this.errors));
+      this.info("LAUNCHER", "There were %d errors!".formatted(this.errors));
     }
     if (this.warnings > 0) {
-      info("LAUNCHER", "There were %d warnings!".formatted(this.warnings));
+      this.info("LAUNCHER", "There were %d warnings!".formatted(this.warnings));
     }
   }
 }

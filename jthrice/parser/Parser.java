@@ -4,210 +4,319 @@
 package jthrice.parser;
 
 import java.util.*;
-import java.util.function.*;
 
 import jthrice.launcher.*;
 import jthrice.lexer.*;
-import jthrice.utility.*;
-import jthrice.utility.Iterator;
-import jthrice.utility.List;
 
 /** Parses a list of lexemes to a program node. */
 public final class Parser {
-  /** Parse the source in the given resolution. */
-  public static Maybe<Node.Program> parse(Resolution resolution) {
-    var parser = new Parser(resolution, Lexer.lex(resolution));
-    return parser.parse();
-  }
-
-  /** Resolution of the parsed lexemes. */
-  private final Resolution        resolution;
-  /** Current lexeme to be parsed. */
-  private Maybe<Iterator<Lexeme>> cursor;
-
-  private Parser(Resolution resolution, List<Lexeme> tokens) {
-    this.resolution = resolution;
-    this.cursor     = Iterator.ofFirst(tokens);
-  }
-
-  /** Give an error to the resolution about the current lexeme. */
-  private void error(String message) {
-    this.resolution.error("PARSER", this.cursor.get().get().portion, message);
-  }
-
-  /** Move to the next lexeme. */
-  private void next() {
-    this.cursor = this.cursor.get().next();
-  }
-
-  /** Get the current lexeme if it exists and its of one of the given types.
-   * Consume the lexeme if its returned. */
-  @SafeVarargs
-  private <T extends Lexeme> Maybe<T> consume(Class<? extends T>... types) {
-    if (this.cursor.not()) {
-      return None.of();
-    }
-    var token = this.cursor.get().cast(types);
-    if (token.is()) {
-      this.next();
-    }
-    return token;
-  }
-
-  /** Parse the program. */
-  private Maybe<Node.Program> parse() {
-    Bug.check(this.cursor.is(), "There is no EOF!");
+  /** Parse the given lexemes and report to the given resolution. */
+  public static Node.Program parse(Resolution resolution,
+    List<Lexeme> lexemes) {
     var statements = new ArrayList<Node.Statement>();
-    while (true) {
-      var statement = this.parseStatement();
-      if (statement.not()) {
+    var cursor     = Cursor.of(lexemes);
+    while (cursor.has()) {
+      var statement = Parser.parseStatement(resolution, cursor);
+      if (statement == null) {
         break;
       }
-      statements.add(statement.get());
+      statements.add(statement);
     }
-    Bug.check(this.cursor.is(), "There is no EOF!");
-    var eof = this.consume(Lexeme.EOF.class);
-    if (eof.not()) {
-      this.error("Expected the end of the file!");
-      return None.of();
+    if (!cursor.has()) {
+      resolution.error("PARSER",
+        "There is no EOF token at the end of the file!");
+      return null;
     }
-    Bug.check(this.cursor.not(), "There are lexemes after the EOF!");
-    return Some.of(new Node.Program(List.of(statements), eof.get()));
+    var lexeme = cursor.get();
+    if (cursor.next()) {
+      var remaining = Portion.of(lexeme.portion, cursor.get().portion);
+      while (cursor.next()) {
+        remaining = Portion.of(remaining, cursor.get().portion);
+      }
+      resolution.error("PARSER", remaining,
+        "There are tokens that could not be parsed!");
+      return null;
+    }
+    if (!(lexeme instanceof Lexeme.EOF eof)) {
+      resolution.error("PARSER", lexeme.portion,
+        "File ends without a EOF token!");
+      return null;
+    }
+    if (statements.isEmpty()) {
+      resolution.error("PARSER", "There are no statements in the file!");
+      return null;
+    }
+    return new Node.Program(statements, eof);
   }
 
-  /** Parse a statement. */
-  private Maybe<Node.Statement> parseStatement() {
-    return this.parseDefinition();
+  /** Try to parse a statement node at the given cursor and report to the given
+   * resolution. */
+  private static Node.Statement parseStatement(Resolution resolution,
+    Cursor cursor) {
+    return Parser.parseDefinition(resolution, cursor);
   }
 
-  /** Parse a definition. */
-  private Maybe<Node.Statement> parseDefinition() {
-    var name = this.consume(Lexeme.Identifier.class);
-    if (name.not()) {
-      return None.of();
+  /** Try to parse a definition node at the given cursor and report to the given
+   * resolution. */
+  private static Node.Definition parseDefinition(Resolution resolution,
+    Cursor cursor) {
+    if (!(cursor.get() instanceof Lexeme.Identifier name)) {
+      return null;
     }
-    var separator = this.consume(Lexeme.Colon.class);
-    if (separator.not()) {
-      this.error(
-        "Expected a `:` at the definition of `" + name.get().portion + "`!");
-      return None.of();
+
+    if (!cursor.next()) {
+      resolution.error("PARSER", name.portion,
+        "There is no `:` after the name in the definition of `%s`!"
+          .formatted(name.value));
+      return null;
     }
-    var type = this.parseExpression();
-    if (type.not()) {
-      this.error(
-        "Expected the type at the definition of `" + name.get().portion + "`!");
-      return None.of();
+    if (!(cursor.get() instanceof Lexeme.Colon separator)) {
+      resolution.error("PARSER", cursor.get().portion,
+        "Expected a `:` after the name in the definition of `%s`!"
+          .formatted(name.value));
+      return null;
     }
-    var assignment = this.consume(Lexeme.Equal.class);
-    if (assignment.not()) {
-      this.error(
-        "Expected a `=` at the definition of `" + name.get().portion + "`!");
-      return None.of();
+
+    if (!cursor.next()) {
+      resolution.error("PARSER", separator.portion,
+        "There is no type after the `:` in the definition of `%s`!"
+          .formatted(name.value));
+      return null;
     }
-    var value = this.parseExpression();
-    if (type.not()) {
-      this.error("Expected the value at the definition of `"
-        + name.get().portion + "`!");
-      return None.of();
+    var type = Parser.parseExpression(resolution, cursor);
+    if (type == null) {
+      resolution.error("PARSER", cursor.get().portion,
+        "Expected a type after the `:` in the definition of `%s`!"
+          .formatted(name.value));
+      return null;
     }
-    var end = this.consume(Lexeme.Semicolon.class);
-    if (end.not()) {
-      this.error(
-        "Expected a `;` at the definition of `" + name.get().portion + "`!");
-      return None.of();
+
+    if (!cursor.has()) {
+      resolution.error("PARSER", type.portion,
+        "There is no `=` after the type in the definition of `%s`!"
+          .formatted(name.value));
+      return null;
     }
-    return Some.of(new Node.Definition(name.get(), separator.get(), type.get(),
-      assignment.get(), value.get(), end.get()));
+    if (!(cursor.get() instanceof Lexeme.Equal assignment)) {
+      resolution.error("PARSER", cursor.get().portion,
+        "Expected a `=` after the type in the definition of `%s`!"
+          .formatted(name.value));
+      return null;
+    }
+
+    if (!cursor.next()) {
+      resolution.error("PARSER", assignment.portion,
+        "There is no value after the `=` in the definition of `%s`!"
+          .formatted(name.value));
+      return null;
+    }
+    var value = Parser.parseExpression(resolution, cursor);
+    if (value == null) {
+      resolution.error("PARSER", cursor.get().portion,
+        "Expected a value after the `=` in the definition of `%s`!"
+          .formatted(name.value));
+      return null;
+    }
+
+    if (!cursor.has()) {
+      resolution.error("PARSER", value.portion,
+        "There is no `;` after the value in the definition of `%s`!"
+          .formatted(name.value));
+      return null;
+    }
+    if (!(cursor.get() instanceof Lexeme.Semicolon end)) {
+      resolution.error("PARSER", cursor.get().portion,
+        "Expected a `;` after the value in the definition of `%s`!"
+          .formatted(name.value));
+      return null;
+    }
+    cursor.consume();
+
+    return new Node.Definition(name, separator, type, assignment, value, end);
   }
 
-  /** Parse an expression. */
-  private Maybe<Node.Expression> parseExpression() {
-    return this.parseTerm();
+  /** Try to parse an expression node at the given cursor and report to the
+   * given resolution. */
+  private static Node.Expression parseExpression(Resolution resolution,
+    Cursor cursor) {
+    return Parser.parseTermExpression(resolution, cursor);
   }
 
-  /** Parse a term. */
-  private Maybe<Node.Expression> parseTerm() {
-    return this.parseBinary(this::parseFactor, Lexeme.Plus.class,
-      Lexeme.Minus.class);
-  }
-
-  /** Parse a factor. */
-  private Maybe<Node.Expression> parseFactor() {
-    return this.parseBinary(this::parseUnary, Lexeme.Star.class,
-      Lexeme.ForwardSlash.class, Lexeme.Percent.class);
-  }
-
-  /** Parse a binary. */
-  @SafeVarargs
-  private Maybe<Node.Expression> parseBinary(
-    Supplier<Maybe<Node.Expression>> operand,
-    Class<? extends Lexeme.Token>... types) {
-    var left = operand.get();
-    if (left.not()) {
-      return None.of();
+  /** Try to parse a term expression node at the given cursor and report to the
+   * given resolution. */
+  private static Node.Expression parseTermExpression(Resolution resolution,
+    Cursor cursor) {
+    var left = Parser.parseFactorExpression(resolution, cursor);
+    if (left == null) {
+      return null;
     }
-    var binary = left.get();
-    while (true) {
-      var operator = this.consume(types);
-      if (operator.not()) {
+    loop: while (cursor.has()) {
+      var lexeme = cursor.get();
+      if (!(lexeme instanceof Lexeme.Token operator)) {
         break;
       }
-      var right = operand.get();
-      if (right.not()) {
-        this.error(
-          "Expected the right hand side in the expression after the operator `"
-            + operator.get().portion + "`!");
-        return None.of();
+      switch (operator) {
+        case Lexeme.Plus plus:
+          break;
+        case Lexeme.Minus minus:
+          break;
+        default:
+          break loop;
       }
-      binary = new Node.Binary(operator.get(), binary, right.get());
+
+      if (!cursor.next()) {
+        resolution.error("PARSER", operator.portion,
+          "There is no right hand side after the `%s` in the binary operator!"
+            .formatted(operator));
+        return null;
+      }
+      var right = Parser.parseFactorExpression(resolution, cursor);
+      if (right == null) {
+        resolution.error("PARSER", cursor.get().portion,
+          "Expected a right hand side after the `%s` in the binary operator!"
+            .formatted(operator));
+        return null;
+      }
+
+      left = new Node.Binary(operator, left, right);
     }
-    return Some.of(binary);
+    return left;
   }
 
-  /** Parse a unary. */
-  private Maybe<Node.Expression> parseUnary() {
-    var operator = this.consume(Lexeme.Plus.class, Lexeme.Minus.class);
-    if (operator.not()) {
-      return this.parseGroup();
+  /** Try to parse a factor expression node at the given cursor and report to
+   * the given resolution. */
+  private static Node.Expression parseFactorExpression(Resolution resolution,
+    Cursor cursor) {
+    var left = Parser.parseUnary(resolution, cursor);
+    if (left == null) {
+      return null;
     }
-    var operand = this.parseGroup();
-    if (operand.not()) {
-      this.error("Expected the operand in the expression after the operator `"
-        + operator.get().portion + "`!");
-      return None.of();
+    loop: while (cursor.has()) {
+      var lexeme = cursor.get();
+      if (!(lexeme instanceof Lexeme.Token operator)) {
+        break;
+      }
+      switch (operator) {
+        case Lexeme.Star star:
+          break;
+        case Lexeme.ForwardSlash forwardSlash:
+          break;
+        case Lexeme.Percent percent:
+          break;
+        default:
+          break loop;
+      }
+
+      if (!cursor.next()) {
+        resolution.error("PARSER", operator.portion,
+          "There is no right hand side after the `%s` in the binary operator!"
+            .formatted(operator));
+        return null;
+      }
+      var right = Parser.parseUnary(resolution, cursor);
+      if (right == null) {
+        resolution.error("PARSER", cursor.get().portion,
+          "Expected a right hand side after the `%s` in the binary operator!"
+            .formatted(operator));
+        return null;
+      }
+
+      left = new Node.Binary(operator, left, right);
     }
-    return Some.of(new Node.Unary(operator.get(), operand.get()));
+    return left;
   }
 
-  /** Parse a group. */
-  private Maybe<Node.Expression> parseGroup() {
-    var opening = this.consume(Lexeme.OpeningParentheses.class);
-    if (opening.not()) {
-      return this.parsePrimary();
+  /** Try to parse a unary node at the given cursor and report to the given
+   * resolution. */
+  private static Node.Expression parseUnary(Resolution resolution,
+    Cursor cursor) {
+    if (!(cursor.get() instanceof Lexeme.Token operator)) {
+      return null;
     }
-    var elevated = this.parseExpression();
-    if (elevated.not()) {
-      this.error("Expected an expression after `(`!");
-      return None.of();
+    switch (operator) {
+      case Lexeme.Plus plus:
+        break;
+      case Lexeme.Minus minus:
+        break;
+      default:
+        return null;
     }
-    var closing = this.consume(Lexeme.ClosingParentheses.class);
-    if (closing.not()) {
-      this.error("Expected `)` at the end of the expression!");
+
+    if (!cursor.next()) {
+      resolution.error("PARSER", operator.portion,
+        "There is no operand after the `%s` in the unary operator!"
+          .formatted(operator));
+      return null;
     }
-    return Some
-      .of(new Node.Group(elevated.get(), opening.get(), closing.get()));
+    var operand = Parser.parseGroup(resolution, cursor);
+    if (operand == null) {
+      resolution.error("PARSER", cursor.get().portion,
+        "Expected an operand after the `%s` in the unary operator!"
+          .formatted(operator));
+      return null;
+    }
+
+    return new Node.Unary(operator, operand);
   }
 
-  /** Parse a primary. */
-  private Maybe<Node.Expression> parsePrimary() {
-    var name = this.consume(Lexeme.Identifier.class);
-    if (name.is()) {
-      return Some.of(new Node.Access(name.get()));
+  /** Try to parse a group node at the given cursor and report to the given
+   * resolution. */
+  private static Node.Expression parseGroup(Resolution resolution,
+    Cursor cursor) {
+    if (!(cursor.get() instanceof Lexeme.OpeningParentheses opening)) {
+      return Parser.parsePrimary(cursor);
     }
-    var value = this.consume(Lexeme.class, Lexeme.I1.class, Lexeme.I2.class,
-      Lexeme.I4.class, Lexeme.I8.class, Lexeme.IX.class, Lexeme.U1.class,
-      Lexeme.U2.class, Lexeme.U4.class, Lexeme.U8.class, Lexeme.UX.class,
-      Lexeme.F4.class, Lexeme.F8.class, Lexeme.Rinf.class);
-    return Some.of(new Node.Literal(value.get()));
+
+    if (!cursor.next()) {
+      resolution.error("PARSER", opening.portion,
+        "There is no expression after the `(` in the group!");
+      return null;
+    }
+    var elevated = Parser.parseExpression(resolution, cursor);
+    if (elevated == null) {
+      resolution.error("PARSER", cursor.get().portion,
+        "Expected an expression after the `(` in the group!");
+      return null;
+    }
+
+    if (!cursor.has()) {
+      resolution.error("PARSER", elevated.portion,
+        "There is no `)` after the expression in the group!");
+      return null;
+    }
+    if (!(cursor.get() instanceof Lexeme.ClosingParentheses closing)) {
+      resolution.error("PARSER", cursor.get().portion,
+        "Expected a `)` after the expression in the group!");
+      return null;
+    }
+    cursor.consume();
+
+    return new Node.Group(elevated, opening, closing);
+  }
+
+  /** Try to parse a primary expression node at the given cursor and report to
+   * the given resolution. */
+  private static Node.Expression parsePrimary(Cursor cursor) {
+    var result = switch (cursor.get()) {
+      case Lexeme.I1 i1 -> new Node.Literal(i1);
+      case Lexeme.I2 i2 -> new Node.Literal(i2);
+      case Lexeme.I4 i4 -> new Node.Literal(i4);
+      case Lexeme.I8 i8 -> new Node.Literal(i8);
+      case Lexeme.Ix ix -> new Node.Literal(ix);
+      case Lexeme.U1 u1 -> new Node.Literal(u1);
+      case Lexeme.U2 u2 -> new Node.Literal(u2);
+      case Lexeme.U4 u4 -> new Node.Literal(u4);
+      case Lexeme.U8 u8 -> new Node.Literal(u8);
+      case Lexeme.Ux ux -> new Node.Literal(ux);
+      case Lexeme.F4 f4 -> new Node.Literal(f4);
+      case Lexeme.F8 f8 -> new Node.Literal(f8);
+      case Lexeme.Rinf rinf -> new Node.Literal(rinf);
+      case Lexeme.Identifier name -> new Node.Access(name);
+      default -> null;
+    };
+    if (result != null) {
+      cursor.consume();
+    }
+    return result;
   }
 }
