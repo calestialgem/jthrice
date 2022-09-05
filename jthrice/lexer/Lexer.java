@@ -5,214 +5,162 @@ package jthrice.lexer;
 
 import java.math.*;
 import java.util.*;
-import java.util.function.*;
 
 import jthrice.launcher.*;
-import jthrice.utility.*;
-import jthrice.utility.Iterator;
-import jthrice.utility.List;
 
 /** Groups the characters in a source file to a list of lexemes. */
 public final class Lexer {
   /** Lex the source in the given resolution. */
   public static List<Lexeme> lex(Resolution resolution) {
-    var lexer = new Lexer(resolution);
-    return lexer.lex();
-  }
+    var   lexemes = new ArrayList<Lexeme>();
+    Chunk unknown = null;
 
-  /** Resolution of the lexed source. */
-  private final Resolution           resolution;
-  /** Current character to be lexed. */
-  private Maybe<Iterator<Character>> cursor;
+    for (var index = 0; resolution.source.exists(index); index++) {
+      if (Lexer.isWhitespace(resolution.source.at(index))) {
+        unknown = Lexer.report(resolution, unknown);
+        continue;
+      }
 
-  private Lexer(Resolution resolution) {
-    this.resolution = resolution;
-    this.cursor     = Iterator
-      .ofFirst(List.ofString(resolution.source.contents));
-  }
-
-  /** Consumes the current character and returns whether the next character is
-   * lexable, which means it exists and its not whitespace. */
-  private boolean next() {
-    Function<Iterator<Character>, Boolean> whitespace = iterator -> iterator
-      .get() == ' ' || iterator.get() == '\t' || iterator.get() == '\n';
-    return this.cursor.map(old -> {
-      this.cursor = old.next();
-      return this.cursor.map(first -> {
-        while (this.cursor.map(whitespace, false)) {
-          this.cursor = this.cursor.bind(Iterator::next);
+      var lexeme = Lexer.lexToken(resolution.source, index);
+      if (lexeme == null) {
+        lexeme = Lexer.lexNumber(resolution.source, index);
+        if (lexeme == null) {
+          lexeme = Lexer.lexWord(resolution.source, index);
         }
-        return !whitespace.apply(first);
-      }, false);
-    }, false);
-  }
+      }
 
-  /** Portion from the given first to the last character iterator. */
-  private Maybe<Portion> portion(Iterator<Character> first,
-    Iterator<Character> last) {
-    return Portion.of(this.resolution.source, first.index, last.index);
-  }
+      if (lexeme != null) {
+        unknown = Lexer.report(resolution, unknown);
+        lexemes.add(lexeme);
+        index = lexeme.portion.last.index;
+        continue;
+      }
 
-  /** Portion containing current character. */
-  private Maybe<Portion> currentPortion() {
-    return this.cursor.bind(current -> this.portion(current, current));
-  }
-
-  /** Lex all the source contents. */
-  private List<Lexeme> lex() {
-    var lexemes = new ArrayList<Lexeme>();
-    while (this.cursor.exists()) {
-      var lexeme = Maybe.or(this::lexToken, this::lexNumber, this::lexWord);
-      lexeme.use(lexemes::add, () -> {
-        this.currentPortion().use(
-          portion -> this.resolution.error("LEXER", portion,
-            "Could not recognize the character!"),
-          () -> this.resolution.error("LEXER",
-            "Try to lex but there are no characters!"));
-        this.next();
-      });
+      if (unknown == null) {
+        unknown = Chunk.of(resolution.source, index);
+      }
+      unknown.consume();
     }
-    Bug.check(
-      !lexemes.isEmpty()
-        && lexemes.get(lexemes.size() - 1) instanceof Lexeme.EOF,
-      "There is no EOF character at the end of the source contents!");
-    Bug.check(
-      lexemes.stream().filter(token -> token instanceof Lexeme.EOF)
-        .count() == 1,
-      "There are EOF characters in the middle of the source contents!");
-    return List.of(lexemes);
+    return lexemes;
   }
 
-  /** Lex a token. */
-  private Maybe<Lexeme> lexToken() {
-    return this.cursor.bind(current -> switch (current.get()) {
-      case '+' -> this.currentPortion().map(Lexeme.Plus::new);
-      case '-' -> this.currentPortion().map(Lexeme.Minus::new);
-      case '*' -> this.currentPortion().map(Lexeme.Star::new);
-      case '/' -> this.currentPortion().map(Lexeme.ForwardSlash::new);
-      case '%' -> this.currentPortion().map(Lexeme.Percent::new);
-      case '=' -> this.currentPortion().map(Lexeme.Equal::new);
-      case ':' -> this.currentPortion().map(Lexeme.Colon::new);
-      case ';' -> this.currentPortion().map(Lexeme.Semicolon::new);
-      case '(' -> this.currentPortion().map(Lexeme.OpeningParentheses::new);
-      case ')' -> this.currentPortion().map(Lexeme.ClosingParentheses::new);
-      case Source.EOF -> this.currentPortion().map(Lexeme.EOF::new);
-      default -> None.<Lexeme>of();
-    }).use(token -> this.next());
+  /** Whether the given character is a whitespace that should be skipped. */
+  private static boolean isWhitespace(char character) {
+    return character == ' ' || character == '\t' || character == '\n';
   }
 
-  /** Lex a number. */
-  private Maybe<Lexeme> lexNumber() {
+  /** Try to lex a token from the given source at the given index. */
+  private static Lexeme lexToken(Source source, int index) {
+    var chunk = Chunk.of(source, index);
+    return switch (chunk.next()) {
+      case '+' -> new Lexeme.Plus(chunk.consume().get());
+      case '-' -> new Lexeme.Minus(chunk.consume().get());
+      case '*' -> new Lexeme.Star(chunk.consume().get());
+      case '/' -> new Lexeme.ForwardSlash(chunk.consume().get());
+      case '%' -> new Lexeme.Percent(chunk.consume().get());
+      case '=' -> new Lexeme.Equal(chunk.consume().get());
+      case ':' -> new Lexeme.Colon(chunk.consume().get());
+      case ';' -> new Lexeme.Semicolon(chunk.consume().get());
+      case '(' -> new Lexeme.OpeningParentheses(chunk.consume().get());
+      case ')' -> new Lexeme.ClosingParentheses(chunk.consume().get());
+      case Source.EOF -> new Lexeme.EOF(chunk.consume().get());
+      default -> null;
+    };
+  }
+
+  /** Try to lex a number from the given source at the given index. */
+  private static Lexeme lexNumber(Source source, int index) {
     final var DIGITS = "0123456789";
     final var BASE   = BigInteger.valueOf(DIGITS.length());
 
-    Function<Character, Maybe<Integer>> toDigit = character -> {
-      var index = DIGITS.indexOf(character);
-      if (index == -1) {
-        return None.of();
-      }
-      return Some.of(index);
-    };
+    var chunk = Chunk.of(source, index);
+    var digit = DIGITS.indexOf(chunk.next());
+    if (digit == -1) {
+      return null;
+    }
 
-    return this.cursor.bind(first -> toDigit.apply(first.get()).bind(start -> {
-      final class State {
-        public BigInteger          unscaled;
-        public Maybe<Integer>      scale;
-        public Iterator<Character> last;
-        public boolean             stop;
+    var unscaled = BigInteger.valueOf(digit);
+    var scale    = -1;
 
-        public State(BigInteger unscaled, Maybe<Integer> scale,
-          Iterator<Character> last, boolean stop) {
-          this.unscaled = unscaled;
-          this.scale    = scale;
-          this.last     = last;
-          this.stop     = stop;
+    while (chunk.has()) {
+      chunk.consume();
+
+      digit = DIGITS.indexOf(chunk.next());
+      if (digit != -1) {
+        unscaled = unscaled.multiply(BASE).add(BigInteger.valueOf(digit));
+        if (scale != -1) {
+          scale++;
         }
+        continue;
       }
 
-      var state = new State(BigInteger.valueOf(start), None.of(), first, false);
-
-      while (this.next() && !state.stop) {
-        this.cursor.use(current -> {
-          toDigit.apply(current.get())
-            .use(digit -> new State(
-              state.unscaled.multiply(BASE).add(BigInteger.valueOf(digit)),
-              state.scale.map(i -> i + 1), current, false), () -> {
-                if (current.get() == '.' && state.scale.exists()) {
-                  state.stop = true;
-                } else {
-                  state.scale = Some.of(0);
-                }
-              });
-        });
+      if (chunk.next() != '.' || scale != -1) {
+        break;
       }
+      scale = 0;
+    }
 
-      var value = new BigDecimal(state.unscaled, state.scale.get(0));
-      return this.portion(first, state.last)
-        .map(portion -> new Lexeme.Number(portion, value));
-    }));
+    var value = new BigDecimal(unscaled, scale);
+    return new Lexeme.Number(chunk.get(), value);
   }
 
-  /** Lex a keyword or an identifier. */
-  private Maybe<Lexeme> lexWord() {
-    return Maybe.tryBind(this.lexIdentifier(), Lexer::lexKeyword);
+  /** Whether the character is letter or underscore. */
+  private static boolean isLetterOrUnderscore(char character) {
+    return character >= 'a' && character <= 'z'
+      || character >= 'A' && character <= 'Z' || character == '_';
   }
 
-  /** Lex an identifier. */
-  private Maybe<Lexeme.Identifier> lexIdentifier() {
-    return this.cursor.bind(first -> {
-      var start = first.get();
-      if ((start < 'a' || start > 'z') && (start < 'A' || start > 'Z')
-        && start != '_') {
-        return None.of();
-      }
-
-      final class State {
-        public Iterator<Character> last;
-        public boolean             stop;
-
-        public State(Iterator<Character> last, boolean stop) {
-          this.last = last;
-          this.stop = stop;
-        }
-      }
-
-      var state = new State(first, false);
-
-      while (this.next() && !state.stop) {
-        this.cursor.use(current -> {
-          var letter = current.get();
-          if ((letter < '0' || letter > '9') && (letter < 'a' || letter > 'z')
-            && (letter < 'A' || letter > 'Z') && letter != '_') {
-            state.stop = true;
-          } else {
-            state.last = current;
-          }
-        });
-      }
-
-      return this.portion(first, state.last)
-        .map(portion -> new Lexeme.Identifier(portion, portion.toString()));
-    });
+  /** Whether the character is a decimal digit. */
+  private static boolean isDecimalDigit(char character) {
+    return character >= '0' && character <= '9';
   }
 
-  /** Lex a keyword. */
-  private static Maybe<Lexeme> lexKeyword(Lexeme.Identifier identifier) {
-    return switch (identifier.value) {
-      case "i1" -> Some.of(new Lexeme.I1(identifier.portion));
-      case "i2" -> Some.of(new Lexeme.I2(identifier.portion));
-      case "i4" -> Some.of(new Lexeme.I4(identifier.portion));
-      case "i8" -> Some.of(new Lexeme.I8(identifier.portion));
-      case "ix" -> Some.of(new Lexeme.IX(identifier.portion));
-      case "u1" -> Some.of(new Lexeme.U1(identifier.portion));
-      case "u2" -> Some.of(new Lexeme.U2(identifier.portion));
-      case "u4" -> Some.of(new Lexeme.U4(identifier.portion));
-      case "u8" -> Some.of(new Lexeme.U8(identifier.portion));
-      case "ux" -> Some.of(new Lexeme.UX(identifier.portion));
-      case "f4" -> Some.of(new Lexeme.F4(identifier.portion));
-      case "f8" -> Some.of(new Lexeme.F8(identifier.portion));
-      case "rinf" -> Some.of(new Lexeme.Rinf(identifier.portion));
-      default -> None.of();
+  /** Try to lex a word from the given source at the given index. */
+  private static Lexeme lexWord(Source source, int index) {
+    var chunk = Chunk.of(source, index);
+    if (!Lexer.isLetterOrUnderscore(chunk.next())) {
+      return null;
+    }
+
+    while (chunk.has()) {
+      chunk.consume();
+
+      if (!Lexer.isLetterOrUnderscore(chunk.next())
+        && !Lexer.isDecimalDigit(chunk.next())) {
+        break;
+      }
+    }
+
+    var portion = chunk.get();
+    return switch (portion.toString()) {
+      case "i1" -> new Lexeme.I1(portion);
+      case "i2" -> new Lexeme.I2(portion);
+      case "i4" -> new Lexeme.I4(portion);
+      case "i8" -> new Lexeme.I8(portion);
+      case "ix" -> new Lexeme.Ix(portion);
+      case "u1" -> new Lexeme.U1(portion);
+      case "u2" -> new Lexeme.U2(portion);
+      case "u4" -> new Lexeme.U4(portion);
+      case "u8" -> new Lexeme.U8(portion);
+      case "ux" -> new Lexeme.Ux(portion);
+      case "f4" -> new Lexeme.F4(portion);
+      case "f8" -> new Lexeme.F8(portion);
+      case "rinf" -> new Lexeme.Rinf(portion);
+      default -> new Lexeme.Identifier(portion, portion.toString());
     };
+  }
+
+  /** Report the given unknown characters to the given resolution. Returns null
+   * for convinence. */
+  private static Chunk report(Resolution resolution, Chunk unknown) {
+    if (unknown != null) {
+      resolution.error("LEXER", unknown.get(),
+        "Could not recognize the character!");
+    }
+    return null;
+  }
+
+  /** Constructor. */
+  private Lexer() {
   }
 }

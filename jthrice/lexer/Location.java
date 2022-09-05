@@ -4,14 +4,13 @@
 package jthrice.lexer;
 
 import jthrice.launcher.*;
-import jthrice.utility.*;
 
 /** Location of a character in a source. */
 public final class Location {
   /** Location of the character at the given index in the given source. */
-  public static Maybe<Location> of(Source source, int index) {
+  public static Location of(Source source, int index) {
     if (!source.exists(index) || source.at(index) == '\n') {
-      return None.of();
+      return null;
     }
     var line   = 1;
     var column = 1;
@@ -23,7 +22,7 @@ public final class Location {
         column++;
       }
     }
-    return Some.of(new Location(source, index, line, column));
+    return new Location(source, index, line, column);
   }
 
   /** Source that the location is in. */
@@ -57,7 +56,6 @@ public final class Location {
           this.column - this.index + i);
       }
     }
-    Bug.unreachable("Source file does not end with an empty line!");
     return null;
   }
 }

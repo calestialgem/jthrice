@@ -6,7 +6,6 @@ package jthrice.lexer;
 import java.io.*;
 
 import jthrice.launcher.*;
-import jthrice.utility.*;
 
 /** Portion of a string. */
 public final class Portion {
@@ -32,21 +31,20 @@ public final class Portion {
   }
 
   /** Portion from the given start location to the given end location. */
-  public static Maybe<Portion> of(Location first, Location last) {
+  public static Portion of(Location first, Location last) {
     if (first.source != last.source || first.index > last.index) {
-      return None.of();
+      return null;
     }
-    return Some.of(new Portion(first, last));
+    return new Portion(first, last);
   }
 
   /** Portion from the given start index to the given end index in the given
    * source. */
-  public static Maybe<Portion> of(Source source, int first, int last) {
+  public static Portion of(Source source, int first, int last) {
     if (first > last) {
-      return None.of();
+      return null;
     }
-    return Maybe.bimap(Location.of(source, first), Location.of(source, last),
-      Portion::new);
+    return new Portion(Location.of(source, first), Location.of(source, last));
   }
 
   /** Location of the first character. */

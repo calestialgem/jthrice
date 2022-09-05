@@ -130,7 +130,7 @@ public sealed abstract class Lexeme permits Lexeme.Token, Lexeme.Number, Lexeme.
 
   /** Reserved identifier. */
   public static sealed abstract class Keyword extends
-    Lexeme permits I1, I2, I4, I8, IX, U1, U2, U4, U8, UX, F4, F8, Rinf {
+    Lexeme permits I1, I2, I4, I8, Ix, U1, U2, U4, U8, Ux, F4, F8, Rinf {
     /** Constructor. */
     Keyword(Portion portion) {
       super(portion);
@@ -171,9 +171,9 @@ public sealed abstract class Lexeme permits Lexeme.Token, Lexeme.Number, Lexeme.
   }
 
   /** Keyword `ix`; pointer size, signed integer type. */
-  public static final class IX extends Keyword {
+  public static final class Ix extends Keyword {
     /** Constructor. */
-    IX(Portion portion) {
+    Ix(Portion portion) {
       super(portion);
     }
   }
@@ -211,9 +211,9 @@ public sealed abstract class Lexeme permits Lexeme.Token, Lexeme.Number, Lexeme.
   }
 
   /** Keyword `ux`; pointer size, unsigned integer type. */
-  public static final class UX extends Keyword {
+  public static final class Ux extends Keyword {
     /** Constructor. */
-    UX(Portion portion) {
+    Ux(Portion portion) {
       super(portion);
     }
   }
