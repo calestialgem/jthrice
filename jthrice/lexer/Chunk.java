@@ -36,7 +36,7 @@ class Chunk {
     return this.source.at(this.last);
   }
 
-  /** Take the next character. */
+  /** Take the next character. Returns this. */
   Chunk consume() {
     this.last++;
     return this;

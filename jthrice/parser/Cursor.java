@@ -16,33 +16,28 @@ class Cursor {
 
   /** Lexemes. */
   private final List<Lexeme> lexemes;
-  /** Current index. */
-  private int                current;
+  /** Index of the next lexeme. */
+  private int                next;
 
   /** Constructor. */
-  public Cursor(List<Lexeme> lexemes, int current) {
+  public Cursor(List<Lexeme> lexemes, int next) {
     this.lexemes = lexemes;
-    this.current = current;
+    this.next    = next;
   }
 
-  /** Whether there is a lexeme. */
+  /** Whether there is a lexeme left in the list. */
   boolean has() {
-    return this.current < this.lexemes.size();
+    return this.next < this.lexemes.size();
   }
 
-  /** Current lexeme. */
-  Lexeme get() {
-    return this.lexemes.get(this.current);
+  /** Next lexeme. */
+  Lexeme next() {
+    return this.lexemes.get(this.next);
   }
 
-  /** Skip the current lexeme. Returns this. */
+  /** Take the next lexeme. Returns this. */
   Cursor consume() {
-    this.current++;
+    this.next++;
     return this;
-  }
-
-  /** Skip the current lexeme and return whether there is more. */
-  boolean next() {
-    return this.consume().has();
   }
 }

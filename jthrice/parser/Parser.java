@@ -27,11 +27,11 @@ public final class Parser {
         "There is no EOF token at the end of the file!");
       return null;
     }
-    var lexeme = cursor.get();
-    if (cursor.next()) {
-      var remaining = Portion.of(lexeme.portion, cursor.get().portion);
-      while (cursor.next()) {
-        remaining = Portion.of(remaining, cursor.get().portion);
+    var lexeme = cursor.next();
+    if (cursor.consume().has()) {
+      var remaining = Portion.of(lexeme.portion, cursor.next().portion);
+      while (cursor.consume().has()) {
+        remaining = Portion.of(remaining, cursor.next().portion);
       }
       resolution.error("PARSER", remaining,
         "There are tokens that could not be parsed!");
@@ -60,24 +60,24 @@ public final class Parser {
    * resolution. */
   private static Node.Definition parseDefinition(Resolution resolution,
     Cursor cursor) {
-    if (!(cursor.get() instanceof Lexeme.Identifier name)) {
+    if (!(cursor.next() instanceof Lexeme.Identifier name)) {
       return null;
     }
 
-    if (!cursor.next()) {
+    if (!cursor.consume().has()) {
       resolution.error("PARSER", name.portion,
         "There is no `:` after the name in the definition of `%s`!"
           .formatted(name.value));
       return null;
     }
-    if (!(cursor.get() instanceof Lexeme.Colon separator)) {
-      resolution.error("PARSER", cursor.get().portion,
+    if (!(cursor.next() instanceof Lexeme.Colon separator)) {
+      resolution.error("PARSER", cursor.next().portion,
         "Expected a `:` after the name in the definition of `%s`!"
           .formatted(name.value));
       return null;
     }
 
-    if (!cursor.next()) {
+    if (!cursor.consume().has()) {
       resolution.error("PARSER", separator.portion,
         "There is no type after the `:` in the definition of `%s`!"
           .formatted(name.value));
@@ -85,7 +85,7 @@ public final class Parser {
     }
     var type = Parser.parseExpression(resolution, cursor);
     if (type == null) {
-      resolution.error("PARSER", cursor.get().portion,
+      resolution.error("PARSER", cursor.next().portion,
         "Expected a type after the `:` in the definition of `%s`!"
           .formatted(name.value));
       return null;
@@ -97,14 +97,14 @@ public final class Parser {
           .formatted(name.value));
       return null;
     }
-    if (!(cursor.get() instanceof Lexeme.Equal assignment)) {
-      resolution.error("PARSER", cursor.get().portion,
+    if (!(cursor.next() instanceof Lexeme.Equal assignment)) {
+      resolution.error("PARSER", cursor.next().portion,
         "Expected a `=` after the type in the definition of `%s`!"
           .formatted(name.value));
       return null;
     }
 
-    if (!cursor.next()) {
+    if (!cursor.consume().has()) {
       resolution.error("PARSER", assignment.portion,
         "There is no value after the `=` in the definition of `%s`!"
           .formatted(name.value));
@@ -112,7 +112,7 @@ public final class Parser {
     }
     var value = Parser.parseExpression(resolution, cursor);
     if (value == null) {
-      resolution.error("PARSER", cursor.get().portion,
+      resolution.error("PARSER", cursor.next().portion,
         "Expected a value after the `=` in the definition of `%s`!"
           .formatted(name.value));
       return null;
@@ -124,8 +124,8 @@ public final class Parser {
           .formatted(name.value));
       return null;
     }
-    if (!(cursor.get() instanceof Lexeme.Semicolon end)) {
-      resolution.error("PARSER", cursor.get().portion,
+    if (!(cursor.next() instanceof Lexeme.Semicolon end)) {
+      resolution.error("PARSER", cursor.next().portion,
         "Expected a `;` after the value in the definition of `%s`!"
           .formatted(name.value));
       return null;
@@ -151,7 +151,7 @@ public final class Parser {
       return null;
     }
     loop: while (cursor.has()) {
-      var lexeme = cursor.get();
+      var lexeme = cursor.next();
       if (!(lexeme instanceof Lexeme.Token operator)) {
         break;
       }
@@ -164,7 +164,7 @@ public final class Parser {
           break loop;
       }
 
-      if (!cursor.next()) {
+      if (!cursor.consume().has()) {
         resolution.error("PARSER", operator.portion,
           "There is no right hand side after the `%s` in the binary operator!"
             .formatted(operator));
@@ -172,7 +172,7 @@ public final class Parser {
       }
       var right = Parser.parseFactorExpression(resolution, cursor);
       if (right == null) {
-        resolution.error("PARSER", cursor.get().portion,
+        resolution.error("PARSER", cursor.next().portion,
           "Expected a right hand side after the `%s` in the binary operator!"
             .formatted(operator));
         return null;
@@ -192,7 +192,7 @@ public final class Parser {
       return null;
     }
     loop: while (cursor.has()) {
-      var lexeme = cursor.get();
+      var lexeme = cursor.next();
       if (!(lexeme instanceof Lexeme.Token operator)) {
         break;
       }
@@ -207,7 +207,7 @@ public final class Parser {
           break loop;
       }
 
-      if (!cursor.next()) {
+      if (!cursor.consume().has()) {
         resolution.error("PARSER", operator.portion,
           "There is no right hand side after the `%s` in the binary operator!"
             .formatted(operator));
@@ -215,7 +215,7 @@ public final class Parser {
       }
       var right = Parser.parseUnary(resolution, cursor);
       if (right == null) {
-        resolution.error("PARSER", cursor.get().portion,
+        resolution.error("PARSER", cursor.next().portion,
           "Expected a right hand side after the `%s` in the binary operator!"
             .formatted(operator));
         return null;
@@ -230,8 +230,8 @@ public final class Parser {
    * resolution. */
   private static Node.Expression parseUnary(Resolution resolution,
     Cursor cursor) {
-    if (!(cursor.get() instanceof Lexeme.Token operator)) {
-      return null;
+    if (!(cursor.next() instanceof Lexeme.Token operator)) {
+      return parseGroup(resolution, cursor);
     }
     switch (operator) {
       case Lexeme.Plus plus:
@@ -239,10 +239,10 @@ public final class Parser {
       case Lexeme.Minus minus:
         break;
       default:
-        return null;
+        return parseGroup(resolution, cursor);
     }
 
-    if (!cursor.next()) {
+    if (!cursor.consume().has()) {
       resolution.error("PARSER", operator.portion,
         "There is no operand after the `%s` in the unary operator!"
           .formatted(operator));
@@ -250,7 +250,7 @@ public final class Parser {
     }
     var operand = Parser.parseGroup(resolution, cursor);
     if (operand == null) {
-      resolution.error("PARSER", cursor.get().portion,
+      resolution.error("PARSER", cursor.next().portion,
         "Expected an operand after the `%s` in the unary operator!"
           .formatted(operator));
       return null;
@@ -263,18 +263,18 @@ public final class Parser {
    * resolution. */
   private static Node.Expression parseGroup(Resolution resolution,
     Cursor cursor) {
-    if (!(cursor.get() instanceof Lexeme.OpeningParentheses opening)) {
+    if (!(cursor.next() instanceof Lexeme.OpeningParentheses opening)) {
       return Parser.parsePrimary(cursor);
     }
 
-    if (!cursor.next()) {
+    if (!cursor.consume().has()) {
       resolution.error("PARSER", opening.portion,
         "There is no expression after the `(` in the group!");
       return null;
     }
     var elevated = Parser.parseExpression(resolution, cursor);
     if (elevated == null) {
-      resolution.error("PARSER", cursor.get().portion,
+      resolution.error("PARSER", cursor.next().portion,
         "Expected an expression after the `(` in the group!");
       return null;
     }
@@ -284,8 +284,8 @@ public final class Parser {
         "There is no `)` after the expression in the group!");
       return null;
     }
-    if (!(cursor.get() instanceof Lexeme.ClosingParentheses closing)) {
-      resolution.error("PARSER", cursor.get().portion,
+    if (!(cursor.next() instanceof Lexeme.ClosingParentheses closing)) {
+      resolution.error("PARSER", cursor.next().portion,
         "Expected a `)` after the expression in the group!");
       return null;
     }
@@ -297,7 +297,7 @@ public final class Parser {
   /** Try to parse a primary expression node at the given cursor and report to
    * the given resolution. */
   private static Node.Expression parsePrimary(Cursor cursor) {
-    var result = switch (cursor.get()) {
+    var result = switch (cursor.next()) {
       case Lexeme.I1 i1 -> new Node.Literal(i1);
       case Lexeme.I2 i2 -> new Node.Literal(i2);
       case Lexeme.I4 i4 -> new Node.Literal(i4);
@@ -311,6 +311,7 @@ public final class Parser {
       case Lexeme.F4 f4 -> new Node.Literal(f4);
       case Lexeme.F8 f8 -> new Node.Literal(f8);
       case Lexeme.Rinf rinf -> new Node.Literal(rinf);
+      case Lexeme.Number number -> new Node.Literal(number);
       case Lexeme.Identifier name -> new Node.Access(name);
       default -> null;
     };
