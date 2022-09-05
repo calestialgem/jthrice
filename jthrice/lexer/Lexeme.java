@@ -130,7 +130,7 @@ public sealed abstract class Lexeme permits Lexeme.Token, Lexeme.Number, Lexeme.
 
   /** Reserved identifier. */
   public static sealed abstract class Keyword extends
-    Lexeme permits I1, I2, I4, I8, Ix, U1, U2, U4, U8, Ux, F4, F8, Rinf {
+    Lexeme permits I1, I2, I4, I8, Ix, U1, U2, U4, U8, Ux, F4, F8, Rinf, Type {
     /** Constructor. */
     Keyword(Portion portion) {
       super(portion);
@@ -238,6 +238,14 @@ public sealed abstract class Lexeme permits Lexeme.Token, Lexeme.Number, Lexeme.
   public static final class Rinf extends Keyword {
     /** Constructor. */
     Rinf(Portion portion) {
+      super(portion);
+    }
+  }
+
+  /** Keyword `type`; meta type. */
+  public static final class Type extends Keyword {
+    /** Constructor. */
+    Type(Portion portion) {
       super(portion);
     }
   }

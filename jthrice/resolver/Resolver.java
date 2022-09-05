@@ -4,171 +4,168 @@
 package jthrice.resolver;
 
 import java.util.*;
-import java.util.stream.*;
 
 import jthrice.launcher.*;
 import jthrice.lexer.*;
 import jthrice.parser.*;
-import jthrice.parser.Node;
-import jthrice.utility.*;
-import jthrice.utility.Map;
 
+/** Resolves a program node to a solution. */
 public final class Resolver {
-  public static Maybe<Solution> resolve(Resolution resolution) {
-    var node = Parser.parse(resolution);
-    if (node.not()) {
-      return None.of();
+  /** Resolves the given program node and report to the given resolution. */
+  public static Solution resolve(Resolution resolution, Node.Program program) {
+    var     solution = Resolver.builtin();
+    var failed   = false;
+    for (var statement : program.statements) {
+      if (!Resolver.resolveStatement(resolution, solution, statement)) {
+        failed = true;
+      }
     }
-    var resolver = new Resolver(resolution, node.get());
-    return resolver.resolve();
-  }
-
-  private final Resolution                                       resolution;
-  private final Node.Program                                     node;
-  private final HashMap<String, Type>                            types;
-  private final HashMap<Class<? extends Lexeme.Token>, Operator> operators;
-  private final HashMap<Lexeme.Identifier, Type>                 variables;
-
-  public Resolver(Resolution resolution, Node.Program node) {
-    this.resolution = resolution;
-    this.node       = node;
-    this.types      = new HashMap<>();
-    this.operators  = new HashMap<>();
-    this.variables  = new HashMap<>();
-  }
-
-  private Maybe<Solution> resolve() {
-    this.resolveBuiltin();
-    var validStatements = this.node.statements.stream()
-      .map(this::resolveStatement).count();
-    if (validStatements < this.node.statements.size()) {
-      return None.of();
+    if (failed) {
+      return null;
     }
-    return Some.of(new Solution(this.node, Map.of(this.types),
-      Map.of(this.operators), Map.of(this.variables)));
+    return solution;
   }
 
-  private void resolveBuiltin() {
-    var arithmetic = new HashMap<String, Type>();
-    arithmetic.put("i1", new Type.I1());
-    arithmetic.put("i2", new Type.I2());
-    arithmetic.put("i4", new Type.I4());
-    arithmetic.put("i8", new Type.I8());
-    arithmetic.put("ix", new Type.Ix());
-    arithmetic.put("u1", new Type.U1());
-    arithmetic.put("u2", new Type.U2());
-    arithmetic.put("u4", new Type.U4());
-    arithmetic.put("u8", new Type.U8());
-    arithmetic.put("ux", new Type.Ux());
-    arithmetic.put("f4", new Type.F4());
-    arithmetic.put("f8", new Type.F8());
-    arithmetic.put("rinf", new Type.Rinf());
-
-    arithmetic.values().stream().forEach(type -> {
-      Stream.of(Lexeme.Plus.class, Lexeme.Minus.class).forEach(
-        token -> this.operators.put(token, new Operator.Prefix(token, type)));
-      Stream
-        .of(Lexeme.Plus.class, Lexeme.Minus.class, Lexeme.Star.class,
-          Lexeme.ForwardSlash.class, Lexeme.Percent.class)
-        .forEach(token -> this.operators.put(token,
-          new Operator.Infix(token, type, type)));
-    });
-
-    this.types.putAll(arithmetic);
+  /** Solution with built-in types and operators. */
+  private static Solution builtin() {
+    var builtin = Solution.of();
+    Resolver.builtinArithmetic(builtin);
+    return builtin;
   }
 
-  private Maybe<Void> resolveStatement(Node.Statement statement) {
+  /** Adds the built-in arithmetic types and their operators to the given
+   * solution. */
+  private static void builtinArithmetic(Solution builtin) {
+    var types = new HashMap<String, Type>();
+    types.put("i1", Type.ofI1());
+    types.put("i2", Type.ofI2());
+    types.put("i4", Type.ofI4());
+    types.put("i8", Type.ofI8());
+    types.put("ix", Type.ofIx());
+    types.put("u1", Type.ofU1());
+    types.put("u2", Type.ofU2());
+    types.put("u4", Type.ofU4());
+    types.put("u8", Type.ofU8());
+    types.put("ux", Type.ofUx());
+    types.put("f4", Type.ofF4());
+    types.put("f8", Type.ofF8());
+    types.put("rinf", Type.ofRinf());
+    types.put("type", Type.ofMeta());
+    builtin.types.putAll(types);
+  }
+
+  /** Try to resolve the given statement node to the given solution and report
+   * to the given resolution. */
+  private static boolean resolveStatement(Resolution resolution,
+    Solution solution, Node.Statement statement) {
     return switch (statement) {
-      case Node.Definition definition -> this.resolveDefinition(definition);
+      case Node.Definition defition ->
+        Resolver.resolveDefinition(resolution, solution, defition);
     };
   }
 
-  private Maybe<Void> resolveDefinition(Node.Definition definition) {
-    var same = this.variables.keySet().stream().filter(definition.name::equals)
-      .findAny();
+  /** Try to resolve the given definition node to the given solution and report
+   * to the given resolution. */
+  private static boolean resolveDefinition(Resolution resolution,
+    Solution solution, Node.Definition definition) {
+    var same = solution.variables.keySet().stream()
+      .filter(definition.name::equals).findAny();
     if (same.isPresent()) {
-      this.resolution.error("RESOLVER", definition.name.portion,
+      resolution.error("RESOLVER", definition.name.portion,
         "Another variable with the same name is already defined!");
-      this.resolution.info("RESOLVER", same.get().portion,
+      resolution.info("RESOLVER", same.get().portion,
         "Previous definition was here.");
-      return None.of();
+      return false;
     }
-    var type = this.resolveExpression(definition.type);
-    if (type.not()) {
-      this.resolution.error("RESOLVER", definition.type.portion,
+
+    var type = Resolver.resolveExpression(resolution, solution,
+      definition.type);
+    if (type == null) {
+      resolution.error("RESOLVER", definition.type.portion,
         "Could not resolve the type!");
-      return None.of();
+      return false;
     }
-    this.variables.put(definition.name, type.get());
-    return Some.of(null);
+
+    solution.variables.put(definition.name, type);
+    return true;
   }
 
-  private Maybe<Type> resolveExpression(Node.Expression expression) {
-    return switch (expression) {
-      case Node.Primary primary -> this.resolvePrimary(primary);
-      case Node.Group group -> this.resolveGroup(group);
-      case Node.Unary unary -> this.resolveUnary(unary);
-      case Node.Binary binary -> this.resolveBinary(binary);
-    };
+  /** Try to resolve the given expression node to the given solution and report
+   * to the given resolution. */
+  private static Type resolveExpression(Resolution resolution,
+    Solution solution, Node.Expression expression) {
+    switch (expression) {
+      case Node.Literal literal:
+        return Resolver.resolveLiteral(resolution, solution, literal);
+      case Node.Access access:
+        return Resolver.resolveAccess(resolution, solution, access);
+      case Node.Group group:
+        return Resolver.resolveGroup(resolution, solution, group);
+      default:
+        resolution.error("RESOLVER", expression.portion, "Expected a type!");
+        return null;
+    }
   }
 
-  private Maybe<Type> resolvePrimary(Node.Primary primary) {
-    return switch (primary) {
-      case Node.Literal literal -> this.resolveLiteral(literal);
-      case Node.Access access -> this.resolveAccess(access);
-    };
-  }
-
-  private Maybe<Type> resolveLiteral(Node.Literal literal) {
+  /** Try to resolve the given literal node to the given solution and report to
+   * the given resolution. */
+  private static Type resolveLiteral(Resolution resolution, Solution solution,
+    Node.Literal literal) {
     switch (literal.value) {
       case Lexeme.I1 i1:
-        return Some.of(this.types.get(i1.toString()));
+        return solution.types.get(i1.toString());
       case Lexeme.I2 i2:
-        return Some.of(this.types.get(i2.toString()));
+        return solution.types.get(i2.toString());
       case Lexeme.I4 i4:
-        return Some.of(this.types.get(i4.toString()));
+        return solution.types.get(i4.toString());
       case Lexeme.I8 i8:
-        return Some.of(this.types.get(i8.toString()));
+        return solution.types.get(i8.toString());
       case Lexeme.Ix ix:
-        return Some.of(this.types.get(ix.toString()));
+        return solution.types.get(ix.toString());
       case Lexeme.U1 u1:
-        return Some.of(this.types.get(u1.toString()));
+        return solution.types.get(u1.toString());
       case Lexeme.U2 u2:
-        return Some.of(this.types.get(u2.toString()));
+        return solution.types.get(u2.toString());
       case Lexeme.U4 u4:
-        return Some.of(this.types.get(u4.toString()));
+        return solution.types.get(u4.toString());
       case Lexeme.U8 u8:
-        return Some.of(this.types.get(u8.toString()));
+        return solution.types.get(u8.toString());
       case Lexeme.Ux ux:
-        return Some.of(this.types.get(ux.toString()));
+        return solution.types.get(ux.toString());
       case Lexeme.F4 f4:
-        return Some.of(this.types.get(f4.toString()));
+        return solution.types.get(f4.toString());
       case Lexeme.F8 f8:
-        return Some.of(this.types.get(f8.toString()));
+        return solution.types.get(f8.toString());
+      case Lexeme.Rinf rinf:
+        resolution.error("RESOLVER", literal.portion,
+          "Infinite precision real type is not supported!");
+        return null;
+      case Lexeme.Type type:
+        resolution.error("RESOLVER", literal.portion,
+          "Meta type is not supported!");
+        return null;
       default:
-        this.resolution.error("RESOLVER", literal.portion, "Expected a type!");
-        return None.of();
+        resolution.error("RESOLVER", literal.portion, "Expected a type!");
+        return null;
     }
   }
 
-  private Maybe<Type> resolveAccess(Node.Access access) {
-    if (this.types.containsKey(access.name.value)) {
-      return Some.of(this.types.get(access.name.value));
+  /** Try to resolve the given access node to the given solution and report to
+   * the given resolution. */
+  private static Type resolveAccess(Resolution resolution, Solution solution,
+    Node.Access access) {
+    var result = solution.types.get(access.name.value);
+    if (result == null) {
+      resolution.error("RESOLVER", access.portion,
+        "Could not find a type with the given name!");
     }
-    return None.of();
+    return result;
   }
 
-  private Maybe<Type> resolveGroup(Node.Group group) {
-    return this.resolveExpression(group.elevated);
-  }
-
-  private Maybe<Type> resolveUnary(Node.Unary unary) {
-    this.resolution.error("RESOLVER", unary.portion, "Expected a type!");
-    return None.of();
-  }
-
-  private Maybe<Type> resolveBinary(Node.Binary unary) {
-    this.resolution.error("RESOLVER", unary.portion, "Expected a type!");
-    return None.of();
+  /** Try to resolve the given group node to the given solution and report to
+   * the given resolution. */
+  private static Type resolveGroup(Resolution resolution, Solution solution,
+    Node.Group group) {
+    return Resolver.resolveExpression(resolution, solution, group.elevated);
   }
 }

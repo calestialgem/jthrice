@@ -311,6 +311,7 @@ public final class Parser {
       case Lexeme.F4 f4 -> new Node.Literal(f4);
       case Lexeme.F8 f8 -> new Node.Literal(f8);
       case Lexeme.Rinf rinf -> new Node.Literal(rinf);
+      case Lexeme.Type type -> new Node.Literal(type);
       case Lexeme.Number number -> new Node.Literal(number);
       case Lexeme.Identifier name -> new Node.Access(name);
       default -> null;

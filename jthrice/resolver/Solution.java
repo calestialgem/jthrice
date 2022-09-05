@@ -1,22 +1,28 @@
+// SPDX-FileCopyrightText: 2022 Cem Geçgel <gecgelcem@outlook.com>
+// SPDX-License-Identifier: GPL-3.0-or-later
+
 package jthrice.resolver;
 
+import java.util.*;
+
 import jthrice.lexer.*;
-import jthrice.parser.*;
-import jthrice.parser.Node.*;
-import jthrice.utility.*;
 
+/** Type and variable information of a Thrice program. */
 public class Solution {
-  public final Node.Program                                 node;
-  public final Map<String, Type>                            types;
-  public final Map<Class<? extends Lexeme.Token>, Operator> operators;
-  public final Map<Lexeme.Identifier, Type>                 variables;
+  /** Clean solution. */
+  static Solution of() {
+    return new Solution(new HashMap<>(), new HashMap<>());
+  }
 
-  public Solution(Program node, Map<String, Type> types,
-    Map<Class<? extends Lexeme.Token>, Operator> operators,
+  /** Mapping from type names to types. */
+  public final Map<String, Type>            types;
+  /** Mapping from variable names to variable types. */
+  public final Map<Lexeme.Identifier, Type> variables;
+
+  /** Constructor. */
+  private Solution(Map<String, Type> types,
     Map<Lexeme.Identifier, Type> variables) {
-    this.node      = node;
     this.types     = types;
-    this.operators = operators;
     this.variables = variables;
   }
 }

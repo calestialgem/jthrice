@@ -146,6 +146,7 @@ public final class Lexer {
       case "f4" -> new Lexeme.F4(portion);
       case "f8" -> new Lexeme.F8(portion);
       case "rinf" -> new Lexeme.Rinf(portion);
+      case "type" -> new Lexeme.Type(portion);
       default -> new Lexeme.Identifier(portion, portion.toString());
     };
   }
