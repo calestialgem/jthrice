@@ -3,9 +3,10 @@
 
 package jthrice.analyzer;
 
+import java.util.*;
+
 import jthrice.lexer.*;
 import jthrice.resolver.*;
-import jthrice.utility.*;
 
 /** An existince in a Thrice program. */
 public sealed abstract class Entity permits Entity.Program, Entity.Statement, Entity.Expression {
@@ -14,7 +15,8 @@ public sealed abstract class Entity permits Entity.Program, Entity.Statement, En
     /** Statements in the program. */
     public final List<Statement> statements;
 
-    public Program(List<Statement> statements) {
+    /** Constructor. */
+    private Program(List<Statement> statements) {
       this.statements = statements;
     }
   }
@@ -33,7 +35,8 @@ public sealed abstract class Entity permits Entity.Program, Entity.Statement, En
     /** Variable value. */
     public final Expression        value;
 
-    public Definition(Lexeme.Identifier name, Type type, Expression value) {
+    /** Constructor. */
+    private Definition(Lexeme.Identifier name, Type type, Expression value) {
       this.name  = name;
       this.type  = type;
       this.value = value;
@@ -42,40 +45,35 @@ public sealed abstract class Entity permits Entity.Program, Entity.Statement, En
 
   /** Calculations and actions that lead to a value. */
   public static sealed abstract class Expression
-    extends Entity permits Primary, Unary, Binary {
+    extends Entity permits Literal, Access, Unary, Binary {
     /** Type of the expression. */
     public final Type type;
 
-    public Expression(Type type) {
+    /** Constructor. */
+    private Expression(Type type) {
       this.type = type;
     }
   }
 
-  /** Independent expression. */
-  public static sealed abstract class Primary
-    extends Expression permits Literal, Access {
-    public Primary(Type type) {
-      super(type);
-    }
-  }
-
   /** Hard coded value. */
-  public static final class Literal extends Primary {
+  public static final class Literal extends Expression {
     /** Value. */
     public final Object value;
 
-    public Literal(Type type, Object value) {
+    /** Constructor. */
+    private Literal(Type type, Object value) {
       super(type);
       this.value = value;
     }
   }
 
   /** Value of a variable. */
-  public static final class Access extends Primary {
+  public static final class Access extends Expression {
     /** Name of the accessed variable. */
     public final Lexeme.Identifier variable;
 
-    public Access(Type type, Lexeme.Identifier variable) {
+    /** Constructor. */
+    private Access(Type type, Lexeme.Identifier variable) {
       super(type);
       this.variable = variable;
     }
@@ -88,7 +86,8 @@ public sealed abstract class Entity permits Entity.Program, Entity.Statement, En
     /** Operand. */
     public final Expression operand;
 
-    public Unary(Type type, String operator, Expression operand) {
+    /** Constructor. */
+    private Unary(Type type, String operator, Expression operand) {
       super(type);
       this.operator = operator;
       this.operand  = operand;
@@ -103,7 +102,8 @@ public sealed abstract class Entity permits Entity.Program, Entity.Statement, En
     /** Right operand. */
     public final Expression right;
 
-    public Binary(Type type, String operator, Expression left,
+    /** Constructor. */
+    private Binary(Type type, String operator, Expression left,
       Expression right) {
       super(type);
       this.operator = operator;
