@@ -35,16 +35,26 @@ public class Launcher {
     }
   }
 
+  /** Process the source file at the given relative path. */
+  public static void process(String name) {
+    try {
+      Launcher.compile(Resolution.of(name));
+    } catch (Exception e) {
+      System.out.printf("Could not process %s!%nError: %s%n", name,
+        e.getLocalizedMessage());
+    }
+  }
+
   /** Run the compiler. */
   public static void main(String[] arguments) {
-    printArguments(arguments);
-
+    Launcher.printArguments(arguments);
     if (arguments.length < 1) {
       System.out.println("Provide a Thrice file!");
     }
-    Stream.of(arguments).parallel()
-      .forEach(argument -> Resolution.of(argument).use(Launcher::compile,
-        error -> System.out.printf("Could not read file %s!%nError: %s%n",
-          argument, error.getLocalizedMessage())));
+    Stream.of(arguments).parallel().forEach(Launcher::process);
+  }
+
+  /** Constructor. */
+  private Launcher() {
   }
 }

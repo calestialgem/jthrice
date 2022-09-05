@@ -6,14 +6,13 @@ package jthrice.launcher;
 import java.io.*;
 
 import jthrice.lexer.*;
-import jthrice.utility.*;
 
 /** Resolution of a source file. */
 public class Resolution {
   /** Clean resolution of the file at the given relative path, which does not
    * have the file extension. */
-  public static Result<Resolution, IOException> of(String name) {
-    return Source.of(name).map(source -> new Resolution(source, 0, 0));
+  public static Resolution of(String name) throws IOException {
+    return new Resolution(Source.of(name), 0, 0);
   }
 
   /** Source file. */
@@ -57,8 +56,6 @@ public class Resolution {
    * source at the given log level. */
   public void log(String author, Portion portion, String severity,
     String message) {
-    Bug.check(this.source == portion.first.source,
-      "The portion is not from the source!");
     System.out.printf("[%s] %s:%d:%d:%d:%d: %s: %s%n", author, this.source.path,
       portion.first.line, portion.first.column, portion.last.line,
       portion.last.column, severity, message);

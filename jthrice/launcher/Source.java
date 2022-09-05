@@ -6,8 +6,6 @@ package jthrice.launcher;
 import java.io.*;
 import java.nio.file.*;
 
-import jthrice.utility.*;
-
 /** A UTF-8 source file. */
 public class Source {
   /** Character that represents the end of file. */
@@ -17,18 +15,10 @@ public class Source {
 
   /** Source from the file at the given relative path, which does not have the
    * file extension. */
-  public static Result<Source, IOException> of(String name) {
-    var    path     = Path.of(name + '.' + Source.EXTENSION).toAbsolutePath();
-    String contents = null;
-    try {
-      contents = Files.readString(path);
-    } catch (IOException e) {
-      return Dud.of(e);
-    }
-    contents  = contents.replace("\r", "");
-    contents += Source.EOF;
-    contents += '\n';
-    return Coup.of(new Source(name, path, contents));
+  public static Source of(String name) throws IOException {
+    var path     = Path.of(name + '.' + Source.EXTENSION).toAbsolutePath();
+    var contents = Files.readString(path).replace("\r", "") + Source.EOF + '\n';
+    return new Source(name, path, contents);
   }
 
   /** Name of the source file without the file extensions. */
@@ -57,14 +47,11 @@ public class Source {
 
   /** Character at the given index. */
   public char at(int index) {
-    Bug.check(this.exists(index), "Index out of contents!");
     return this.contents.charAt(index);
   }
 
   /** Characters from the given first to the last index. */
   public String sub(int first, int last) {
-    Bug.check(this.exists(first), "First index out of contents!");
-    Bug.check(this.exists(last), "Last index out of contents!");
     return this.contents.substring(first, last + 1);
   }
 }
