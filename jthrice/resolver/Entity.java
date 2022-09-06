@@ -12,35 +12,36 @@ public sealed abstract class Entity permits Entity.Program, Entity.Statement, En
   /** Type meta. */
   public static final Meta META = new Meta("type", null, null);
   /** Type i1. */
-  public static final I1   I1   = new I1("i1", null, META);
+  public static final I1   I1   = new I1("i1", null, Entity.META);
   /** Type i2. */
-  public static final I2   I2   = new I2("i2", null, META);
+  public static final I2   I2   = new I2("i2", null, Entity.META);
   /** Type i4. */
-  public static final I4   I4   = new I4("i4", null, META);
+  public static final I4   I4   = new I4("i4", null, Entity.META);
   /** Type i8. */
-  public static final I8   I8   = new I8("i8", null, META);
+  public static final I8   I8   = new I8("i8", null, Entity.META);
   /** Type ix. */
-  public static final Ix   IX   = new Ix("ix", null, META);
+  public static final Ix   IX   = new Ix("ix", null, Entity.META);
   /** Type u1. */
-  public static final U1   U1   = new U1("u1", null, META);
+  public static final U1   U1   = new U1("u1", null, Entity.META);
   /** Type u2. */
-  public static final U2   U2   = new U2("u2", null, META);
+  public static final U2   U2   = new U2("u2", null, Entity.META);
   /** Type u4. */
-  public static final U4   U4   = new U4("u4", null, META);
+  public static final U4   U4   = new U4("u4", null, Entity.META);
   /** Type u8. */
-  public static final U8   U8   = new U8("u8", null, META);
+  public static final U8   U8   = new U8("u8", null, Entity.META);
   /** Type ux. */
-  public static final Ux   UX   = new Ux("ux", null, META);
+  public static final Ux   UX   = new Ux("ux", null, Entity.META);
   /** Type f4. */
-  public static final F4   F4   = new F4("f4", null, META);
+  public static final F4   F4   = new F4("f4", null, Entity.META);
   /** Type f8. */
-  public static final F8   F8   = new F8("f8", null, META);
+  public static final F8   F8   = new F8("f8", null, Entity.META);
   /** Type rinf. */
-  public static final Rinf RINF = new Rinf("rinf", null, META);
+  public static final Rinf RINF = new Rinf("rinf", null, Entity.META);
 
   /** Built-in symbols. */
-  public static final Symbol[] BUILT_IN = { META, I1, I2, I4, I8, IX, U1, U2,
-    U4, U8, UX, F4, F8, RINF };
+  public static final Symbol[] BUILT_IN = { Entity.META, Entity.I1, Entity.I2,
+    Entity.I4, Entity.I8, Entity.IX, Entity.U1, Entity.U2, Entity.U4, Entity.U8,
+    Entity.UX, Entity.F4, Entity.F8, Entity.RINF };
 
   /** Root entity, which represents the whole program. */
   public static final class Program extends Entity {
