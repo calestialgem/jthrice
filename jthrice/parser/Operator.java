@@ -36,48 +36,11 @@ public sealed abstract class Operator permits Operator.Nofix, Operator.Prefix, O
   public static final Outfix GROUP    = new Outfix(
     Lexeme.OpeningParentheses.class, Lexeme.ClosingParentheses.class);
 
-  /** Sources of value for the calculations. */
-  public static final Precedence PRIMARY = new Precedence(
-    List.of(LITERAL, ACCESS, GROUP), false);
-  /** Right associative unary operators. */
-  public static final Precedence UNARY   = new Precedence(
-    List.of(POSATE, NEGATE), true);
-  /** Binary operations with factors. */
-  public static final Precedence FACTOR  = new Precedence(
-    List.of(MULTIPLY, DIVIDE, REMINDER), false);
-  /** Binary operations with terms. */
-  public static final Precedence TERM    = new Precedence(
-    List.of(ADD, SUBTRACT), false);
-
-  /** Order of operators. */
-  public static final Order ORDER = new Order(
-    List.of(PRIMARY, UNARY, FACTOR, TERM));
-
-  /** Operators with equal precedence. */
-  public static final class Precedence {
-    /** Operators in the group. */
-    public final List<Operator> members;
-    /** Order of the operators that are mixed. False means operators on the left
-     * come first. True means operators on the right come first. */
-    public final boolean        associativity;
-
-    /** Constructor. */
-    private Precedence(List<Operator> members, boolean associativity) {
-      this.members       = members;
-      this.associativity = associativity;
-    }
-  }
-
-  /** Order of operator precedence. */
-  public static final class Order {
-    /** Precedence levels. */
-    public final List<Precedence> levels;
-
-    /** Constructor. */
-    private Order(List<Precedence> levels) {
-      this.levels = levels;
-    }
-  }
+  /** Order of operators, from lowest to highest. */
+  public static final List<Operator> PRECEDENCE = List.of(Operator.SUBTRACT,
+    Operator.ADD, Operator.REMINDER, Operator.DIVIDE, Operator.MULTIPLY,
+    Operator.NEGATE, Operator.POSATE, Operator.GROUP, Operator.ACCESS,
+    Operator.LITERAL);
 
   /** Operator with just the operand. */
   public static final class Nofix extends Operator {
