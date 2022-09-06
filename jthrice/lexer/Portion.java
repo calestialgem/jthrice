@@ -80,8 +80,8 @@ public final class Portion {
   private void underlineSingle(PrintStream out, boolean continues) {
     var line = Portion.ofLine(this.first);
     out.printf("%8d | %s%n", line.first.line, line);
-    out.printf("%11s", continues ? "... |" : "");
-    for (var i = 1; i <= this.last.column; i++) {
+    out.printf("%10s", continues ? "... |" : "");
+    for (var i = 0; i <= this.last.column; i++) {
       out.printf("%c", i < this.first.column ? ' ' : '~');
     }
     out.println();
