@@ -3,14 +3,10 @@
 
 package jthrice.launcher;
 
-import java.nio.file.*;
 import java.util.stream.*;
 
-import jthrice.analyzer.*;
-import jthrice.generator.*;
 import jthrice.lexer.*;
 import jthrice.parser.*;
-import jthrice.resolver.*;
 
 /** Launches the compiler. */
 public class Launcher {
@@ -31,18 +27,9 @@ public class Launcher {
     var resolution = Resolution.of(source.name);
     var lexemes    = Lexer.lex(resolution, source);
     var node       = Parser.parse(resolution, lexemes);
-    if (node == null) {
-      return;
+    if (node != null) {
+      System.out.println(node);
     }
-    var solution = Resolver.resolve(resolution, node);
-    if (solution == null) {
-      return;
-    }
-    var entity = Analyzer.analyze(resolution, solution, node);
-    if (entity == null) {
-      return;
-    }
-    Generator.generate(resolution, Path.of("build"), entity);
     resolution.report();
   }
 

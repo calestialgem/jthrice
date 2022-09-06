@@ -46,7 +46,7 @@ public final class Parser {
       resolution.error("PARSER", "There are no statements in the file!");
       return null;
     }
-    return new Node.Program(statements, eof);
+    return Node.ofProgram(statements, eof);
   }
 
   /** Try to parse a statement node at the given cursor and report to the given
@@ -83,9 +83,10 @@ public final class Parser {
           .formatted(name.value));
       return null;
     }
-    var type = Parser.parseExpression(resolution, cursor);
+    var old  = cursor.next();
+    var type = Parser.parseExpression(resolution, cursor, 0);
     if (type == null) {
-      resolution.error("PARSER", cursor.next().portion,
+      resolution.error("PARSER", old.portion,
         "Expected a type after the `:` in the definition of `%s`!"
           .formatted(name.value));
       return null;
@@ -110,9 +111,10 @@ public final class Parser {
           .formatted(name.value));
       return null;
     }
-    var value = Parser.parseExpression(resolution, cursor);
+    old = cursor.next();
+    var value = Parser.parseExpression(resolution, cursor, 0);
     if (value == null) {
-      resolution.error("PARSER", cursor.next().portion,
+      resolution.error("PARSER", old.portion,
         "Expected a value after the `=` in the definition of `%s`!"
           .formatted(name.value));
       return null;
@@ -132,193 +134,196 @@ public final class Parser {
     }
     cursor.consume();
 
-    return new Node.Definition(name, separator, type, assignment, value, end);
+    return Node.ofDefinition(name, separator, type, assignment, value, end);
   }
 
   /** Try to parse an expression node at the given cursor and report to the
    * given resolution. */
   private static Node.Expression parseExpression(Resolution resolution,
-    Cursor cursor) {
-    return Parser.parseTermExpression(resolution, cursor);
+    Cursor cursor, int precedence) {
+    for (var i = precedence; i < Operator.PRECEDENCE.size(); i++) {
+      var expression = switch (Operator.PRECEDENCE.get(i)) {
+        case Operator.Nofix nofix -> Parser.parseNofix(cursor, nofix);
+        case Operator.Prefix prefix ->
+          Parser.parsePrefix(resolution, cursor, prefix, i);
+        case Operator.Postfix postfix ->
+          Parser.parsePostfix(resolution, cursor, postfix, i);
+        case Operator.Infix infix ->
+          Parser.parseInfix(resolution, cursor, infix, i);
+        case Operator.Outfix outfix ->
+          Parser.parseOutfix(resolution, cursor, outfix);
+        case Operator.Knitfix knitfix ->
+          Parser.parseKnitfix(resolution, cursor, knitfix, i);
+      };
+      if (expression != null) {
+        return expression;
+      }
+    }
+    return null;
   }
 
-  /** Try to parse a term expression node at the given cursor and report to the
-   * given resolution. */
-  private static Node.Expression parseTermExpression(Resolution resolution,
-    Cursor cursor) {
-    var left = Parser.parseFactorExpression(resolution, cursor);
-    if (left == null) {
-      return null;
-    }
-    loop: while (cursor.has()) {
-      var lexeme = cursor.next();
-      if (!(lexeme instanceof Lexeme.Token operator)) {
-        break;
-      }
-      switch (operator) {
-        case Lexeme.Plus plus:
-          break;
-        case Lexeme.Minus minus:
-          break;
-        default:
-          break loop;
-      }
-
-      if (!cursor.consume().has()) {
-        resolution.error("PARSER", operator.portion,
-          "There is no right hand side after the `%s` in the binary operator!"
-            .formatted(operator));
-        return null;
-      }
-      var right = Parser.parseFactorExpression(resolution, cursor);
-      if (right == null) {
-        resolution.error("PARSER", cursor.next().portion,
-          "Expected a right hand side after the `%s` in the binary operator!"
-            .formatted(operator));
-        return null;
-      }
-
-      left = new Node.Binary(operator, left, right);
-    }
-    return left;
-  }
-
-  /** Try to parse a factor expression node at the given cursor and report to
+  /** Try to parse the given nofix operator at the given cursor and report to
    * the given resolution. */
-  private static Node.Expression parseFactorExpression(Resolution resolution,
-    Cursor cursor) {
-    var left = Parser.parseUnary(resolution, cursor);
-    if (left == null) {
-      return null;
+  private static Node.Nofix parseNofix(Cursor cursor, Operator.Nofix operator) {
+    for (var type : operator.operands) {
+      if (type.isInstance(cursor.next())) {
+        var node = Node.ofNofix(cursor.next());
+        cursor.consume();
+        return node;
+      }
     }
-    loop: while (cursor.has()) {
-      var lexeme = cursor.next();
-      if (!(lexeme instanceof Lexeme.Token operator)) {
-        break;
-      }
-      switch (operator) {
-        case Lexeme.Star star:
-          break;
-        case Lexeme.ForwardSlash forwardSlash:
-          break;
-        case Lexeme.Percent percent:
-          break;
-        default:
-          break loop;
-      }
-
-      if (!cursor.consume().has()) {
-        resolution.error("PARSER", operator.portion,
-          "There is no right hand side after the `%s` in the binary operator!"
-            .formatted(operator));
-        return null;
-      }
-      var right = Parser.parseUnary(resolution, cursor);
-      if (right == null) {
-        resolution.error("PARSER", cursor.next().portion,
-          "Expected a right hand side after the `%s` in the binary operator!"
-            .formatted(operator));
-        return null;
-      }
-
-      left = new Node.Binary(operator, left, right);
-    }
-    return left;
+    return null;
   }
 
-  /** Try to parse a unary node at the given cursor and report to the given
-   * resolution. */
-  private static Node.Expression parseUnary(Resolution resolution,
-    Cursor cursor) {
-    if (!(cursor.next() instanceof Lexeme.Token operator)) {
-      return Parser.parseGroup(resolution, cursor);
-    }
-    switch (operator) {
-      case Lexeme.Plus plus:
-        break;
-      case Lexeme.Minus minus:
-        break;
-      default:
-        return Parser.parseGroup(resolution, cursor);
-    }
-
-    if (!cursor.consume().has()) {
-      resolution.error("PARSER", operator.portion,
-        "There is no operand after the `%s` in the unary operator!"
-          .formatted(operator));
+  /** Try to parse the given prefix operator at the given cursor and report to
+   * the given resolution. */
+  private static Node.Expression parsePrefix(Resolution resolution,
+    Cursor cursor, Operator.Prefix operator, int precedence) {
+    if (!operator.before.isInstance(cursor.next())) {
       return null;
     }
-    var operand = Parser.parseGroup(resolution, cursor);
-    if (operand == null) {
-      resolution.error("PARSER", cursor.next().portion,
-        "Expected an operand after the `%s` in the unary operator!"
-          .formatted(operator));
-      return null;
-    }
-
-    return new Node.Unary(operator, operand);
-  }
-
-  /** Try to parse a group node at the given cursor and report to the given
-   * resolution. */
-  private static Node.Expression parseGroup(Resolution resolution,
-    Cursor cursor) {
-    if (!(cursor.next() instanceof Lexeme.OpeningParentheses opening)) {
-      return Parser.parsePrimary(cursor);
-    }
-
-    if (!cursor.consume().has()) {
-      resolution.error("PARSER", opening.portion,
-        "There is no expression after the `(` in the group!");
-      return null;
-    }
-    var elevated = Parser.parseExpression(resolution, cursor);
-    if (elevated == null) {
-      resolution.error("PARSER", cursor.next().portion,
-        "Expected an expression after the `(` in the group!");
-      return null;
-    }
+    var stack = new ArrayList<Lexeme>();
+    do {
+      stack.add(cursor.next());
+    } while (cursor.consume().has()
+      && operator.before.isInstance(cursor.next()));
+    var before = stack.get(stack.size() - 1);
 
     if (!cursor.has()) {
-      resolution.error("PARSER", elevated.portion,
-        "There is no `)` after the expression in the group!");
+      resolution.error("PARSER", before.portion,
+        "There is no operand after the `%s` in the prefix operation!"
+          .formatted(before));
       return null;
     }
-    if (!(cursor.next() instanceof Lexeme.ClosingParentheses closing)) {
-      resolution.error("PARSER", cursor.next().portion,
-        "Expected a `)` after the expression in the group!");
+    var old  = cursor.next();
+    var last = Parser.parseExpression(resolution, cursor, precedence + 1);
+    if (last == null) {
+      resolution.error("PARSER", old.portion,
+        "Expected an operand after the `%s` in the prefix operation!"
+          .formatted(before));
       return null;
     }
-    cursor.consume();
 
-    return new Node.Group(elevated, opening, closing);
+    for (var i = stack.size() - 1; i >= 0; i--) {
+      last = Node.ofPrefix(stack.get(i), last);
+    }
+    return last;
   }
 
-  /** Try to parse a primary expression node at the given cursor and report to
+  /** Try to parse the given postfix operator at the given cursor and report to
    * the given resolution. */
-  private static Node.Expression parsePrimary(Cursor cursor) {
-    var result = switch (cursor.next()) {
-      case Lexeme.I1 i1 -> new Node.Literal(i1);
-      case Lexeme.I2 i2 -> new Node.Literal(i2);
-      case Lexeme.I4 i4 -> new Node.Literal(i4);
-      case Lexeme.I8 i8 -> new Node.Literal(i8);
-      case Lexeme.Ix ix -> new Node.Literal(ix);
-      case Lexeme.U1 u1 -> new Node.Literal(u1);
-      case Lexeme.U2 u2 -> new Node.Literal(u2);
-      case Lexeme.U4 u4 -> new Node.Literal(u4);
-      case Lexeme.U8 u8 -> new Node.Literal(u8);
-      case Lexeme.Ux ux -> new Node.Literal(ux);
-      case Lexeme.F4 f4 -> new Node.Literal(f4);
-      case Lexeme.F8 f8 -> new Node.Literal(f8);
-      case Lexeme.Rinf rinf -> new Node.Literal(rinf);
-      case Lexeme.Type type -> new Node.Literal(type);
-      case Lexeme.Number number -> new Node.Literal(number);
-      case Lexeme.Identifier name -> new Node.Access(name);
-      default -> null;
-    };
-    if (result != null) {
+  private static Node.Expression parsePostfix(Resolution resolution,
+    Cursor cursor, Operator.Postfix operator, int precedence) {
+    var first = Parser.parseExpression(resolution, cursor, precedence + 1);
+    if (first == null) {
+      return null;
+    }
+
+    while (true) {
+      if (!cursor.has() || !operator.after.isInstance(cursor.next())) {
+        break;
+      }
+      var after = cursor.next();
+      cursor.consume();
+      first = Node.ofPostfix(after, first);
+    }
+
+    return first;
+  }
+
+  /** Try to parse the given infix operator at the given cursor and report to
+   * the given resolution. */
+  private static Node.Expression parseInfix(Resolution resolution,
+    Cursor cursor, Operator.Infix operator, int precedence) {
+    var first = Parser.parseExpression(resolution, cursor, precedence + 1);
+    if (first == null) {
+      return null;
+    }
+
+    while (true) {
+      if (!cursor.has() || !operator.between.isInstance(cursor.next())) {
+        break;
+      }
+      var between = cursor.next();
+
+      if (!cursor.consume().has()) {
+        resolution.error("PARSER", between.portion,
+          "There is no operand after the `%s` in the infix operation!"
+            .formatted(between));
+        return null;
+      }
+      var old  = cursor.next();
+      var last = Parser.parseExpression(resolution, cursor, precedence + 1);
+      if (last == null) {
+        resolution.error("PARSER", old.portion,
+          "Expected an operand after the `%s` in the infix operation!"
+            .formatted(between));
+        return null;
+      }
+
+      first = Node.ofInfix(between, first, last);
+    }
+
+    return first;
+  }
+
+  /** Try to parse the given outfix operator at the given cursor and report to
+   * the given resolution. */
+  private static Node.Expression parseOutfix(Resolution resolution,
+    Cursor cursor, Operator.Outfix operator) {
+    if (!operator.before.isInstance(cursor.next())) {
+      return null;
+    }
+    var stack = new ArrayList<Lexeme>();
+    do {
+      stack.add(cursor.next());
+    } while (cursor.consume().has()
+      && operator.before.isInstance(cursor.next()));
+    var before = stack.get(stack.size() - 1);
+
+    if (!cursor.has()) {
+      resolution.error("PARSER", before.portion,
+        "There is no operand after the `%s` in the outfix operation!"
+          .formatted(before));
+      return null;
+    }
+    var old    = cursor.next();
+    var middle = Parser.parseExpression(resolution, cursor, 0);
+    if (middle == null) {
+      resolution.error("PARSER", old.portion,
+        "Expected an operand after the `%s` in the outfix operation!"
+          .formatted(before));
+      return null;
+    }
+
+    for (var i = stack.size() - 1; i >= 0; i--) {
+      if (!cursor.has()) {
+        resolution.error("PARSER", middle.portion,
+          "There is no matching `%s` for the `%s` in the outfix operation!"
+            .formatted(operator.after, stack.get(i)));
+        resolution.info("PARSER", stack.get(i).portion,
+          "Outfix operator is opened here.");
+        return null;
+      }
+      if (!operator.before.isInstance(cursor.next())) {
+        resolution.error("PARSER", middle.portion,
+          "Expected a matching `%s` for the `%s` in the outfix operation!"
+            .formatted(operator.after, stack.get(i)));
+        resolution.info("PARSER", stack.get(i).portion,
+          "Outfix operator is opened here.");
+        return null;
+      }
+      middle = Node.ofOutfix(stack.get(i), cursor.next(), middle);
       cursor.consume();
     }
-    return result;
+    return middle;
+  }
+
+  /** Try to parse the given knitfix operator at the given cursor and report to
+   * the given resolution. */
+  private static Node.Knitfix parseKnitfix(Resolution resolution, Cursor cursor,
+    Operator.Knitfix operator, int precedence) {
+    resolution.error("PARSER", "Not implemented yet!");
+    return null;
   }
 }
