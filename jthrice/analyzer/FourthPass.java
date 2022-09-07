@@ -170,7 +170,8 @@ final class FourthPass {
       }
       return null;
     }
-    return accessed.evaluation;
+    return Evaluation.ofNofix(accessed.evaluation.type,
+      accessed.evaluation.value, Operator.ACCESS, name);
   }
 
   /** Resolve the type of the given prefix node to the given solution and report
