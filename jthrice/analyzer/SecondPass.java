@@ -12,7 +12,7 @@ final class SecondPass {
    * given resolution. */
   static void resolve(Resolution resolution, HalfSolution solution,
     Node.Program program) {
-    // TODO: Implement user defined types.
+    // TODO: Implement user-defined types.
   }
 
   /** Constructor. */

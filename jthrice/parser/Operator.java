@@ -10,35 +10,35 @@ import jthrice.lexer.*;
 /** Constructs of lexemes that represent an operation. */
 public sealed abstract class Operator permits Operator.Nofix, Operator.Prefix, Operator.Postfix, Operator.Infix, Operator.Outfix, Operator.Knitfix {
   /** Hardcoded type or number. */
-  public static final Nofix  LITERAL  = new Nofix(
+  public static final Nofix  LITERAL   = new Nofix(
+    List.of(Lexeme.Number.class));
+  /** Access to a variables value. */
+  public static final Nofix  ACCESS    = new Nofix(
     List.of(Lexeme.I1.class, Lexeme.I2.class, Lexeme.I4.class, Lexeme.I8.class,
       Lexeme.Ix.class, Lexeme.U1.class, Lexeme.U2.class, Lexeme.U4.class,
       Lexeme.U8.class, Lexeme.Ux.class, Lexeme.F4.class, Lexeme.F8.class,
-      Lexeme.Rinf.class, Lexeme.Type.class, Lexeme.Number.class));
-  /** Access to a variables value. */
-  public static final Nofix  ACCESS   = new Nofix(
-    List.of(Lexeme.Identifier.class));
+      Lexeme.Rinf.class, Lexeme.Type.class, Lexeme.Identifier.class));
   /** Keeps the sign of the same. */
-  public static final Prefix POSATE   = new Prefix(Lexeme.Plus.class);
+  public static final Prefix POSATE    = new Prefix(Lexeme.Plus.class);
   /** Inverts the sign. */
-  public static final Prefix NEGATE   = new Prefix(Lexeme.Minus.class);
+  public static final Prefix NEGATE    = new Prefix(Lexeme.Minus.class);
   /** Adds. */
-  public static final Infix  ADD      = new Infix(Lexeme.Plus.class);
+  public static final Infix  ADD       = new Infix(Lexeme.Plus.class);
   /** Subtracts. */
-  public static final Infix  SUBTRACT = new Infix(Lexeme.Minus.class);
+  public static final Infix  SUBTRACT  = new Infix(Lexeme.Minus.class);
   /** Multiplies. */
-  public static final Infix  MULTIPLY = new Infix(Lexeme.Star.class);
+  public static final Infix  MULTIPLY  = new Infix(Lexeme.Star.class);
   /** Divides. */
-  public static final Infix  DIVIDE   = new Infix(Lexeme.ForwardSlash.class);
-  /** Takes the reminder after division. */
-  public static final Infix  REMINDER = new Infix(Lexeme.Percent.class);
+  public static final Infix  DIVIDE    = new Infix(Lexeme.ForwardSlash.class);
+  /** Takes the remainder after division. */
+  public static final Infix  REMAINDER = new Infix(Lexeme.Percent.class);
   /** Groups. */
-  public static final Outfix GROUP    = new Outfix(
+  public static final Outfix GROUP     = new Outfix(
     Lexeme.OpeningParentheses.class, Lexeme.ClosingParentheses.class);
 
   /** Order of operators, from lowest to highest. */
   public static final List<Operator> PRECEDENCE = List.of(Operator.SUBTRACT,
-    Operator.ADD, Operator.REMINDER, Operator.DIVIDE, Operator.MULTIPLY,
+    Operator.ADD, Operator.REMAINDER, Operator.DIVIDE, Operator.MULTIPLY,
     Operator.NEGATE, Operator.POSATE, Operator.GROUP, Operator.ACCESS,
     Operator.LITERAL);
 

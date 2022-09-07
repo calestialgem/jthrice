@@ -3,23 +3,24 @@
 
 package jthrice.analyzer;
 
-import jthrice.lexer.*;
-
 /** Type of a value. */
-public sealed abstract class Type extends Symbol permits Type.Meta, Scalar {
+public sealed abstract class Type permits Type.Meta, Scalar {
   /** Type meta; type of types. */
-  public static final Meta META = new Meta("type", null, null);
+  public static final Meta META = new Meta();
 
   /** Constructor. */
-  protected Type(String name, Lexeme.Identifier definition, Type type) {
-    super(name, definition, type);
+  protected Type() {
   }
 
   /** Meta type; type type. Type of any expression that results in a type. */
   public static final class Meta extends Type {
     /** Constructor. */
-    private Meta(String name, Lexeme.Identifier definition, Type type) {
-      super(name, definition, type);
+    private Meta() {
+    }
+
+    @Override
+    public String toString() {
+      return "type";
     }
   }
 }

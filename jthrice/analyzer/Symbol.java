@@ -6,24 +6,26 @@ package jthrice.analyzer;
 import jthrice.lexer.*;
 
 /** A name and a type: variables or types. Can be built-in or user-defined. */
-public sealed abstract class Symbol permits Type {
+public sealed abstract class Symbol permits TypeSymbol, Variable {
   /** Built-in symbols. */
-  public static final Symbol[] BUILT_IN = { Type.META, Scalar.I1, Scalar.I2,
-    Scalar.I4, Scalar.I8, Scalar.IX, Scalar.U1, Scalar.U2, Scalar.U4, Scalar.U8,
-    Scalar.UX, Scalar.F4, Scalar.F8, Scalar.RINF };
+  public static final Symbol[] BUILT_IN = { TypeSymbol.META, TypeSymbol.I1,
+    TypeSymbol.I2, TypeSymbol.I4, TypeSymbol.I8, TypeSymbol.IX, TypeSymbol.U1,
+    TypeSymbol.U2, TypeSymbol.U4, TypeSymbol.U8, TypeSymbol.UX, TypeSymbol.F4,
+    TypeSymbol.F8, TypeSymbol.RINF };
 
   /** String that matches to the symbol. */
   public final String            name;
-  /** Lexeme that defines the symbol. Null if the symbol is built-in. */
-  public final Lexeme.Identifier definition;
-  /** Type of the symbol. Null if the type is the meta type, type of types. */
-  public final Type              type;
+  /** Lexeme that declares the symbol. Null if the symbol is built-in. */
+  public final Lexeme.Identifier declaration;
+  /** Type and value. Type is null if the type is the meta type. */
+  public final Evaluation        evaluation;
 
   /** Constructor. */
-  protected Symbol(String name, Lexeme.Identifier definition, Type type) {
-    this.name       = name;
-    this.definition = definition;
-    this.type       = type;
+  protected Symbol(String name, Lexeme.Identifier declaration,
+    Evaluation evaluation) {
+    this.name        = name;
+    this.declaration = declaration;
+    this.evaluation  = evaluation;
   }
 
   @Override
