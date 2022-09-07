@@ -3,29 +3,30 @@
 
 package jthrice.generator;
 
+import java.math.*;
 import java.nio.file.*;
+import java.util.*;
 
 import jthrice.analyzer.*;
 import jthrice.launcher.*;
-import jthrice.resolver.*;
 
-/** Writes and compiles a C source from a program entity. */
+/** Writes and compiles a C source from a solution. */
 public final class Generator {
   /** C compiler. */
   public static final String COMPILER = "clang";
 
-  /** Generate the C source from the given entity to the given build-path and
+  /** Generate the C source from the given solution to the given build-path and
    * report to the given resolution. */
   public static void generate(Resolution resolution, Path build,
-    Solution.Program entity) {
+    Solution solution) {
     var buffer = new StringBuilder();
     Generator.generateIncludes(buffer, "stdio", "stdint");
-    Generator.generate(buffer, buffer, Indentation.of(0),
-      "int main(int argc, char** argv) {");
-    for (var statement : entity.statements) {
-      Generator.generateStatement(buffer, statement, Indentation.of(1));
+    Generator.generate(buffer, Indentation.of(0),
+      "int main(int argc, char** argv) {", Indentation.of(1));
+    for (var symbol : solution.symbols.values()) {
+      Generator.generateSymbol(buffer, symbol, Indentation.of(1));
     }
-    Generator.generate(buffer, buffer, Indentation.of(0), "}");
+    Generator.generate(buffer, Indentation.of(0), "}");
     var compilerFlags = new CompilerFlags(resolution, Generator.COMPILER,
       build);
     compilerFlags.write(buffer.toString());
@@ -36,11 +37,15 @@ public final class Generator {
   private static void generate(StringBuilder buffer, Object... objects) {
     for (var object : objects) {
       switch (object) {
-        case Solution.Expression expression ->
-          Generator.generateExpression(buffer, expression);
+        case Evaluation evaluation ->
+          Generator.generateEvaluation(buffer, evaluation);
         case Type type -> Generator.generateType(buffer, type);
         case Indentation indentation ->
           Generator.generateNewLine(buffer, indentation);
+        case List<?> list -> list.forEach(obj -> generate(buffer, obj));
+        case BigDecimal decimal -> buffer.append(decimal.toPlainString());
+        case StringBuilder builder ->
+          throw new RuntimeException("Try to generate the buffer!");
         default -> buffer.append(object);
       }
     }
@@ -50,151 +55,199 @@ public final class Generator {
   private static void generateIncludes(StringBuilder buffer,
     String... headers) {
     for (var header : headers) {
-      Generator.generate(buffer, "#include <", header, ".h>\n");
+      Generator.generate(buffer, "#include <", header, ".h>",
+        Indentation.of(0));
     }
   }
 
-  /** Generate the given statement entity to the given buffer with the given
+  /** Generate the given symbol to the given buffer with the given
    * indentation. */
-  private static void generateStatement(StringBuilder buffer,
-    Solution.Statement statement, Indentation indentation) {
-    switch (statement) {
-      case Solution.Definition definition ->
-        Generator.generateDefinition(buffer, definition, indentation);
+  private static void generateSymbol(StringBuilder buffer, Symbol symbol,
+    Indentation indentation) {
+    switch (symbol) {
+      case TypeSymbol typeSymbol ->
+        generateTypeSymbol(buffer, typeSymbol, indentation);
+      case Variable variable -> generateVariable(buffer, variable, indentation);
     }
-    Generator.generate(buffer, indentation);
   }
 
-  /** Generate the given definition entity to the given buffer with the given
+  /** Generate the given type symbol to the given buffer with the given
    * indentation. */
-  private static void generateDefinition(StringBuilder buffer,
-    Solution.Definition definition, Indentation indentation) {
+  private static void generateTypeSymbol(StringBuilder buffer,
+    TypeSymbol typeSymbol, Indentation indentation) {
+  }
 
-    Generator.generate(buffer, definition.type, definition.name, "=",
-      definition.value, ";");
-    switch (definition.type) {
-      case Type.Scalar scalar -> Generator.generatePrint(buffer, scalar,
-        definition.name.value, indentation);
+  /** Generate the given variable to the given buffer with the given
+   * indentation. */
+  private static void generateVariable(StringBuilder buffer, Variable variable,
+    Indentation indentation) {
+
+    generate(buffer, variable.evaluation.type, " ", variable.name, " = ",
+      variable.evaluation, ";", indentation);
+
+    switch (variable.evaluation.type) {
+      case Scalar scalar ->
+        Generator.generatePrint(buffer, scalar, variable.name, indentation);
       default -> Generator.generate(buffer, "");
     }
+    generate(buffer, indentation);
   }
 
-  /** Generate the print of the given scalar entity with the given name to the
-   * given buffer with the given indentation. */
-  private static void generatePrint(StringBuilder buffer, Type.Scalar scalar,
+  /** Generate the print of the given scalar with the given name to the given
+   * buffer with the given indentation. */
+  private static void generatePrint(StringBuilder buffer, Scalar scalar,
     String name, Indentation indentation) {
-    Generator.generate(buffer, indentation, "printf(\"", name, " = %");
+    Generator.generate(buffer, "printf(\"", name, " = %");
     switch (scalar) {
-      case Type.Signed signed -> Generator.generate(buffer, switch (signed) {
-        case Type.I1 i1 -> "hhi";
-        case Type.I2 i2 -> "hi";
-        case Type.I4 i4 -> "i";
-        case Type.I8 i8 -> "lli";
-        case Type.Ix ix -> "lli";
+      case Scalar.Signed signed -> Generator.generate(buffer, switch (signed) {
+        case Scalar.I1 i1 -> "hhi";
+        case Scalar.I2 i2 -> "hi";
+        case Scalar.I4 i4 -> "i";
+        case Scalar.I8 i8 -> "lli";
+        case Scalar.Ix ix -> "lli";
       });
-      case Type.Unsigned unsigned ->
+      case Scalar.Unsigned unsigned ->
         Generator.generate(buffer, switch (unsigned) {
-          case Type.U1 u1 -> "hhu";
-          case Type.U2 u2 -> "hu";
-          case Type.U4 u4 -> "u";
-          case Type.U8 u8 -> "llu";
-          case Type.Ux ux -> "llu";
+          case Scalar.U1 u1 -> "hhu";
+          case Scalar.U2 u2 -> "hu";
+          case Scalar.U4 u4 -> "u";
+          case Scalar.U8 u8 -> "llu";
+          case Scalar.Ux ux -> "llu";
         });
-      case Type.Floating floating -> Generator.generate(buffer, "f");
-      case Type.Rinf rinf ->
+      case Scalar.Floating floating -> Generator.generate(buffer, "f");
+      case Scalar.Rinf rinf ->
         throw new RuntimeException("There is an undeduced `rinf` type!");
     }
-    Generator.generate(buffer, "\n\");", indentation);
+    Generator.generate(buffer, "\\n\", ", name, ");", indentation);
   }
 
   /** Generate the given type to the given buffer. */
   private static void generateType(StringBuilder buffer, Type type) {
     switch (type) {
-      case Type.Scalar scalar -> Generator.generateScalar(buffer, scalar);
+      case Scalar scalar -> Generator.generateScalar(buffer, scalar);
       case Type.Meta meta ->
         throw new RuntimeException("Cannot generate a meta type!");
     }
   }
 
   /** Generate the given scalar type to the given buffer. */
-  private static void generateScalar(StringBuilder buffer, Type.Scalar scalar) {
+  private static void generateScalar(StringBuilder buffer, Scalar scalar) {
     switch (scalar) {
-      case Type.Signed signed -> Generator.generateSigned(buffer, signed);
-      case Type.Unsigned unsigned ->
+      case Scalar.Signed signed -> Generator.generateSigned(buffer, signed);
+      case Scalar.Unsigned unsigned ->
         Generator.generateUnsigned(buffer, unsigned);
-      case Type.Floating floating ->
+      case Scalar.Floating floating ->
         Generator.generateFloating(buffer, floating);
-      case Type.Rinf ring ->
+      case Scalar.Rinf ring ->
         throw new RuntimeException("There is an undeduced `rinf` type!");
     }
   }
 
   /** Generate the given signed scalar type to the given buffer. */
-  private static void generateSigned(StringBuilder buffer, Type.Signed signed) {
+  private static void generateSigned(StringBuilder buffer,
+    Scalar.Signed signed) {
     switch (signed) {
-      case Type.I1 i1 -> Generator.generate(buffer, "int8_t");
-      case Type.I2 i2 -> Generator.generate(buffer, "int16_t");
-      case Type.I4 i4 -> Generator.generate(buffer, "int32_t");
-      case Type.I8 i8 -> Generator.generate(buffer, "int64_t");
-      case Type.Ix ix -> Generator.generate(buffer, "intptr_t");
+      case Scalar.I1 i1 -> Generator.generate(buffer, "int8_t");
+      case Scalar.I2 i2 -> Generator.generate(buffer, "int16_t");
+      case Scalar.I4 i4 -> Generator.generate(buffer, "int32_t");
+      case Scalar.I8 i8 -> Generator.generate(buffer, "int64_t");
+      case Scalar.Ix ix -> Generator.generate(buffer, "intptr_t");
     }
   }
 
   /** Generate the given unsigned scalar type to the given buffer. */
   private static void generateUnsigned(StringBuilder buffer,
-    Type.Unsigned unsigned) {
+    Scalar.Unsigned unsigned) {
     switch (unsigned) {
-      case Type.U1 u1 -> Generator.generate(buffer, "uint8_t");
-      case Type.U2 u2 -> Generator.generate(buffer, "uint16_t");
-      case Type.U4 u4 -> Generator.generate(buffer, "uint32_t");
-      case Type.U8 u8 -> Generator.generate(buffer, "uint64_t");
-      case Type.Ux ux -> Generator.generate(buffer, "uintptr_t");
+      case Scalar.U1 u1 -> Generator.generate(buffer, "uint8_t");
+      case Scalar.U2 u2 -> Generator.generate(buffer, "uint16_t");
+      case Scalar.U4 u4 -> Generator.generate(buffer, "uint32_t");
+      case Scalar.U8 u8 -> Generator.generate(buffer, "uint64_t");
+      case Scalar.Ux ux -> Generator.generate(buffer, "uintptr_t");
     }
   }
 
   /** Generate the given floating scalar type to the given buffer. */
   private static void generateFloating(StringBuilder buffer,
-    Type.Floating floating) {
+    Scalar.Floating floating) {
     switch (floating) {
-      case Type.F4 f4 -> Generator.generate(buffer, "float");
-      case Type.F8 f8 -> Generator.generate(buffer, "double");
+      case Scalar.F4 f4 -> Generator.generate(buffer, "float");
+      case Scalar.F8 f8 -> Generator.generate(buffer, "double");
     }
   }
 
-  /** Generate the given expression entity to the given buffer. */
-  private static void generateExpression(StringBuilder buffer,
-    Solution.Expression expression) {
-    switch (expression) {
-      case Solution.Literal literal ->
-        Generator.generateLiteral(buffer, literal);
-      case Solution.Access access -> Generator.generateAccess(buffer, access);
-      case Solution.Unary unary -> Generator.generateUnary(buffer, unary);
-      case Solution.Binary binary -> Generator.generateBinary(buffer, binary);
+  /** Generate the given evaluation to the given buffer. */
+  private static void generateEvaluation(StringBuilder buffer,
+    Evaluation evaluation) {
+    switch (evaluation) {
+      case Evaluation.Nofix nofix -> generateNofix(buffer, nofix);
+      case Evaluation.Prefix prefix -> generatePrefix(buffer, prefix);
+      case Evaluation.Postfix postfix -> generatePostfix(buffer, postfix);
+      case Evaluation.Infix infix -> generateInfix(buffer, infix);
+      case Evaluation.Outfix outfix -> generateOutfix(buffer, outfix);
+      case Evaluation.Knitfix knitfix -> generateKnitfix(buffer, knitfix);
     }
   }
 
-  /** Generate the given literal entity to the given buffer. */
-  private static void generateLiteral(StringBuilder buffer,
-    Solution.Literal literal) {
-    Generator.generate(buffer, literal.value.toString());
+  /** Generate the given nofix to the given buffer. */
+  private static void generateNofix(StringBuilder buffer,
+    Evaluation.Nofix nofix) {
+    if (nofix.known()) {
+      generate(buffer, nofix.value);
+      return;
+    }
+    Generator.generate(buffer, nofix.first);
   }
 
-  /** Generate the given access entity to the given buffer. */
-  private static void generateAccess(StringBuilder buffer,
-    Solution.Access access) {
-    Generator.generate(buffer, access.variable);
+  /** Generate the given prefix to the given buffer. */
+  private static void generatePrefix(StringBuilder buffer,
+    Evaluation.Prefix prefix) {
+    if (prefix.known()) {
+      generate(buffer, prefix.value);
+      return;
+    }
+    Generator.generate(buffer, prefix.before, prefix.last);
   }
 
-  /** Generate the given unary entity to the given buffer. */
-  private static void generateUnary(StringBuilder buffer,
-    Solution.Unary unary) {
-    Generator.generate(buffer, unary.operator, unary.operand);
+  /** Generate the given postfix to the given buffer. */
+  private static void generatePostfix(StringBuilder buffer,
+    Evaluation.Postfix postfix) {
+    if (postfix.known()) {
+      generate(buffer, postfix.value);
+      return;
+    }
+    Generator.generate(buffer, postfix.first, postfix.after);
   }
 
-  /** Generate the given binary entity to the given buffer. */
-  private static void generateBinary(StringBuilder buffer,
-    Solution.Binary binary) {
-    Generator.generate(buffer, binary.left, binary.operator, binary.right);
+  /** Generate the given infix to the given buffer. */
+  private static void generateInfix(StringBuilder buffer,
+    Evaluation.Infix infix) {
+    if (infix.known()) {
+      generate(buffer, infix.value);
+      return;
+    }
+    Generator.generate(buffer, infix.first, infix.between, infix.last);
+  }
+
+  /** Generate the given outfix to the given buffer. */
+  private static void generateOutfix(StringBuilder buffer,
+    Evaluation.Outfix outfix) {
+    if (outfix.known()) {
+      generate(buffer, outfix.value);
+      return;
+    }
+    Generator.generate(buffer, outfix.before, outfix.middle, outfix.after);
+  }
+
+  /** Generate the given knitfix to the given buffer. */
+  private static void generateKnitfix(StringBuilder buffer,
+    Evaluation.Knitfix knitfix) {
+    if (knitfix.known()) {
+      generate(buffer, knitfix.value);
+      return;
+    }
+    Generator.generate(buffer, knitfix.before, knitfix.between, knitfix.after,
+      knitfix.first, knitfix.middle, knitfix.last);
   }
 
   /** Generate a new line with the given indentation to the given buffer. */

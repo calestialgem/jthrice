@@ -260,7 +260,8 @@ final class FourthPass {
       operation = BigDecimal::multiply;
     }
     if (infix.operator == Operator.DIVIDE) {
-      operation = BigDecimal::divide;
+      operation = (divleft, divright) -> divleft.divide(divright,
+        RoundingMode.HALF_UP);
     }
     if (infix.operator == Operator.REMAINDER) {
       operation = BigDecimal::remainder;
