@@ -10,10 +10,9 @@ import jthrice.analyzer.*;
 /** Result of the first pass. Stores the built-in symbols and unresolved form of
  * custom-defined ones. */
 public final class FirstSolution {
-  /** Solution of the given symbols. */
-  static FirstSolution of(Map<String, Symbol> symbols,
-    Map<String, Unresolved> unresolveds) {
-    return new FirstSolution(symbols, unresolveds);
+  /** Clean solution. */
+  static FirstSolution of() {
+    return new FirstSolution(new HashMap<>(), new HashMap<>());
   }
 
   /** Built-in symbols. */

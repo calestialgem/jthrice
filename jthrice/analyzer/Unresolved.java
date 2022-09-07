@@ -10,8 +10,8 @@ import jthrice.parser.*;
 public final class Unresolved {
   /** Unresolved symbol with the given identifier, type and value
    * expressions. */
-  static Unresolved of(Lexeme.Identifier identifier, Node.Expression type,
-    Node.Expression value) {
+  public static Unresolved of(Lexeme.Identifier identifier,
+    Node.Expression type, Node.Expression value) {
     return new Unresolved(identifier.value, identifier, type, value);
   }
 
