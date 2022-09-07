@@ -8,5 +8,4 @@ module jthrice.compiler {
   exports jthrice.launcher;
   exports jthrice.lexer;
   exports jthrice.parser;
-  exports jthrice.resolver;
 }
