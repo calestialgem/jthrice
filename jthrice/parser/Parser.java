@@ -16,9 +16,13 @@ public final class Parser {
     var statements = new ArrayList<Node.Statement>();
     var cursor     = Cursor.of(lexemes);
     while (cursor.has()) {
+      var old       = cursor.next();
       var statement = Parser.parseStatement(resolution, cursor);
       if (statement == null) {
-        break;
+        if (old.portion.equals(cursor.next().portion)) {
+          break;
+        }
+        continue;
       }
       statements.add(statement);
     }
@@ -29,20 +33,18 @@ public final class Parser {
     }
     var lexeme = cursor.next();
     if (cursor.consume().has()) {
-      while (cursor.consume().has()) {
-      }
+      var eof = cursor.skipUntil(Lexeme.EOF.class);
       resolution.error("PARSER",
         Portion.of(lexeme.portion, cursor.current().portion),
         "There are tokens that could not be parsed!");
-      return null;
+      if (eof == null) {
+        return null;
+      }
+      return Node.ofProgram(statements, eof);
     }
     if (!(lexeme instanceof Lexeme.EOF eof)) {
       resolution.error("PARSER", lexeme.portion,
         "File ends without a EOF token!");
-      return null;
-    }
-    if (statements.isEmpty()) {
-      resolution.error("PARSER", "There are no statements in the file!");
       return null;
     }
     return Node.ofProgram(statements, eof);
@@ -73,6 +75,7 @@ public final class Parser {
       resolution.error("PARSER", cursor.next().portion,
         "Expected a `:` after the name in the definition of `%s`!"
           .formatted(name.value));
+      cursor.skipUntil(Lexeme.Semicolon.class);
       return null;
     }
 
@@ -89,6 +92,7 @@ public final class Parser {
         Portion.of(old.portion, cursor.current().portion),
         "Expected a type after the `:` in the definition of `%s`!"
           .formatted(name.value));
+      cursor.skipUntil(Lexeme.Semicolon.class);
       return null;
     }
 
@@ -102,6 +106,7 @@ public final class Parser {
       resolution.error("PARSER", cursor.next().portion,
         "Expected a `=` after the type in the definition of `%s`!"
           .formatted(name.value));
+      cursor.skipUntil(Lexeme.Semicolon.class);
       return null;
     }
 
@@ -118,6 +123,7 @@ public final class Parser {
         Portion.of(old.portion, cursor.current().portion),
         "Expected a value after the `=` in the definition of `%s`!"
           .formatted(name.value));
+      cursor.skipUntil(Lexeme.Semicolon.class);
       return null;
     }
 
@@ -131,6 +137,7 @@ public final class Parser {
       resolution.error("PARSER", cursor.next().portion,
         "Expected a `;` after the value in the definition of `%s`!"
           .formatted(name.value));
+      cursor.skipUntil(Lexeme.Semicolon.class);
       return null;
     }
     cursor.consume();
@@ -142,7 +149,7 @@ public final class Parser {
    * given resolution. */
   private static Node.Expression parseExpression(Resolution resolution,
     Cursor cursor, int precedence) {
-    var first = cursor.next();
+    var old = cursor.next();
     for (var i = precedence; i < Operator.PRECEDENCE.size(); i++) {
       var expression = switch (Operator.PRECEDENCE.get(i)) {
         case Operator.Nofix nofix -> Parser.parseNofix(cursor, nofix);
@@ -160,7 +167,7 @@ public final class Parser {
       if (expression != null) {
         return expression;
       }
-      if (!first.portion.equals(cursor.next().portion)) {
+      if (!old.portion.equals(cursor.next().portion)) {
         return null;
       }
     }

@@ -11,8 +11,11 @@ import jthrice.lexer.*;
 public sealed abstract class Node permits Node.Program, Node.Statement, Node.Expression {
   /** Program of the given statements and EOF. */
   static Program ofProgram(List<Statement> statements, Lexeme.EOF eof) {
-    return new Program(Portion.of(statements.get(0).portion,
-      statements.get(statements.size() - 1).portion), statements, eof);
+    if (statements.isEmpty()) {
+      return new Program(eof.portion, statements, eof);
+    }
+    return new Program(Portion.of(statements.get(0).portion, eof.portion),
+      statements, eof);
   }
 
   /** Definition of the given name, separator, type, assignment, value and
@@ -71,6 +74,16 @@ public sealed abstract class Node permits Node.Program, Node.Statement, Node.Exp
       super(portion);
       this.statements = statements;
       this.eof        = eof;
+    }
+
+    @Override
+    public String toString() {
+      var buffer = new StringBuilder();
+      for (var statement : this.statements) {
+        buffer.append(statement);
+        buffer.append(System.lineSeparator());
+      }
+      return buffer.toString();
     }
   }
 

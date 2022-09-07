@@ -45,4 +45,18 @@ class Cursor {
     this.next++;
     return this;
   }
+
+  /** Skip all the lexemes until the one with the given type is found. Returns
+   * the found lexeme. */
+  @SuppressWarnings("unchecked")
+  <T extends Lexeme> T skipUntil(Class<? extends T> type) {
+    while (this.consume().has()) {
+      if (type.isInstance(this.next())) {
+        var lexeme = this.next();
+        this.consume();
+        return (T) lexeme;
+      }
+    }
+    return null;
+  }
 }
