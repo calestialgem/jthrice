@@ -29,11 +29,10 @@ public final class Parser {
     }
     var lexeme = cursor.next();
     if (cursor.consume().has()) {
-      var remaining = Portion.of(lexeme.portion, cursor.next().portion);
       while (cursor.consume().has()) {
-        remaining = Portion.of(remaining, cursor.next().portion);
       }
-      resolution.error("PARSER", remaining,
+      resolution.error("PARSER",
+        Portion.of(lexeme.portion, cursor.current().portion),
         "There are tokens that could not be parsed!");
       return null;
     }
@@ -86,7 +85,8 @@ public final class Parser {
     var old  = cursor.next();
     var type = Parser.parseExpression(resolution, cursor, 0);
     if (type == null) {
-      resolution.error("PARSER", old.portion,
+      resolution.error("PARSER",
+        Portion.of(old.portion, cursor.current().portion),
         "Expected a type after the `:` in the definition of `%s`!"
           .formatted(name.value));
       return null;
@@ -114,7 +114,8 @@ public final class Parser {
     old = cursor.next();
     var value = Parser.parseExpression(resolution, cursor, 0);
     if (value == null) {
-      resolution.error("PARSER", old.portion,
+      resolution.error("PARSER",
+        Portion.of(old.portion, cursor.current().portion),
         "Expected a value after the `=` in the definition of `%s`!"
           .formatted(name.value));
       return null;
@@ -141,6 +142,7 @@ public final class Parser {
    * given resolution. */
   private static Node.Expression parseExpression(Resolution resolution,
     Cursor cursor, int precedence) {
+    var first = cursor.next();
     for (var i = precedence; i < Operator.PRECEDENCE.size(); i++) {
       var expression = switch (Operator.PRECEDENCE.get(i)) {
         case Operator.Nofix nofix -> Parser.parseNofix(cursor, nofix);
@@ -157,6 +159,9 @@ public final class Parser {
       };
       if (expression != null) {
         return expression;
+      }
+      if (!first.portion.equals(cursor.next().portion)) {
+        return null;
       }
     }
     return null;
@@ -198,7 +203,8 @@ public final class Parser {
     var old  = cursor.next();
     var last = Parser.parseExpression(resolution, cursor, precedence + 1);
     if (last == null) {
-      resolution.error("PARSER", old.portion,
+      resolution.error("PARSER",
+        Portion.of(old.portion, cursor.current().portion),
         "Expected an operand after the `%s` in the prefix operation!"
           .formatted(before));
       return null;
@@ -255,7 +261,8 @@ public final class Parser {
       var old  = cursor.next();
       var last = Parser.parseExpression(resolution, cursor, precedence + 1);
       if (last == null) {
-        resolution.error("PARSER", old.portion,
+        resolution.error("PARSER",
+          Portion.of(old.portion, cursor.current().portion),
           "Expected an operand after the `%s` in the infix operation!"
             .formatted(between));
         return null;
@@ -274,14 +281,9 @@ public final class Parser {
     if (!operator.before.isInstance(cursor.next())) {
       return null;
     }
-    var stack = new ArrayList<Lexeme>();
-    do {
-      stack.add(cursor.next());
-    } while (cursor.consume().has()
-      && operator.before.isInstance(cursor.next()));
-    var before = stack.get(stack.size() - 1);
+    var before = cursor.next();
 
-    if (!cursor.has()) {
+    if (!cursor.consume().has()) {
       resolution.error("PARSER", before.portion,
         "There is no operand after the `%s` in the outfix operation!"
           .formatted(before));
@@ -290,32 +292,31 @@ public final class Parser {
     var old    = cursor.next();
     var middle = Parser.parseExpression(resolution, cursor, 0);
     if (middle == null) {
-      resolution.error("PARSER", old.portion,
+      resolution.error("PARSER",
+        Portion.of(old.portion, cursor.current().portion),
         "Expected an operand after the `%s` in the outfix operation!"
           .formatted(before));
       return null;
     }
 
-    for (var i = stack.size() - 1; i >= 0; i--) {
-      if (!cursor.has()) {
-        resolution.error("PARSER", middle.portion,
-          "There is no matching `%s` for the `%s` in the outfix operation!"
-            .formatted(operator.after, stack.get(i)));
-        resolution.info("PARSER", stack.get(i).portion,
-          "Outfix operator is opened here.");
-        return null;
-      }
-      if (!operator.before.isInstance(cursor.next())) {
-        resolution.error("PARSER", middle.portion,
-          "Expected a matching `%s` for the `%s` in the outfix operation!"
-            .formatted(operator.after, stack.get(i)));
-        resolution.info("PARSER", stack.get(i).portion,
-          "Outfix operator is opened here.");
-        return null;
-      }
-      middle = Node.ofOutfix(stack.get(i), cursor.next(), middle);
-      cursor.consume();
+    if (!cursor.has()) {
+      resolution.error("PARSER", Portion.of(before.portion, middle.portion),
+        "There is no matching `%s` for the `%s` in the outfix operation!"
+          .formatted(operator.after, before));
+      resolution.info("PARSER", before.portion,
+        "Outfix operator is opened here.");
+      return null;
     }
+    if (!operator.after.isInstance(cursor.next())) {
+      resolution.error("PARSER", cursor.next().portion,
+        "Expected a matching `%s` for the `%s` in the outfix operation!"
+          .formatted(operator.after, before));
+      resolution.info("PARSER", before.portion,
+        "Outfix operator is opened here.");
+      return null;
+    }
+    middle = Node.ofOutfix(before, cursor.next(), middle);
+    cursor.consume();
     return middle;
   }
 

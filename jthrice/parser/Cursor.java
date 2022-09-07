@@ -25,6 +25,11 @@ class Cursor {
     this.next    = next;
   }
 
+  /** Current lexeme. */
+  Lexeme current() {
+    return this.lexemes.get(this.next - 1);
+  }
+
   /** Whether there is a lexeme left in the list. */
   boolean has() {
     return this.next < this.lexemes.size();
