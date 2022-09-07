@@ -9,7 +9,7 @@ import java.nio.file.*;
 import jthrice.launcher.*;
 
 /** Command line arguments, which will be passed to the C compiler. */
-class CompilerFlags {
+final class CompilerFlags {
   /** Resolution that will be compiled. */
   private final Resolution resolution;
   /** Compiler command. */

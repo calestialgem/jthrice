@@ -10,14 +10,14 @@ import jthrice.launcher.*;
 import jthrice.resolver.*;
 
 /** Writes and compiles a C source from a program entity. */
-public class Generator {
+public final class Generator {
   /** C compiler. */
   public static final String COMPILER = "clang";
 
   /** Generate the C source from the given entity to the given build-path and
    * report to the given resolution. */
   public static void generate(Resolution resolution, Path build,
-    Entity.Program entity) {
+    Solution.Program entity) {
     var buffer = new StringBuilder();
     Generator.generateIncludes(buffer, "stdio", "stdint");
     Generator.generate(buffer, buffer, Indentation.of(0),
@@ -36,7 +36,7 @@ public class Generator {
   private static void generate(StringBuilder buffer, Object... objects) {
     for (var object : objects) {
       switch (object) {
-        case Entity.Expression expression ->
+        case Solution.Expression expression ->
           Generator.generateExpression(buffer, expression);
         case Type type -> Generator.generateType(buffer, type);
         case Indentation indentation ->
@@ -57,9 +57,9 @@ public class Generator {
   /** Generate the given statement entity to the given buffer with the given
    * indentation. */
   private static void generateStatement(StringBuilder buffer,
-    Entity.Statement statement, Indentation indentation) {
+    Solution.Statement statement, Indentation indentation) {
     switch (statement) {
-      case Entity.Definition definition ->
+      case Solution.Definition definition ->
         Generator.generateDefinition(buffer, definition, indentation);
     }
     Generator.generate(buffer, indentation);
@@ -68,7 +68,7 @@ public class Generator {
   /** Generate the given definition entity to the given buffer with the given
    * indentation. */
   private static void generateDefinition(StringBuilder buffer,
-    Entity.Definition definition, Indentation indentation) {
+    Solution.Definition definition, Indentation indentation) {
 
     Generator.generate(buffer, definition.type, definition.name, "=",
       definition.value, ";");
@@ -163,35 +163,37 @@ public class Generator {
 
   /** Generate the given expression entity to the given buffer. */
   private static void generateExpression(StringBuilder buffer,
-    Entity.Expression expression) {
+    Solution.Expression expression) {
     switch (expression) {
-      case Entity.Literal literal -> Generator.generateLiteral(buffer, literal);
-      case Entity.Access access -> Generator.generateAccess(buffer, access);
-      case Entity.Unary unary -> Generator.generateUnary(buffer, unary);
-      case Entity.Binary binary -> Generator.generateBinary(buffer, binary);
+      case Solution.Literal literal ->
+        Generator.generateLiteral(buffer, literal);
+      case Solution.Access access -> Generator.generateAccess(buffer, access);
+      case Solution.Unary unary -> Generator.generateUnary(buffer, unary);
+      case Solution.Binary binary -> Generator.generateBinary(buffer, binary);
     }
   }
 
   /** Generate the given literal entity to the given buffer. */
   private static void generateLiteral(StringBuilder buffer,
-    Entity.Literal literal) {
+    Solution.Literal literal) {
     Generator.generate(buffer, literal.value.toString());
   }
 
   /** Generate the given access entity to the given buffer. */
   private static void generateAccess(StringBuilder buffer,
-    Entity.Access access) {
+    Solution.Access access) {
     Generator.generate(buffer, access.variable);
   }
 
   /** Generate the given unary entity to the given buffer. */
-  private static void generateUnary(StringBuilder buffer, Entity.Unary unary) {
+  private static void generateUnary(StringBuilder buffer,
+    Solution.Unary unary) {
     Generator.generate(buffer, unary.operator, unary.operand);
   }
 
   /** Generate the given binary entity to the given buffer. */
   private static void generateBinary(StringBuilder buffer,
-    Entity.Binary binary) {
+    Solution.Binary binary) {
     Generator.generate(buffer, binary.left, binary.operator, binary.right);
   }
 

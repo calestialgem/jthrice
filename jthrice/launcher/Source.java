@@ -7,7 +7,7 @@ import java.io.*;
 import java.nio.file.*;
 
 /** A UTF-8 source file. */
-public class Source {
+public final class Source {
   /** Character that represents the end of file. */
   public static final char   EOF       = 0;
   /** File extension of Thrice source files. */

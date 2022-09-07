@@ -9,7 +9,7 @@ import jthrice.lexer.*;
 import jthrice.parser.*;
 
 /** Launches the compiler. */
-public class Launcher {
+public final class Launcher {
   /** Print the arguments. */
   private static void printArguments(String[] arguments) {
     System.out.println("Thrice Java Compiler v.0.0.1");

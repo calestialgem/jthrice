@@ -8,7 +8,7 @@ import java.util.*;
 import jthrice.lexer.*;
 
 /** Iterator over a lexeme list with state. */
-class Cursor {
+final class Cursor {
   /** Cursor at the begining of the given lexemes. */
   static Cursor of(List<Lexeme> lexemes) {
     return new Cursor(lexemes, 0);

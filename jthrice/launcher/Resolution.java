@@ -6,7 +6,7 @@ package jthrice.launcher;
 import jthrice.lexer.*;
 
 /** Resolution of a source file. */
-public class Resolution {
+public final class Resolution {
   /** Clean resolution of the file with the given relative path. */
   public static Resolution of(String name) {
     return new Resolution(name, 0, 0);

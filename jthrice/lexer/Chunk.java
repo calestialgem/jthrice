@@ -6,7 +6,7 @@ package jthrice.lexer;
 import jthrice.launcher.*;
 
 /** Chunk of a source that grows. */
-class Chunk {
+final class Chunk {
   /** Chunk starting at the given index in the given source. */
   static Chunk of(Source source, int index) {
     return new Chunk(source, index, index);

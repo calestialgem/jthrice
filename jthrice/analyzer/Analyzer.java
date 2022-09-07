@@ -4,5 +4,5 @@
 package jthrice.analyzer;
 
 /** Analyzes a program entity. */
-public class Analyzer {
+public final class Analyzer {
 }
