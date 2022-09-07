@@ -6,7 +6,7 @@ package jthrice.analyzer;
 import jthrice.launcher.*;
 import jthrice.parser.*;
 
-/** Resolves the custom-defined symbols name clashes. */
+/** Resolves name clashes of the user-defined symbols. */
 final class FirstPass {
   /** Resolve the given program node to the given solution and report to the
    * given resolution. */
@@ -50,5 +50,9 @@ final class FirstPass {
       return null;
     }
     return Unresolved.of(definition.name, definition.type, definition.value);
+  }
+
+  /** Constructor. */
+  private FirstPass() {
   }
 }

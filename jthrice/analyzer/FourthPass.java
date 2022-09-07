@@ -6,8 +6,8 @@ package jthrice.analyzer;
 import jthrice.launcher.*;
 import jthrice.parser.*;
 
-/** Resolves the decleration and definition of user-defined types. */
-final class SecondPass {
+/** Resolves the definition of global variables and functions. */
+final class FourthPass {
   /** Resolve the given program node to the given solution and report to the
    * given resolution. */
   static void resolve(Resolution resolution, HalfSolution solution,
@@ -16,6 +16,6 @@ final class SecondPass {
   }
 
   /** Constructor. */
-  private SecondPass() {
+  private FourthPass() {
   }
 }

@@ -6,16 +6,16 @@ package jthrice.analyzer;
 import jthrice.launcher.*;
 import jthrice.parser.*;
 
-/** Resolves the decleration and definition of user-defined types. */
-final class SecondPass {
+/** Resolves the decleration of user-defined functions. */
+final class ThirdPass {
   /** Resolve the given program node to the given solution and report to the
    * given resolution. */
   static void resolve(Resolution resolution, HalfSolution solution,
     Node.Program program) {
-    // TODO: Implement user defined types.
+    // TODO: Implement user-defined functions.
   }
 
   /** Constructor. */
-  private SecondPass() {
+  private ThirdPass() {
   }
 }
