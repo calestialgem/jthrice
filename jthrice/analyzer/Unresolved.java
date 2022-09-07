@@ -7,11 +7,11 @@ import jthrice.lexer.*;
 import jthrice.parser.*;
 
 /** Unresolved symbol. */
-public final class Unresolved {
+final class Unresolved {
   /** Unresolved symbol with the given identifier, type and value
    * expressions. */
-  public static Unresolved of(Lexeme.Identifier identifier,
-    Node.Expression type, Node.Expression value) {
+  static Unresolved of(Lexeme.Identifier identifier, Node.Expression type,
+    Node.Expression value) {
     return new Unresolved(identifier.value, identifier, type, value);
   }
 
