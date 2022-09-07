@@ -42,7 +42,8 @@ public final class Generator {
         case Type type -> Generator.generateType(buffer, type);
         case Indentation indentation ->
           Generator.generateNewLine(buffer, indentation);
-        case List<?> list -> list.forEach(obj -> generate(buffer, obj));
+        case List<?> list ->
+          list.forEach(obj -> Generator.generate(buffer, obj));
         case BigDecimal decimal -> buffer.append(decimal.toPlainString());
         case StringBuilder builder ->
           throw new RuntimeException("Try to generate the buffer!");
@@ -66,8 +67,9 @@ public final class Generator {
     Indentation indentation) {
     switch (symbol) {
       case TypeSymbol typeSymbol ->
-        generateTypeSymbol(buffer, typeSymbol, indentation);
-      case Variable variable -> generateVariable(buffer, variable, indentation);
+        Generator.generateTypeSymbol(buffer, typeSymbol, indentation);
+      case Variable variable ->
+        Generator.generateVariable(buffer, variable, indentation);
     }
   }
 
@@ -82,15 +84,15 @@ public final class Generator {
   private static void generateVariable(StringBuilder buffer, Variable variable,
     Indentation indentation) {
 
-    generate(buffer, variable.evaluation.type, " ", variable.name, " = ",
-      variable.evaluation, ";", indentation);
+    Generator.generate(buffer, variable.evaluation.type, " ", variable.name,
+      " = ", variable.evaluation, ";", indentation);
 
     switch (variable.evaluation.type) {
       case Scalar scalar ->
         Generator.generatePrint(buffer, scalar, variable.name, indentation);
       default -> Generator.generate(buffer, "");
     }
-    generate(buffer, indentation);
+    Generator.generate(buffer, indentation);
   }
 
   /** Generate the print of the given scalar with the given name to the given
@@ -180,12 +182,14 @@ public final class Generator {
   private static void generateEvaluation(StringBuilder buffer,
     Evaluation evaluation) {
     switch (evaluation) {
-      case Evaluation.Nofix nofix -> generateNofix(buffer, nofix);
-      case Evaluation.Prefix prefix -> generatePrefix(buffer, prefix);
-      case Evaluation.Postfix postfix -> generatePostfix(buffer, postfix);
-      case Evaluation.Infix infix -> generateInfix(buffer, infix);
-      case Evaluation.Outfix outfix -> generateOutfix(buffer, outfix);
-      case Evaluation.Knitfix knitfix -> generateKnitfix(buffer, knitfix);
+      case Evaluation.Nofix nofix -> Generator.generateNofix(buffer, nofix);
+      case Evaluation.Prefix prefix -> Generator.generatePrefix(buffer, prefix);
+      case Evaluation.Postfix postfix ->
+        Generator.generatePostfix(buffer, postfix);
+      case Evaluation.Infix infix -> Generator.generateInfix(buffer, infix);
+      case Evaluation.Outfix outfix -> Generator.generateOutfix(buffer, outfix);
+      case Evaluation.Knitfix knitfix ->
+        Generator.generateKnitfix(buffer, knitfix);
     }
   }
 
@@ -193,7 +197,7 @@ public final class Generator {
   private static void generateNofix(StringBuilder buffer,
     Evaluation.Nofix nofix) {
     if (nofix.known()) {
-      generate(buffer, nofix.value);
+      Generator.generate(buffer, nofix.value);
       return;
     }
     Generator.generate(buffer, nofix.first);
@@ -203,7 +207,7 @@ public final class Generator {
   private static void generatePrefix(StringBuilder buffer,
     Evaluation.Prefix prefix) {
     if (prefix.known()) {
-      generate(buffer, prefix.value);
+      Generator.generate(buffer, prefix.value);
       return;
     }
     Generator.generate(buffer, prefix.before, prefix.last);
@@ -213,7 +217,7 @@ public final class Generator {
   private static void generatePostfix(StringBuilder buffer,
     Evaluation.Postfix postfix) {
     if (postfix.known()) {
-      generate(buffer, postfix.value);
+      Generator.generate(buffer, postfix.value);
       return;
     }
     Generator.generate(buffer, postfix.first, postfix.after);
@@ -223,7 +227,7 @@ public final class Generator {
   private static void generateInfix(StringBuilder buffer,
     Evaluation.Infix infix) {
     if (infix.known()) {
-      generate(buffer, infix.value);
+      Generator.generate(buffer, infix.value);
       return;
     }
     Generator.generate(buffer, infix.first, infix.between, infix.last);
@@ -233,7 +237,7 @@ public final class Generator {
   private static void generateOutfix(StringBuilder buffer,
     Evaluation.Outfix outfix) {
     if (outfix.known()) {
-      generate(buffer, outfix.value);
+      Generator.generate(buffer, outfix.value);
       return;
     }
     Generator.generate(buffer, outfix.before, outfix.middle, outfix.after);
@@ -243,7 +247,7 @@ public final class Generator {
   private static void generateKnitfix(StringBuilder buffer,
     Evaluation.Knitfix knitfix) {
     if (knitfix.known()) {
-      generate(buffer, knitfix.value);
+      Generator.generate(buffer, knitfix.value);
       return;
     }
     Generator.generate(buffer, knitfix.before, knitfix.between, knitfix.after,

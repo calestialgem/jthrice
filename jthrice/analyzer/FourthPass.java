@@ -17,7 +17,7 @@ final class FourthPass {
   static void resolve(Resolution resolution, HalfSolution solution,
     Node.Program program) {
     for (var statement : program.statements) {
-      resolveStatement(resolution, solution, statement);
+      FourthPass.resolveStatement(resolution, solution, statement);
     }
   }
 
@@ -27,7 +27,7 @@ final class FourthPass {
     HalfSolution solution, Node.Statement statement) {
     switch (statement) {
       case Node.Definition definition ->
-        resolveDefinition(resolution, solution, definition);
+        FourthPass.resolveDefinition(resolution, solution, definition);
     }
   }
 
@@ -47,7 +47,7 @@ final class FourthPass {
         "Definition is not unresolved!");
       return;
     }
-    var type = resolveExpression(resolution, solution, Type.META,
+    var type = FourthPass.resolveExpression(resolution, solution, Type.META,
       definition.type);
 
     if (!type.known()) {
@@ -62,8 +62,8 @@ final class FourthPass {
       return;
     }
 
-    var bound = resolveExpression(resolution, solution, (Type) type.value,
-      definition.value);
+    var bound = FourthPass.resolveExpression(resolution, solution,
+      (Type) type.value, definition.value);
 
     solution.unresolved.remove(definition.name.value);
     solution.resolved.put(definition.name.value,
@@ -76,17 +76,17 @@ final class FourthPass {
     HalfSolution solution, Type expected, Node.Expression expression) {
     return switch (expression) {
       case Node.Nofix nofix ->
-        resolveNofix(resolution, solution, expected, nofix);
+        FourthPass.resolveNofix(resolution, solution, expected, nofix);
       case Node.Prefix prefix ->
-        resolvePrefix(resolution, solution, expected, prefix);
+        FourthPass.resolvePrefix(resolution, solution, expected, prefix);
       case Node.Postfix postfix ->
-        resolvePostfix(resolution, solution, expected, postfix);
+        FourthPass.resolvePostfix(resolution, solution, expected, postfix);
       case Node.Infix infix ->
-        resolveInfix(resolution, solution, expected, infix);
+        FourthPass.resolveInfix(resolution, solution, expected, infix);
       case Node.Outfix outfix ->
-        resolveOutfix(resolution, solution, expected, outfix);
+        FourthPass.resolveOutfix(resolution, solution, expected, outfix);
       case Node.Knitfix knitfix ->
-        resolveKnitfix(resolution, solution, expected, knitfix);
+        FourthPass.resolveKnitfix(resolution, solution, expected, knitfix);
     };
   }
 
@@ -121,22 +121,24 @@ final class FourthPass {
     }
     if (nofix.operator == Operator.ACCESS) {
       var result = switch (nofix.first) {
-        case Lexeme.I1 i1 -> resolveAccess(resolution, solution, i1);
-        case Lexeme.I2 i2 -> resolveAccess(resolution, solution, i2);
-        case Lexeme.I4 i4 -> resolveAccess(resolution, solution, i4);
-        case Lexeme.I8 i8 -> resolveAccess(resolution, solution, i8);
-        case Lexeme.Ix ix -> resolveAccess(resolution, solution, ix);
-        case Lexeme.U1 u1 -> resolveAccess(resolution, solution, u1);
-        case Lexeme.U2 u2 -> resolveAccess(resolution, solution, u2);
-        case Lexeme.U4 u4 -> resolveAccess(resolution, solution, u4);
-        case Lexeme.U8 u8 -> resolveAccess(resolution, solution, u8);
-        case Lexeme.Ux ux -> resolveAccess(resolution, solution, ux);
-        case Lexeme.F4 f4 -> resolveAccess(resolution, solution, f4);
-        case Lexeme.F8 f8 -> resolveAccess(resolution, solution, f8);
-        case Lexeme.Rinf rinf -> resolveAccess(resolution, solution, rinf);
-        case Lexeme.Type type -> resolveAccess(resolution, solution, type);
+        case Lexeme.I1 i1 -> FourthPass.resolveAccess(resolution, solution, i1);
+        case Lexeme.I2 i2 -> FourthPass.resolveAccess(resolution, solution, i2);
+        case Lexeme.I4 i4 -> FourthPass.resolveAccess(resolution, solution, i4);
+        case Lexeme.I8 i8 -> FourthPass.resolveAccess(resolution, solution, i8);
+        case Lexeme.Ix ix -> FourthPass.resolveAccess(resolution, solution, ix);
+        case Lexeme.U1 u1 -> FourthPass.resolveAccess(resolution, solution, u1);
+        case Lexeme.U2 u2 -> FourthPass.resolveAccess(resolution, solution, u2);
+        case Lexeme.U4 u4 -> FourthPass.resolveAccess(resolution, solution, u4);
+        case Lexeme.U8 u8 -> FourthPass.resolveAccess(resolution, solution, u8);
+        case Lexeme.Ux ux -> FourthPass.resolveAccess(resolution, solution, ux);
+        case Lexeme.F4 f4 -> FourthPass.resolveAccess(resolution, solution, f4);
+        case Lexeme.F8 f8 -> FourthPass.resolveAccess(resolution, solution, f8);
+        case Lexeme.Rinf rinf ->
+          FourthPass.resolveAccess(resolution, solution, rinf);
+        case Lexeme.Type type ->
+          FourthPass.resolveAccess(resolution, solution, type);
         case Lexeme.Identifier identifier ->
-          resolveAccess(resolution, solution, identifier);
+          FourthPass.resolveAccess(resolution, solution, identifier);
         default -> {
           resolution.error("ANALYZER", nofix.portion,
             "Unknown access operator lexeme!");
@@ -178,7 +180,7 @@ final class FourthPass {
    * to the given resolution. */
   private static Evaluation resolvePrefix(Resolution resolution,
     HalfSolution solution, Type expected, Node.Prefix prefix) {
-    var operand = resolveExpression(resolution, solution, expected,
+    var operand = FourthPass.resolveExpression(resolution, solution, expected,
       prefix.last);
     if (operand == null) {
       resolution.error("ANALYZER", prefix.last.portion,
@@ -216,7 +218,7 @@ final class FourthPass {
    * report to the given resolution. */
   private static Evaluation resolvePostfix(Resolution resolution,
     HalfSolution solution, Type expected, Node.Postfix postfix) {
-    var operand = resolveExpression(resolution, solution, expected,
+    var operand = FourthPass.resolveExpression(resolution, solution, expected,
       postfix.first);
     if (operand == null) {
       resolution.error("ANALYZER", postfix.first.portion,
@@ -231,8 +233,10 @@ final class FourthPass {
    * to the given resolution. */
   private static Evaluation resolveInfix(Resolution resolution,
     HalfSolution solution, Type expected, Node.Infix infix) {
-    var left  = resolveExpression(resolution, solution, expected, infix.first);
-    var right = resolveExpression(resolution, solution, expected, infix.last);
+    var left  = FourthPass.resolveExpression(resolution, solution, expected,
+      infix.first);
+    var right = FourthPass.resolveExpression(resolution, solution, expected,
+      infix.last);
     if (left == null) {
       resolution.error("ANALYZER", infix.first.portion,
         "Could not resolve the type of the left operand!");
@@ -283,7 +287,7 @@ final class FourthPass {
    * to the given resolution. */
   private static Evaluation resolveOutfix(Resolution resolution,
     HalfSolution solution, Type expected, Node.Outfix outfix) {
-    var operand = resolveExpression(resolution, solution, expected,
+    var operand = FourthPass.resolveExpression(resolution, solution, expected,
       outfix.middle);
     if (operand == null) {
       resolution.error("ANALYZER", outfix.middle.portion,

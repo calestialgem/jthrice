@@ -13,7 +13,8 @@ final class FirstPass {
   static void resolve(Resolution resolution, HalfSolution solution,
     Node.Program program) {
     for (var statement : program.statements) {
-      var unresolved = resolveStatement(resolution, solution, statement);
+      var unresolved = FirstPass.resolveStatement(resolution, solution,
+        statement);
       if (unresolved != null) {
         solution.unresolved.put(unresolved.name, unresolved);
       }
@@ -26,7 +27,7 @@ final class FirstPass {
     HalfSolution solution, Node.Statement statement) {
     return switch (statement) {
       case Node.Definition definition ->
-        resolveDefinition(resolution, solution, definition);
+        FirstPass.resolveDefinition(resolution, solution, definition);
     };
   }
 
