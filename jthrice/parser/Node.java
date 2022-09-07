@@ -28,37 +28,42 @@ public sealed abstract class Node permits Node.Program, Node.Statement, Node.Exp
   }
 
   /** Nofix expression of the given operand. */
-  static Nofix ofNofix(Lexeme first) {
-    return new Nofix(first.portion, first);
+  static Nofix ofNofix(Operator operator, Lexeme first) {
+    return new Nofix(first.portion, operator, first);
   }
 
   /** Prefix expression of the given operator and operand. */
-  static Prefix ofPrefix(Lexeme before, Expression last) {
-    return new Prefix(Portion.of(before.portion, last.portion), before, last);
+  static Prefix ofPrefix(Operator operator, Lexeme before, Expression last) {
+    return new Prefix(Portion.of(before.portion, last.portion), operator,
+      before, last);
   }
 
   /** Postfix expression of the given operator and operand. */
-  static Postfix ofPostfix(Lexeme after, Expression first) {
-    return new Postfix(Portion.of(first.portion, after.portion), after, first);
+  static Postfix ofPostfix(Operator operator, Lexeme after, Expression first) {
+    return new Postfix(Portion.of(first.portion, after.portion), operator,
+      after, first);
   }
 
   /** Infix expression of the given operator and operands. */
-  static Infix ofInfix(Lexeme between, Expression first, Expression last) {
-    return new Infix(Portion.of(first.portion, last.portion), between, first,
-      last);
+  static Infix ofInfix(Operator operator, Lexeme between, Expression first,
+    Expression last) {
+    return new Infix(Portion.of(first.portion, last.portion), operator, between,
+      first, last);
   }
 
   /** Outfix expression of the given operators and operand. */
-  static Outfix ofOutfix(Lexeme before, Lexeme after, Expression middle) {
-    return new Outfix(Portion.of(before.portion, after.portion), before, after,
-      middle);
+  static Outfix ofOutfix(Operator operator, Lexeme before, Lexeme after,
+    Expression middle) {
+    return new Outfix(Portion.of(before.portion, after.portion), operator,
+      before, after, middle);
   }
 
   /** Knitfix expression of the given operators and operands. */
-  static Knitfix ofKnitfix(Lexeme before, List<Lexeme> between, Lexeme after,
-    Expression first, List<Expression> middle, Expression last) {
-    return new Knitfix(Portion.of(first.portion, after.portion), before,
-      between, after, first, middle, last);
+  static Knitfix ofKnitfix(Operator operator, Lexeme before,
+    List<Lexeme> between, Lexeme after, Expression first,
+    List<Expression> middle, Expression last) {
+    return new Knitfix(Portion.of(first.portion, after.portion), operator,
+      before, between, after, first, middle, last);
   }
 
   /** Root node, which represent the whole program. */
@@ -129,9 +134,13 @@ public sealed abstract class Node permits Node.Program, Node.Statement, Node.Exp
    * expressions or a lexeme. */
   public static sealed abstract class Expression
     extends Node permits Nofix, Prefix, Postfix, Infix, Outfix, Knitfix {
+    /** Operator of this expression. */
+    public final Operator operator;
+
     /** Constructor. */
-    private Expression(Portion portion) {
+    private Expression(Portion portion, Operator operator) {
       super(portion);
+      this.operator = operator;
     }
   }
 
@@ -141,8 +150,8 @@ public sealed abstract class Node permits Node.Program, Node.Statement, Node.Exp
     public final Lexeme first;
 
     /** Constructor. */
-    private Nofix(Portion portion, Lexeme first) {
-      super(portion);
+    private Nofix(Portion portion, Operator operator, Lexeme first) {
+      super(portion, operator);
       this.first = first;
     }
   }
@@ -155,8 +164,9 @@ public sealed abstract class Node permits Node.Program, Node.Statement, Node.Exp
     public final Expression last;
 
     /** Constructor. */
-    private Prefix(Portion portion, Lexeme before, Expression last) {
-      super(portion);
+    private Prefix(Portion portion, Operator operator, Lexeme before,
+      Expression last) {
+      super(portion, operator);
       this.before = before;
       this.last   = last;
     }
@@ -170,8 +180,9 @@ public sealed abstract class Node permits Node.Program, Node.Statement, Node.Exp
     public final Expression first;
 
     /** Constructor. */
-    private Postfix(Portion portion, Lexeme after, Expression first) {
-      super(portion);
+    private Postfix(Portion portion, Operator operator, Lexeme after,
+      Expression first) {
+      super(portion, operator);
       this.after = after;
       this.first = first;
     }
@@ -187,9 +198,9 @@ public sealed abstract class Node permits Node.Program, Node.Statement, Node.Exp
     public final Expression last;
 
     /** Constructor. */
-    private Infix(Portion portion, Lexeme between, Expression first,
-      Expression last) {
-      super(portion);
+    private Infix(Portion portion, Operator operator, Lexeme between,
+      Expression first, Expression last) {
+      super(portion, operator);
       this.between = between;
       this.first   = first;
       this.last    = last;
@@ -206,9 +217,9 @@ public sealed abstract class Node permits Node.Program, Node.Statement, Node.Exp
     public final Expression middle;
 
     /** Constructor. */
-    private Outfix(Portion portion, Lexeme before, Lexeme after,
-      Expression middle) {
-      super(portion);
+    private Outfix(Portion portion, Operator operator, Lexeme before,
+      Lexeme after, Expression middle) {
+      super(portion, operator);
       this.before = before;
       this.after  = after;
       this.middle = middle;
@@ -231,10 +242,10 @@ public sealed abstract class Node permits Node.Program, Node.Statement, Node.Exp
     public final Expression       last;
 
     /** Constructor. */
-    private Knitfix(Portion portion, Lexeme before, List<Lexeme> between,
-      Lexeme after, Expression first, List<Expression> middle,
-      Expression last) {
-      super(portion);
+    private Knitfix(Portion portion, Operator operator, Lexeme before,
+      List<Lexeme> between, Lexeme after, Expression first,
+      List<Expression> middle, Expression last) {
+      super(portion, operator);
       this.before  = before;
       this.between = between;
       this.after   = after;

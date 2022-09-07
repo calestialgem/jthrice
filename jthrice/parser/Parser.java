@@ -179,7 +179,7 @@ public final class Parser {
   private static Node.Nofix parseNofix(Cursor cursor, Operator.Nofix operator) {
     for (var type : operator.operands) {
       if (type.isInstance(cursor.next())) {
-        var node = Node.ofNofix(cursor.next());
+        var node = Node.ofNofix(operator, cursor.next());
         cursor.consume();
         return node;
       }
@@ -218,7 +218,7 @@ public final class Parser {
     }
 
     for (var i = stack.size() - 1; i >= 0; i--) {
-      last = Node.ofPrefix(stack.get(i), last);
+      last = Node.ofPrefix(operator, stack.get(i), last);
     }
     return last;
   }
@@ -238,7 +238,7 @@ public final class Parser {
       }
       var after = cursor.next();
       cursor.consume();
-      first = Node.ofPostfix(after, first);
+      first = Node.ofPostfix(operator, after, first);
     }
 
     return first;
@@ -275,7 +275,7 @@ public final class Parser {
         return null;
       }
 
-      first = Node.ofInfix(between, first, last);
+      first = Node.ofInfix(operator, between, first, last);
     }
 
     return first;
@@ -322,7 +322,7 @@ public final class Parser {
         "Outfix operator is opened here.");
       return null;
     }
-    middle = Node.ofOutfix(before, cursor.next(), middle);
+    middle = Node.ofOutfix(operator, before, cursor.next(), middle);
     cursor.consume();
     return middle;
   }
