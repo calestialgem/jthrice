@@ -231,7 +231,7 @@ public sealed abstract class Node permits Node.Program, Node.Statement, Node.Exp
     /** Lexeme that comes after the first operand. */
     public final Lexeme           before;
     /** Lexemes that come after the middle operands. */
-    public final List<Lexeme>     between; // f(a, b, c, d)
+    public final List<Lexeme>     between;
     /** Lexeme that comes after the last operand. */
     public final Lexeme           after;
     /** First operand. */

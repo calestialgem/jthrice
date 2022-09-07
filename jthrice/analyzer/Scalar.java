@@ -3,6 +3,8 @@
 
 package jthrice.analyzer;
 
+import java.math.*;
+
 /** Independent, undivisible, built-in types. */
 public sealed abstract class Scalar extends
   Type permits Scalar.Signed, Scalar.Unsigned, Scalar.Floating, Scalar.Rinf {
@@ -33,10 +35,6 @@ public sealed abstract class Scalar extends
   /** Type rinf. */
   public static final Rinf RINF = new Rinf();
 
-  /** Constructor. */
-  private Scalar() {
-  }
-
   /** Integers with a bit for signedness. */
   public static sealed abstract class Signed
     extends Scalar permits I1, I2, I4, I8, Ix {
@@ -52,6 +50,16 @@ public sealed abstract class Scalar extends
     }
 
     @Override
+    public boolean holds(BigDecimal value) {
+      try {
+        var whole = value.toBigIntegerExact();
+        return whole.bitLength() < 8;
+      } catch (ArithmeticException e) {
+        return false;
+      }
+    }
+
+    @Override
     public String toString() {
       return "i1";
     }
@@ -61,6 +69,16 @@ public sealed abstract class Scalar extends
   public static final class I2 extends Signed {
     /** Constructor. */
     private I2() {
+    }
+
+    @Override
+    public boolean holds(BigDecimal value) {
+      try {
+        var whole = value.toBigIntegerExact();
+        return whole.bitLength() < 16;
+      } catch (ArithmeticException e) {
+        return false;
+      }
     }
 
     @Override
@@ -76,6 +94,16 @@ public sealed abstract class Scalar extends
     }
 
     @Override
+    public boolean holds(BigDecimal value) {
+      try {
+        var whole = value.toBigIntegerExact();
+        return whole.bitLength() < 32;
+      } catch (ArithmeticException e) {
+        return false;
+      }
+    }
+
+    @Override
     public String toString() {
       return "i4";
     }
@@ -85,6 +113,16 @@ public sealed abstract class Scalar extends
   public static final class I8 extends Signed {
     /** Constructor. */
     private I8() {
+    }
+
+    @Override
+    public boolean holds(BigDecimal value) {
+      try {
+        var whole = value.toBigIntegerExact();
+        return whole.bitLength() < 64;
+      } catch (ArithmeticException e) {
+        return false;
+      }
     }
 
     @Override
@@ -100,9 +138,20 @@ public sealed abstract class Scalar extends
     }
 
     @Override
+    public boolean holds(BigDecimal value) {
+      try {
+        var whole = value.toBigIntegerExact();
+        return whole.bitLength() < 64;
+      } catch (ArithmeticException e) {
+        return false;
+      }
+    }
+
+    @Override
     public String toString() {
       return "ix";
     }
+
   }
 
   /** Integers without a sign bit. */
@@ -120,6 +169,16 @@ public sealed abstract class Scalar extends
     }
 
     @Override
+    public boolean holds(BigDecimal value) {
+      try {
+        var whole = value.toBigIntegerExact();
+        return whole.signum() != -1 && whole.bitLength() <= 8;
+      } catch (ArithmeticException e) {
+        return false;
+      }
+    }
+
+    @Override
     public String toString() {
       return "u1";
     }
@@ -129,6 +188,16 @@ public sealed abstract class Scalar extends
   public static final class U2 extends Unsigned {
     /** Constructor. */
     private U2() {
+    }
+
+    @Override
+    public boolean holds(BigDecimal value) {
+      try {
+        var whole = value.toBigIntegerExact();
+        return whole.signum() != -1 && whole.bitLength() <= 16;
+      } catch (ArithmeticException e) {
+        return false;
+      }
     }
 
     @Override
@@ -144,6 +213,16 @@ public sealed abstract class Scalar extends
     }
 
     @Override
+    public boolean holds(BigDecimal value) {
+      try {
+        var whole = value.toBigIntegerExact();
+        return whole.signum() != -1 && whole.bitLength() <= 32;
+      } catch (ArithmeticException e) {
+        return false;
+      }
+    }
+
+    @Override
     public String toString() {
       return "u4";
     }
@@ -156,6 +235,16 @@ public sealed abstract class Scalar extends
     }
 
     @Override
+    public boolean holds(BigDecimal value) {
+      try {
+        var whole = value.toBigIntegerExact();
+        return whole.signum() != -1 && whole.bitLength() <= 64;
+      } catch (ArithmeticException e) {
+        return false;
+      }
+    }
+
+    @Override
     public String toString() {
       return "u8";
     }
@@ -165,6 +254,16 @@ public sealed abstract class Scalar extends
   public static final class Ux extends Unsigned {
     /** Constructor. */
     private Ux() {
+    }
+
+    @Override
+    public boolean holds(BigDecimal value) {
+      try {
+        var whole = value.toBigIntegerExact();
+        return whole.signum() != -1 && whole.bitLength() <= 64;
+      } catch (ArithmeticException e) {
+        return false;
+      }
     }
 
     @Override
@@ -188,9 +287,15 @@ public sealed abstract class Scalar extends
     }
 
     @Override
+    public boolean holds(BigDecimal value) {
+      return value.toString().equals(Float.toString(value.floatValue()));
+    }
+
+    @Override
     public String toString() {
       return "f4";
     }
+
   }
 
   /** 8 byte, floating-point real. */
@@ -200,9 +305,15 @@ public sealed abstract class Scalar extends
     }
 
     @Override
+    public boolean holds(BigDecimal value) {
+      return value.toString().equals(Double.toString(value.doubleValue()));
+    }
+
+    @Override
     public String toString() {
       return "f8";
     }
+
   }
 
   /** Infinite-precision, compile-time real. Type of any number literal. */
@@ -212,8 +323,20 @@ public sealed abstract class Scalar extends
     }
 
     @Override
+    public boolean holds(BigDecimal value) {
+      return true;
+    }
+
+    @Override
     public String toString() {
       return "rinf";
     }
   }
+
+  /** Constructor. */
+  private Scalar() {
+  }
+
+  /** Whether the scalar type can hold the given value. */
+  public abstract boolean holds(BigDecimal value);
 }

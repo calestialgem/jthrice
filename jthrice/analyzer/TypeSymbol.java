@@ -4,12 +4,13 @@
 package jthrice.analyzer;
 
 import jthrice.lexer.Lexeme.*;
+import jthrice.parser.*;
 
 /** Symbol that represents a type. */
 public final class TypeSymbol extends Symbol {
   /** Symbol of meta. */
   public static final TypeSymbol META = new TypeSymbol(Type.META.toString(),
-    null, Evaluation.of(null, Type.META));
+    null, Evaluation.ofNofix(null, Type.META, Operator.LITERAL, null));
   /** Symbol of i1. */
   public static final TypeSymbol I1   = ofScalar(Scalar.I1);
   /** Symbol of i2. */
@@ -40,7 +41,7 @@ public final class TypeSymbol extends Symbol {
   /** Symbol of the given scalar. */
   private static TypeSymbol ofScalar(Scalar scalar) {
     return new TypeSymbol(scalar.toString(), null,
-      Evaluation.of(Type.META, scalar));
+      Evaluation.ofNofix(Type.META, scalar, Operator.LITERAL, null));
   }
 
   /** Constructor. */
