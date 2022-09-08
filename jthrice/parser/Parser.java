@@ -177,12 +177,10 @@ public final class Parser {
   /** Try to parse the given nofix operator at the given cursor and report to
    * the given resolution. */
   private static Node.Nofix parseNofix(Cursor cursor, Operator.Nofix operator) {
-    for (var type : operator.operands) {
-      if (type.isInstance(cursor.next())) {
-        var node = Node.ofNofix(operator, cursor.next());
-        cursor.consume();
-        return node;
-      }
+    if (operator.operator.isInstance(cursor.next())) {
+      var node = Node.ofNofix(operator, cursor.next());
+      cursor.consume();
+      return node;
     }
     return null;
   }

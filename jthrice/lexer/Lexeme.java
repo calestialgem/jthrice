@@ -5,8 +5,96 @@ package jthrice.lexer;
 
 import java.math.*;
 
+import jthrice.launcher.*;
+
 /** Smallest meaningful group of characters in a source. */
 public sealed abstract class Lexeme permits Lexeme.Token, Lexeme.Number, Lexeme.Identifier, Lexeme.Keyword {
+  /** String representing the lexeme class. */
+  public static String toString(Class<? extends Lexeme> type) {
+    if (type.equals(Plus.class)) {
+      return "+";
+    }
+    if (type.equals(Minus.class)) {
+      return "-";
+    }
+    if (type.equals(Star.class)) {
+      return "*";
+    }
+    if (type.equals(ForwardSlash.class)) {
+      return "/";
+    }
+    if (type.equals(Percent.class)) {
+      return "%";
+    }
+    if (type.equals(Equal.class)) {
+      return "=";
+    }
+    if (type.equals(Colon.class)) {
+      return ":";
+    }
+    if (type.equals(Semicolon.class)) {
+      return ";";
+    }
+    if (type.equals(OpeningParentheses.class)) {
+      return "(";
+    }
+    if (type.equals(ClosingParentheses.class)) {
+      return ")";
+    }
+    if (type.equals(EOF.class)) {
+      return "" + Source.EOF;
+    }
+    if (type.equals(Number.class)) {
+      return "number";
+    }
+    if (type.equals(Identifier.class)) {
+      return "identifier";
+    }
+    if (type.equals(I1.class)) {
+      return "i1";
+    }
+    if (type.equals(I2.class)) {
+      return "i2";
+    }
+    if (type.equals(I4.class)) {
+      return "i4";
+    }
+    if (type.equals(I8.class)) {
+      return "i8";
+    }
+    if (type.equals(Ix.class)) {
+      return "ix";
+    }
+    if (type.equals(U1.class)) {
+      return "u1";
+    }
+    if (type.equals(U2.class)) {
+      return "u2";
+    }
+    if (type.equals(U4.class)) {
+      return "u4";
+    }
+    if (type.equals(U8.class)) {
+      return "u8";
+    }
+    if (type.equals(Ux.class)) {
+      return "ux";
+    }
+    if (type.equals(F4.class)) {
+      return "f4";
+    }
+    if (type.equals(F8.class)) {
+      return "f8";
+    }
+    if (type.equals(Rinf.class)) {
+      return "rinf";
+    }
+    if (type.equals(Type.class)) {
+      return "type";
+    }
+    throw new RuntimeException("Unknown lexeme type: %s!".formatted(type));
+  }
+
   /** Non-alphanumeric character group. */
   public static sealed abstract class Token extends
     Lexeme permits Plus, Minus, Star, ForwardSlash, Percent, Equal, Colon, Semicolon, OpeningParentheses, ClosingParentheses, EOF {
@@ -135,7 +223,6 @@ public sealed abstract class Lexeme permits Lexeme.Token, Lexeme.Number, Lexeme.
     Keyword(Portion portion) {
       super(portion);
     }
-
   }
 
   /** Keyword `i1`; 1 byte, signed integer type. */

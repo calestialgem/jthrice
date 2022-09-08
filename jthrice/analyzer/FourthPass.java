@@ -120,37 +120,8 @@ final class FourthPass {
       };
     }
     if (nofix.operator == Operator.ACCESS) {
-      var result = switch (nofix.first) {
-        case Lexeme.I1 i1 -> FourthPass.resolveAccess(resolution, solution, i1);
-        case Lexeme.I2 i2 -> FourthPass.resolveAccess(resolution, solution, i2);
-        case Lexeme.I4 i4 -> FourthPass.resolveAccess(resolution, solution, i4);
-        case Lexeme.I8 i8 -> FourthPass.resolveAccess(resolution, solution, i8);
-        case Lexeme.Ix ix -> FourthPass.resolveAccess(resolution, solution, ix);
-        case Lexeme.U1 u1 -> FourthPass.resolveAccess(resolution, solution, u1);
-        case Lexeme.U2 u2 -> FourthPass.resolveAccess(resolution, solution, u2);
-        case Lexeme.U4 u4 -> FourthPass.resolveAccess(resolution, solution, u4);
-        case Lexeme.U8 u8 -> FourthPass.resolveAccess(resolution, solution, u8);
-        case Lexeme.Ux ux -> FourthPass.resolveAccess(resolution, solution, ux);
-        case Lexeme.F4 f4 -> FourthPass.resolveAccess(resolution, solution, f4);
-        case Lexeme.F8 f8 -> FourthPass.resolveAccess(resolution, solution, f8);
-        case Lexeme.Rinf rinf ->
-          FourthPass.resolveAccess(resolution, solution, rinf);
-        case Lexeme.Type type ->
-          FourthPass.resolveAccess(resolution, solution, type);
-        case Lexeme.Identifier identifier ->
-          FourthPass.resolveAccess(resolution, solution, identifier);
-        default -> {
-          resolution.error("ANALYZER", nofix.portion,
-            "Unknown access operator lexeme!");
-          yield null;
-        }
-      };
-      if (result != null && result.type != expected) {
-        resolution.error("ANALYZER", nofix.portion,
-          "Expected `%s` instead of `%s`!".formatted(expected, result.type));
-        return null;
-      }
-      return result;
+      return FourthPass.resolveAccess(resolution, solution, expected,
+        nofix.first);
     }
     resolution.error("ANALYZER", nofix.portion, "Unknown nofix operator!");
     return null;
@@ -159,7 +130,7 @@ final class FourthPass {
   /** Resolve the access to the given name in the given solution and report to
    * the given resolution. */
   private static Evaluation resolveAccess(Resolution resolution,
-    HalfSolution solution, Lexeme name) {
+    HalfSolution solution, Type expected, Lexeme name) {
     var accessed = solution.resolved.get(name.toString());
     if (accessed == null) {
       resolution.error("ANALYZER", name.portion,
@@ -172,8 +143,14 @@ final class FourthPass {
       }
       return null;
     }
-    return Evaluation.ofNofix(accessed.evaluation.type,
+    var result = Evaluation.ofNofix(accessed.evaluation.type,
       accessed.evaluation.value, Operator.ACCESS, name);
+    if (result != null && result.type != expected) {
+      resolution.error("ANALYZER", name.portion,
+        "Expected `%s` instead of `%s`!".formatted(expected, result.type));
+      return null;
+    }
+    return result;
   }
 
   /** Resolve the type of the given prefix node to the given solution and report
