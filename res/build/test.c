@@ -2,16 +2,16 @@
 #include <stdint.h>
 
 int main(int argc, char** argv) {
-  int32_t a = 30;
+  int32_t a = 3;
   printf("a = %i\n", a);
   
-  int32_t b = 40;
+  int32_t b = 4;
   printf("b = %i\n", b);
   
-  int32_t c = 84000;
+  int32_t c = 84;
   printf("c = %i\n", c);
   
-  int32_t d = 4000;
+  int32_t d = 42;
   printf("d = %i\n", d);
   
   double e = 2.79;

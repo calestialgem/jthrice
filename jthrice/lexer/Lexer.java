@@ -100,7 +100,7 @@ public final class Lexer {
       scale = 0;
     }
 
-    var value = new BigDecimal(unscaled, scale);
+    var value = new BigDecimal(unscaled, scale == -1 ? 0 : scale);
     return new Lexeme.Number(chunk.get(), value);
   }
 
