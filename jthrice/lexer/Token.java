@@ -64,10 +64,10 @@ public final class Token {
     return new Token(Optional.empty(), portion);
   }
 
-  public static final Regular DECIMAL    = Regular.of(
-    "[+-]?[0-9]+(\\.[0-9]+)?([eE][+-]?[0-9]+)?", "decimal", true);
-  public static final Regular IDENTIFIER = Regular.of(
-    "[a-zA-Z_][0-9a-zA-Z_]+", "identifier", true);
+  public static final Regular DECIMAL    = Regular
+    .of("[+-]?[0-9]+(\\.[0-9]+)?([eE][+-]?[0-9]+)?", "decimal", true);
+  public static final Regular IDENTIFIER = Regular.of("[a-zA-Z_][0-9a-zA-Z_]+",
+    "identifier", true);
 
   public static final Exact I1                  = Exact.of("i1", true);
   public static final Exact I2                  = Exact.of("i2", true);
@@ -91,8 +91,7 @@ public final class Token {
   public static final Exact SEMICOLON           = Exact.of(';', false);
   public static final Exact OPENING_PARENTHESES = Exact.of('(', false);
   public static final Exact CLOSING_PARENTHESES = Exact.of(')', false);
-  public static final Exact EOF                 = Exact.of(Source.EOF,
-    false);
+  public static final Exact EOF                 = Exact.of(Source.EOF, false);
 
   public final Optional<Type> type;
   public final Portion        portion;
