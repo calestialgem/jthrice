@@ -3,154 +3,115 @@
 
 package jthrice.lexer;
 
-import java.math.*;
 import java.util.*;
+import java.util.regex.*;
 
 import jthrice.launcher.*;
 
 public final class Lexer {
-  public static List<Lexeme> lex(Resolution resolution, Source source) {
-    var   lexemes = new ArrayList<Lexeme>();
-    Chunk unknown = null;
+  public static List<Token> lex(Resolution resolution, Source source) {
+    var lexer = new Lexer(resolution, source);
+    lexer.lex();
+    return lexer.lex;
+  }
 
-    for (var index = 0; source.exists(index); index++) {
-      if (Lexer.isWhitespace(source.at(index))) {
-        unknown = Lexer.report(resolution, unknown);
+  private static final Pattern             WHITESPACE = Pattern
+    .compile("^[ \t\n]+");
+  private static final List<Token.Regular> REGULARS   = List.of(Token.DECIMAL,
+    Token.IDENTIFIER);
+  private static final List<Token.Exact>   EXACTS;
+
+  static {
+    // Sort from the longest to shortes; thus, when iterated tokens that start
+    // the same check the longer version first.
+    // Ex: `>` vs `>=`, the second one should be checked first.
+    var exacts = new ArrayList<>(List.of(Token.I1, Token.I2, Token.I4, Token.I8,
+      Token.IX, Token.U1, Token.U2, Token.U4, Token.U8, Token.UX, Token.F4,
+      Token.F8, Token.PLUS, Token.MINUS, Token.STAR, Token.FORWARD_SLASH,
+      Token.PERCENT, Token.EQUAL, Token.COLON, Token.SEMICOLON,
+      Token.OPENING_PARENTHESES, Token.CLOSING_PARENTHESES, Token.EOF));
+    // Achived by comparing the strings after inverting. Because longer string
+    // come after the shorter ones.
+    exacts.sort((left, right) -> right.lexeme.compareTo(left.lexeme));
+    EXACTS = exacts;
+  }
+
+  private final Resolution  resolution;
+  private final Source      source;
+  private final List<Token> lex;
+
+  private int     index;
+  private Portion unknown;
+
+  private Lexer(Resolution resolution, Source source) {
+    this.resolution = resolution;
+    this.source     = source;
+    lex             = new ArrayList<>();
+    index           = 0;
+    unknown         = null;
+  }
+
+  private void lex() {
+    loop: while (source.exists(index)) {
+      var whitespace = WHITESPACE.matcher(source.contents);
+      if (whitespace.find()) {
+        index = whitespace.end();
+        unknown();
         continue;
       }
-
-      var lexeme = Lexer.lexToken(source, index);
-      if (lexeme == null) {
-        lexeme = Lexer.lexNumber(source, index);
-        if (lexeme == null) {
-          lexeme = Lexer.lexWord(source, index);
+      for (var exact : EXACTS) {
+        if (source.contents.startsWith(exact.lexeme, index)) {
+          var portion = Portion.of(source, index,
+            index + exact.lexeme.length() - 1);
+          index += exact.lexeme.length();
+          if (exact.separate && !separate()) {
+            index = portion.first.index;
+            continue;
+          }
+          lex.add(Token.of(exact, portion));
+          unknown();
+          continue loop;
         }
       }
-
-      if (lexeme != null) {
-        unknown = Lexer.report(resolution, unknown);
-        lexemes.add(lexeme);
-        index = lexeme.portion.last.index;
-        continue;
+      for (var regular : REGULARS) {
+        var matcher = regular.pattern.matcher(source.contents);
+        if (matcher.find(index)) {
+          index = matcher.end();
+          if (regular.separate && !separate()) {
+            index = matcher.start();
+            continue;
+          }
+          lex.add(Token.of(regular,
+            Portion.of(source, matcher.start(), matcher.end() - 1)));
+          unknown();
+          continue loop;
+        }
       }
-
       if (unknown == null) {
-        unknown = Chunk.of(source, index);
-      }
-      unknown.consume();
-    }
-    return lexemes;
-  }
-
-  private static boolean isWhitespace(char character) {
-    return character == ' ' || character == '\t' || character == '\n';
-  }
-
-  private static Lexeme lexToken(Source source, int index) {
-    var chunk = Chunk.of(source, index);
-    return switch (chunk.next()) {
-      case '+' -> new Lexeme.Plus(chunk.consume().get());
-      case '-' -> new Lexeme.Minus(chunk.consume().get());
-      case '*' -> new Lexeme.Star(chunk.consume().get());
-      case '/' -> new Lexeme.ForwardSlash(chunk.consume().get());
-      case '%' -> new Lexeme.Percent(chunk.consume().get());
-      case '=' -> new Lexeme.Equal(chunk.consume().get());
-      case ':' -> new Lexeme.Colon(chunk.consume().get());
-      case ';' -> new Lexeme.Semicolon(chunk.consume().get());
-      case '(' -> new Lexeme.OpeningParentheses(chunk.consume().get());
-      case ')' -> new Lexeme.ClosingParentheses(chunk.consume().get());
-      case Source.EOF -> new Lexeme.EOF(chunk.consume().get());
-      default -> null;
-    };
-  }
-
-  private static Lexeme lexNumber(Source source, int index) {
-    final var DIGITS = "0123456789";
-    final var BASE   = BigInteger.valueOf(DIGITS.length());
-
-    var chunk = Chunk.of(source, index);
-    var digit = DIGITS.indexOf(chunk.next());
-    if (digit == -1) {
-      return null;
-    }
-
-    var unscaled = BigInteger.valueOf(digit);
-    var scale    = -1;
-
-    while (chunk.has()) {
-      chunk.consume();
-
-      digit = DIGITS.indexOf(chunk.next());
-      if (digit != -1) {
-        unscaled = unscaled.multiply(BASE).add(BigInteger.valueOf(digit));
-        if (scale != -1) {
-          scale++;
-        }
-        continue;
-      }
-
-      if (chunk.next() != '.' || scale != -1) {
-        break;
-      }
-      scale = 0;
-    }
-
-    var value = new BigDecimal(unscaled, scale == -1 ? 0 : scale);
-    return new Lexeme.Number(chunk.get(), value);
-  }
-
-  private static boolean isLetterOrUnderscore(char character) {
-    return character >= 'a' && character <= 'z'
-      || character >= 'A' && character <= 'Z' || character == '_';
-  }
-
-  private static boolean isDecimalDigit(char character) {
-    return character >= '0' && character <= '9';
-  }
-
-  private static Lexeme lexWord(Source source, int index) {
-    var chunk = Chunk.of(source, index);
-    if (!Lexer.isLetterOrUnderscore(chunk.next())) {
-      return null;
-    }
-
-    while (chunk.has()) {
-      chunk.consume();
-
-      if (!Lexer.isLetterOrUnderscore(chunk.next())
-        && !Lexer.isDecimalDigit(chunk.next())) {
-        break;
+        unknown = Portion.of(source, index, index);
+      } else {
+        unknown = Portion.of(source, unknown.first.index, index);
       }
     }
-
-    var portion = chunk.get();
-    return switch (portion.toString()) {
-      case "i1" -> new Lexeme.I1(portion);
-      case "i2" -> new Lexeme.I2(portion);
-      case "i4" -> new Lexeme.I4(portion);
-      case "i8" -> new Lexeme.I8(portion);
-      case "ix" -> new Lexeme.Ix(portion);
-      case "u1" -> new Lexeme.U1(portion);
-      case "u2" -> new Lexeme.U2(portion);
-      case "u4" -> new Lexeme.U4(portion);
-      case "u8" -> new Lexeme.U8(portion);
-      case "ux" -> new Lexeme.Ux(portion);
-      case "f4" -> new Lexeme.F4(portion);
-      case "f8" -> new Lexeme.F8(portion);
-      case "rinf" -> new Lexeme.Rinf(portion);
-      case "type" -> new Lexeme.Type(portion);
-      default -> new Lexeme.Identifier(portion, portion.toString());
-    };
+    unknown();
   }
 
-  private static Chunk report(Resolution resolution, Chunk unknown) {
-    if (unknown != null) {
-      resolution.error("LEXER", unknown.get(),
-        "Could not recognize the character!");
+  private boolean separate() {
+    var matcher = WHITESPACE.matcher(source.contents);
+    if (matcher.find(index)) {
+      index = matcher.end();
+      return true;
     }
-    return null;
+    return false;
   }
 
-  private Lexer() {
+  private void unknown() {
+    if (unknown == null) {
+      return;
+    }
+    resolution.error("LEXER", unknown, "Could not recognize these character%s!"
+      .formatted(unknown.length() > 1 ? "s" : ""));
+    lex.add(Token.of(unknown));
+    unknown = null;
   }
 }

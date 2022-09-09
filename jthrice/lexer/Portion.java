@@ -46,6 +46,10 @@ public final class Portion {
     this.last  = last;
   }
 
+  public int length() {
+    return last.index - first.index + 1;
+  }
+
   public boolean multiline() {
     return first.line < last.line;
   }
