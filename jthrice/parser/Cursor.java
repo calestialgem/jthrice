@@ -21,28 +21,28 @@ final class Cursor {
   }
 
   Lexeme current() {
-    return this.lexemes.get(this.next - 1);
+    return lexemes.get(next - 1);
   }
 
   boolean has() {
-    return this.next < this.lexemes.size();
+    return next < lexemes.size();
   }
 
   Lexeme next() {
-    return this.lexemes.get(this.next);
+    return lexemes.get(next);
   }
 
   Cursor consume() {
-    this.next++;
+    next++;
     return this;
   }
 
   @SuppressWarnings("unchecked")
   <T extends Lexeme> T skipUntil(Class<? extends T> type) {
-    while (this.consume().has()) {
-      if (type.isInstance(this.next())) {
-        var lexeme = this.next();
-        this.consume();
+    while (consume().has()) {
+      if (type.isInstance(next())) {
+        var lexeme = next();
+        consume();
         return (T) lexeme;
       }
     }

@@ -134,6 +134,6 @@ public sealed abstract class Evaluation permits Evaluation.Nofix, Evaluation.Pre
   }
 
   public boolean known() {
-    return this.value != null;
+    return value != null;
   }
 }

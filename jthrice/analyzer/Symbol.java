@@ -24,6 +24,6 @@ public sealed abstract class Symbol permits TypeSymbol, Variable {
 
   @Override
   public String toString() {
-    return this.name.toString();
+    return name.toString();
   }
 }

@@ -19,37 +19,36 @@ final class CompilerFlags {
     this.resolution = resolution;
     this.command    = command;
     this.build      = build;
-    this.code       = build.resolve(resolution.name + ".c");
-    this.executable = build.resolve(resolution.name + ".exe");
+    code            = build.resolve(resolution.name + ".c");
+    executable      = build.resolve(resolution.name + ".exe");
   }
 
   void write(String output) {
     try {
-      Files.createDirectories(this.build);
+      Files.createDirectories(build);
     } catch (IOException e) {
-      this.resolution.error("GENERATOR", "Could not create build directory!");
+      resolution.error("GENERATOR", "Could not create build directory!");
       e.printStackTrace();
       return;
     }
-    try (var out = new PrintStream(Files.newOutputStream(this.code))) {
+    try (var out = new PrintStream(Files.newOutputStream(code))) {
       out.print(output);
     } catch (IOException e) {
-      this.resolution.error("GENERATOR", "Could not create output file!");
+      resolution.error("GENERATOR", "Could not create output file!");
       e.printStackTrace();
       return;
     }
   }
 
   void compile() {
-    var builder = new ProcessBuilder(this.command, "-o",
-      this.executable.toAbsolutePath().toString(),
-      this.code.toAbsolutePath().toString());
+    var builder = new ProcessBuilder(command, "-o",
+      executable.toAbsolutePath().toString(), code.toAbsolutePath().toString());
     builder.redirectErrorStream(true);
     Process process = null;
     try {
       process = builder.start();
     } catch (IOException e) {
-      this.resolution.error("GENERATOR", "Could not run to compile command!");
+      resolution.error("GENERATOR", "Could not run to compile command!");
       e.printStackTrace();
       return;
     }
@@ -60,15 +59,14 @@ final class CompilerFlags {
       try {
         line = reader.readLine();
       } catch (IOException e) {
-        this.resolution.error("GENERATOR",
-          "Could not read the compiler output!");
+        resolution.error("GENERATOR", "Could not read the compiler output!");
         e.printStackTrace();
         return;
       }
       if (line == null) {
         break;
       }
-      this.resolution.info("COMPILER", line);
+      resolution.info("COMPILER", line);
     }
   }
 }

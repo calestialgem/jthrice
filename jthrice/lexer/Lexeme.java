@@ -283,6 +283,6 @@ public sealed abstract class Lexeme permits Lexeme.Token, Lexeme.Number, Lexeme.
 
   @Override
   public String toString() {
-    return this.portion.toString();
+    return portion.toString();
   }
 }

@@ -27,18 +27,18 @@ public final class Source {
   }
 
   public int size() {
-    return this.contents.length();
+    return contents.length();
   }
 
   public boolean exists(int index) {
-    return index >= 0 && index < this.size();
+    return index >= 0 && index < size();
   }
 
   public char at(int index) {
-    return this.contents.charAt(index);
+    return contents.charAt(index);
   }
 
   public String sub(int first, int last) {
-    return this.contents.substring(first, last + 1);
+    return contents.substring(first, last + 1);
   }
 }

@@ -47,31 +47,31 @@ public final class Portion {
   }
 
   public boolean multiline() {
-    return this.first.line < this.last.line;
+    return first.line < last.line;
   }
 
   public void underline(PrintStream out) {
-    if (!this.multiline()) {
-      this.underlineSingle(out, false);
+    if (!multiline()) {
+      underlineSingle(out, false);
     } else {
-      Portion.ofLineEnd(this.first).underlineSingle(out, true);
-      Portion.ofLineStart(this.last).underlineSingle(out, false);
+      Portion.ofLineEnd(first).underlineSingle(out, true);
+      Portion.ofLineStart(last).underlineSingle(out, false);
     }
     out.println();
   }
 
   private void underlineSingle(PrintStream out, boolean continues) {
-    var line = Portion.ofLine(this.first);
+    var line = Portion.ofLine(first);
     out.printf("%8d | %s%n", line.first.line, line);
     out.printf("%10s", continues ? "... |" : "");
-    for (var i = 0; i <= this.last.column; i++) {
-      out.printf("%c", i < this.first.column ? ' ' : '~');
+    for (var i = 0; i <= last.column; i++) {
+      out.printf("%c", i < first.column ? ' ' : '~');
     }
     out.println();
   }
 
   @Override
   public String toString() {
-    return this.first.source.sub(this.first.index, this.last.index);
+    return first.source.sub(first.index, last.index);
   }
 }

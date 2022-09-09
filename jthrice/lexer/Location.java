@@ -36,15 +36,13 @@ public final class Location {
   }
 
   public Location start() {
-    return new Location(this.source, this.index - this.column + 1, this.line,
-      1);
+    return new Location(source, index - column + 1, line, 1);
   }
 
   public Location end() {
-    for (var i = this.index; this.source.exists(i); i++) {
-      if (this.source.at(i) == '\n') {
-        return new Location(this.source, i - 1, this.line,
-          this.column - this.index + i - 1);
+    for (var i = index; source.exists(i); i++) {
+      if (source.at(i) == '\n') {
+        return new Location(source, i - 1, line, column - index + i - 1);
       }
     }
     return null;

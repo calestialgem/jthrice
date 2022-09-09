@@ -21,19 +21,19 @@ final class Chunk {
   }
 
   boolean has() {
-    return this.source.exists(this.last);
+    return source.exists(last);
   }
 
   char next() {
-    return this.source.at(this.last);
+    return source.at(last);
   }
 
   Chunk consume() {
-    this.last++;
+    last++;
     return this;
   }
 
   Portion get() {
-    return Portion.of(this.source, this.first, this.last - 1);
+    return Portion.of(source, first, last - 1);
   }
 }

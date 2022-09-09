@@ -47,12 +47,12 @@ public sealed abstract class Operator permits Operator.Nofix, Operator.Prefix, O
     public final Class<? extends Lexeme> operator;
 
     private Nofix(Class<? extends Lexeme> operands) {
-      this.operator = operands;
+      operator = operands;
     }
 
     @Override
     public String toString() {
-      return Lexeme.toString(this.operator);
+      return Lexeme.toString(operator);
     }
   }
 
@@ -65,7 +65,7 @@ public sealed abstract class Operator permits Operator.Nofix, Operator.Prefix, O
 
     @Override
     public String toString() {
-      return "%soperand".formatted(Lexeme.toString(this.before));
+      return "%soperand".formatted(Lexeme.toString(before));
     }
   }
 
@@ -78,7 +78,7 @@ public sealed abstract class Operator permits Operator.Nofix, Operator.Prefix, O
 
     @Override
     public String toString() {
-      return "operand%s".formatted(Lexeme.toString(this.after));
+      return "operand%s".formatted(Lexeme.toString(after));
     }
   }
 
@@ -91,7 +91,7 @@ public sealed abstract class Operator permits Operator.Nofix, Operator.Prefix, O
 
     @Override
     public String toString() {
-      return "operand%soperand".formatted(Lexeme.toString(this.between));
+      return "operand%soperand".formatted(Lexeme.toString(between));
     }
   }
 
@@ -107,8 +107,8 @@ public sealed abstract class Operator permits Operator.Nofix, Operator.Prefix, O
 
     @Override
     public String toString() {
-      return "%soperand%s".formatted(Lexeme.toString(this.before),
-        Lexeme.toString(this.after));
+      return "%soperand%s".formatted(Lexeme.toString(before),
+        Lexeme.toString(after));
     }
   }
 
@@ -127,8 +127,8 @@ public sealed abstract class Operator permits Operator.Nofix, Operator.Prefix, O
     @Override
     public String toString() {
       return "operand%soperand%s operands%s operand%s".formatted(
-        Lexeme.toString(this.before), Lexeme.toString(this.between),
-        Lexeme.toString(this.between), Lexeme.toString(this.after));
+        Lexeme.toString(before), Lexeme.toString(between),
+        Lexeme.toString(between), Lexeme.toString(after));
     }
   }
 }

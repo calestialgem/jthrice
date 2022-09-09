@@ -70,7 +70,7 @@ public sealed abstract class Node permits Node.Program, Node.Statement, Node.Exp
     @Override
     public String toString() {
       var buffer = new StringBuilder();
-      for (var statement : this.statements) {
+      for (var statement : statements) {
         buffer.append(statement);
         buffer.append(System.lineSeparator());
       }
@@ -206,6 +206,6 @@ public sealed abstract class Node permits Node.Program, Node.Statement, Node.Exp
 
   @Override
   public String toString() {
-    return this.portion.toString();
+    return portion.toString();
   }
 }

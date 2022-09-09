@@ -21,18 +21,17 @@ public final class Resolution {
   }
 
   private void log(String author, String severity, String message) {
-    System.out.printf("[%s] %s: %s: %s%n", author, this.name, severity,
-      message);
+    System.out.printf("[%s] %s: %s: %s%n", author, name, severity, message);
   }
 
   public void error(String author, String message) {
     this.log(author, "error", message);
-    this.errors++;
+    errors++;
   }
 
   public void warning(String author, String message) {
     this.log(author, "warning", message);
-    this.warnings++;
+    warnings++;
   }
 
   public void info(String author, String message) {
@@ -41,7 +40,7 @@ public final class Resolution {
 
   public void log(String author, Portion portion, String severity,
     String message) {
-    System.out.printf("[%s] %s:%d:%d:%d:%d: %s: %s%n", author, this.name,
+    System.out.printf("[%s] %s:%d:%d:%d:%d: %s: %s%n", author, name,
       portion.first.line, portion.first.column, portion.last.line,
       portion.last.column, severity, message);
     portion.underline(System.out);
@@ -49,12 +48,12 @@ public final class Resolution {
 
   public void error(String author, Portion portion, String message) {
     this.log(author, portion, "error", message);
-    this.errors++;
+    errors++;
   }
 
   public void warning(String author, Portion portion, String message) {
     this.log(author, portion, "warning", message);
-    this.warnings++;
+    warnings++;
   }
 
   public void info(String author, Portion portion, String message) {
@@ -62,11 +61,11 @@ public final class Resolution {
   }
 
   void report() {
-    if (this.errors > 0) {
-      this.info("LAUNCHER", "There were %d errors!".formatted(this.errors));
+    if (errors > 0) {
+      this.info("LAUNCHER", "There were %d errors!".formatted(errors));
     }
-    if (this.warnings > 0) {
-      this.info("LAUNCHER", "There were %d warnings!".formatted(this.warnings));
+    if (warnings > 0) {
+      this.info("LAUNCHER", "There were %d warnings!".formatted(warnings));
     }
   }
 }

@@ -24,7 +24,7 @@ public sealed abstract class Operation permits Operation.Nofix, Operation.Prefix
 
     @Override
     public String toString() {
-      return "%s = %s".formatted(this.output, this.operator.operator);
+      return "%s = %s".formatted(output, operator.operator);
     }
   }
 
@@ -45,8 +45,8 @@ public sealed abstract class Operation permits Operation.Nofix, Operation.Prefix
 
     @Override
     public String toString() {
-      return "%s = %s%s".formatted(this.output,
-        Lexeme.toString(this.operator.before), this.last);
+      return "%s = %s%s".formatted(output, Lexeme.toString(operator.before),
+        last);
     }
   }
 
@@ -67,8 +67,8 @@ public sealed abstract class Operation permits Operation.Nofix, Operation.Prefix
 
     @Override
     public String toString() {
-      return "%s = %s%s".formatted(this.output, this.first,
-        Lexeme.toString(this.operator.after));
+      return "%s = %s%s".formatted(output, first,
+        Lexeme.toString(operator.after));
     }
   }
 
@@ -91,8 +91,8 @@ public sealed abstract class Operation permits Operation.Nofix, Operation.Prefix
 
     @Override
     public String toString() {
-      return "%s = %s%s%s".formatted(this.output, this.first,
-        Lexeme.toString(this.operator.between), this.last);
+      return "%s = %s%s%s".formatted(output, first,
+        Lexeme.toString(operator.between), last);
     }
   }
 
@@ -103,7 +103,7 @@ public sealed abstract class Operation permits Operation.Nofix, Operation.Prefix
     private Outfix(Type output, Operator.Outfix operator, Type last) {
       super(output);
       this.operator = operator;
-      this.middle   = last;
+      middle        = last;
     }
 
     @Override
@@ -113,9 +113,8 @@ public sealed abstract class Operation permits Operation.Nofix, Operation.Prefix
 
     @Override
     public String toString() {
-      return "%s = %s%s%s".formatted(this.output,
-        Lexeme.toString(this.operator.before), this.middle,
-        Lexeme.toString(this.operator.after));
+      return "%s = %s%s%s".formatted(output, Lexeme.toString(operator.before),
+        middle, Lexeme.toString(operator.after));
     }
   }
 
@@ -140,16 +139,16 @@ public sealed abstract class Operation permits Operation.Nofix, Operation.Prefix
     @Override
     public String toString() {
       var buffer = new StringBuilder();
-      buffer.append(this.output).append(" = ").append(this.first)
-        .append(Lexeme.toString(this.operator.before));
-      for (var i = 0; i < this.remaining.size() - 1; i++) {
-        buffer.append(this.remaining.get(i))
-          .append(Lexeme.toString(this.operator.between)).append(' ');
+      buffer.append(output).append(" = ").append(first)
+        .append(Lexeme.toString(operator.before));
+      for (var i = 0; i < remaining.size() - 1; i++) {
+        buffer.append(remaining.get(i))
+          .append(Lexeme.toString(operator.between)).append(' ');
       }
-      if (!this.remaining.isEmpty()) {
-        buffer.append(this.remaining.get(this.remaining.size() - 1));
+      if (!remaining.isEmpty()) {
+        buffer.append(remaining.get(remaining.size() - 1));
       }
-      buffer.append(Lexeme.toString(this.operator.after));
+      buffer.append(Lexeme.toString(operator.after));
       return buffer.toString();
     }
   }
