@@ -8,9 +8,7 @@ import java.util.*;
 import jthrice.launcher.*;
 import jthrice.lexer.*;
 
-/** Parses a list of lexemes to a program node. */
 public final class Parser {
-  /** Parse the given lexemes and report to the given resolution. */
   public static Node.Program parse(Resolution resolution,
     List<Lexeme> lexemes) {
     var statements = new ArrayList<Node.Statement>();
@@ -50,15 +48,11 @@ public final class Parser {
     return Node.ofProgram(statements, eof);
   }
 
-  /** Try to parse a statement node at the given cursor and report to the given
-   * resolution. */
   private static Node.Statement parseStatement(Resolution resolution,
     Cursor cursor) {
     return Parser.parseDefinition(resolution, cursor);
   }
 
-  /** Try to parse a definition node at the given cursor and report to the given
-   * resolution. */
   private static Node.Definition parseDefinition(Resolution resolution,
     Cursor cursor) {
     if (!(cursor.next() instanceof Lexeme.Identifier name)) {
@@ -145,8 +139,6 @@ public final class Parser {
     return Node.ofDefinition(name, separator, type, assignment, value, end);
   }
 
-  /** Try to parse an expression node at the given cursor and report to the
-   * given resolution. */
   private static Node.Expression parseExpression(Resolution resolution,
     Cursor cursor, int precedence) {
     var old = cursor.next();
@@ -174,8 +166,6 @@ public final class Parser {
     return null;
   }
 
-  /** Try to parse the given nofix operator at the given cursor and report to
-   * the given resolution. */
   private static Node.Nofix parseNofix(Cursor cursor, Operator.Nofix operator) {
     if (operator.operator.isInstance(cursor.next())) {
       var node = Node.ofNofix(operator, cursor.next());
@@ -185,8 +175,6 @@ public final class Parser {
     return null;
   }
 
-  /** Try to parse the given prefix operator at the given cursor and report to
-   * the given resolution. */
   private static Node.Expression parsePrefix(Resolution resolution,
     Cursor cursor, Operator.Prefix operator, int precedence) {
     if (!operator.before.isInstance(cursor.next())) {
@@ -221,8 +209,6 @@ public final class Parser {
     return last;
   }
 
-  /** Try to parse the given postfix operator at the given cursor and report to
-   * the given resolution. */
   private static Node.Expression parsePostfix(Resolution resolution,
     Cursor cursor, Operator.Postfix operator, int precedence) {
     var first = Parser.parseExpression(resolution, cursor, precedence + 1);
@@ -242,8 +228,6 @@ public final class Parser {
     return first;
   }
 
-  /** Try to parse the given infix operator at the given cursor and report to
-   * the given resolution. */
   private static Node.Expression parseInfix(Resolution resolution,
     Cursor cursor, Operator.Infix operator, int precedence) {
     var first = Parser.parseExpression(resolution, cursor, precedence + 1);
@@ -279,8 +263,6 @@ public final class Parser {
     return first;
   }
 
-  /** Try to parse the given outfix operator at the given cursor and report to
-   * the given resolution. */
   private static Node.Expression parseOutfix(Resolution resolution,
     Cursor cursor, Operator.Outfix operator) {
     if (!operator.before.isInstance(cursor.next())) {
@@ -325,8 +307,6 @@ public final class Parser {
     return middle;
   }
 
-  /** Try to parse the given knitfix operator at the given cursor and report to
-   * the given resolution. */
   private static Node.Knitfix parseKnitfix(Resolution resolution, Cursor cursor,
     Operator.Knitfix operator, int precedence) {
     resolution.error("PARSER", "Not implemented yet!");

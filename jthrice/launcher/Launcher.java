@@ -11,9 +11,7 @@ import jthrice.generator.*;
 import jthrice.lexer.*;
 import jthrice.parser.*;
 
-/** Launches the compiler. */
 public final class Launcher {
-  /** Print the arguments. */
   private static void printArguments(String[] arguments) {
     System.out.println("Thrice Java Compiler v.0.0.1");
     System.out.print("Java Version: ");
@@ -25,7 +23,6 @@ public final class Launcher {
     System.out.println();
   }
 
-  /** Compile the given source file. */
   public static void compile(Source source) {
     var resolution = Resolution.of(source.name);
     var lexemes    = Lexer.lex(resolution, source);
@@ -39,7 +36,6 @@ public final class Launcher {
     resolution.report();
   }
 
-  /** Process the source file at the given relative path. */
   public static void process(String name) {
     try {
       Launcher.compile(Source.of(name));
@@ -50,7 +46,6 @@ public final class Launcher {
     }
   }
 
-  /** Run the compiler. */
   public static void main(String[] arguments) {
     Launcher.printArguments(arguments);
     if (arguments.length < 1) {
@@ -59,7 +54,6 @@ public final class Launcher {
     Stream.of(arguments).parallel().forEach(Launcher::process);
   }
 
-  /** Constructor. */
   private Launcher() {
   }
 }

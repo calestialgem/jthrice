@@ -10,10 +10,7 @@ import jthrice.launcher.*;
 import jthrice.lexer.*;
 import jthrice.parser.*;
 
-/** Resolves the definition of global variables and functions. */
 final class FourthPass {
-  /** Resolve the given program node to the given solution and report to the
-   * given resolution. */
   static void resolve(Resolution resolution, HalfSolution solution,
     Node.Program program) {
     for (var statement : program.statements) {
@@ -21,8 +18,6 @@ final class FourthPass {
     }
   }
 
-  /** Resolve the given statement node to the given solution and report to the
-   * given resolution. */
   private static void resolveStatement(Resolution resolution,
     HalfSolution solution, Node.Statement statement) {
     switch (statement) {
@@ -31,8 +26,6 @@ final class FourthPass {
     }
   }
 
-  /** Resolve the given definition node to the given solution and report to the
-   * given resolution. */
   private static void resolveDefinition(Resolution resolution,
     HalfSolution solution, Node.Definition definition) {
     var resolved = solution.resolved.get(definition.name.value);
@@ -70,8 +63,6 @@ final class FourthPass {
       Variable.of(definition.name, bound, definition.value));
   }
 
-  /** Resolve the type of the given expression node to the given solution and
-   * report to the given resolution. */
   private static Evaluation resolveExpression(Resolution resolution,
     HalfSolution solution, Type expected, Node.Expression expression) {
     return switch (expression) {
@@ -90,8 +81,6 @@ final class FourthPass {
     };
   }
 
-  /** Resolve the type of the given nofix node to the given solution and report
-   * to the given resolution. */
   private static Evaluation resolveNofix(Resolution resolution,
     HalfSolution solution, Type expected, Node.Nofix nofix) {
     if (nofix.operator == Operator.LITERAL) {
@@ -127,8 +116,6 @@ final class FourthPass {
     return null;
   }
 
-  /** Resolve the access to the given name in the given solution and report to
-   * the given resolution. */
   private static Evaluation resolveAccess(Resolution resolution,
     HalfSolution solution, Type expected, Lexeme name) {
     var accessed = solution.resolved.get(name.toString());
@@ -153,8 +140,6 @@ final class FourthPass {
     return result;
   }
 
-  /** Resolve the type of the given prefix node to the given solution and report
-   * to the given resolution. */
   private static Evaluation resolvePrefix(Resolution resolution,
     HalfSolution solution, Type expected, Node.Prefix prefix) {
     var operand = FourthPass.resolveExpression(resolution, solution, expected,
@@ -191,8 +176,6 @@ final class FourthPass {
     return null;
   }
 
-  /** Resolve the type of the given postfix node to the given solution and
-   * report to the given resolution. */
   private static Evaluation resolvePostfix(Resolution resolution,
     HalfSolution solution, Type expected, Node.Postfix postfix) {
     var operand = FourthPass.resolveExpression(resolution, solution, expected,
@@ -206,8 +189,6 @@ final class FourthPass {
     return null;
   }
 
-  /** Resolve the type of the given infix node to the given solution and report
-   * to the given resolution. */
   private static Evaluation resolveInfix(Resolution resolution,
     HalfSolution solution, Type expected, Node.Infix infix) {
     var left  = FourthPass.resolveExpression(resolution, solution, expected,
@@ -260,8 +241,6 @@ final class FourthPass {
     return null;
   }
 
-  /** Resolve the type of the given outfix node to the given solution and report
-   * to the given resolution. */
   private static Evaluation resolveOutfix(Resolution resolution,
     HalfSolution solution, Type expected, Node.Outfix outfix) {
     var operand = FourthPass.resolveExpression(resolution, solution, expected,
@@ -279,15 +258,12 @@ final class FourthPass {
     return null;
   }
 
-  /** Resolve the type of the given knitfix node to the given solution and
-   * report to the given resolution. */
   private static Evaluation resolveKnitfix(Resolution resolution,
     HalfSolution solution, Type expected, Node.Knitfix knitfix) {
     resolution.error("ANALYZER", knitfix.portion, "Unknown knitfix operator!");
     return null;
   }
 
-  /** Constructor. */
   private FourthPass() {
   }
 }

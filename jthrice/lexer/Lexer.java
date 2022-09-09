@@ -8,9 +8,7 @@ import java.util.*;
 
 import jthrice.launcher.*;
 
-/** Groups the characters in a source file to a list of lexemes. */
 public final class Lexer {
-  /** Lex the given source and report to the given resolution. */
   public static List<Lexeme> lex(Resolution resolution, Source source) {
     var   lexemes = new ArrayList<Lexeme>();
     Chunk unknown = null;
@@ -44,12 +42,10 @@ public final class Lexer {
     return lexemes;
   }
 
-  /** Whether the given character is a whitespace that should be skipped. */
   private static boolean isWhitespace(char character) {
     return character == ' ' || character == '\t' || character == '\n';
   }
 
-  /** Try to lex a token from the given source at the given index. */
   private static Lexeme lexToken(Source source, int index) {
     var chunk = Chunk.of(source, index);
     return switch (chunk.next()) {
@@ -68,7 +64,6 @@ public final class Lexer {
     };
   }
 
-  /** Try to lex a number from the given source at the given index. */
   private static Lexeme lexNumber(Source source, int index) {
     final var DIGITS = "0123456789";
     final var BASE   = BigInteger.valueOf(DIGITS.length());
@@ -104,18 +99,15 @@ public final class Lexer {
     return new Lexeme.Number(chunk.get(), value);
   }
 
-  /** Whether the character is letter or underscore. */
   private static boolean isLetterOrUnderscore(char character) {
     return character >= 'a' && character <= 'z'
       || character >= 'A' && character <= 'Z' || character == '_';
   }
 
-  /** Whether the character is a decimal digit. */
   private static boolean isDecimalDigit(char character) {
     return character >= '0' && character <= '9';
   }
 
-  /** Try to lex a word from the given source at the given index. */
   private static Lexeme lexWord(Source source, int index) {
     var chunk = Chunk.of(source, index);
     if (!Lexer.isLetterOrUnderscore(chunk.next())) {
@@ -151,8 +143,6 @@ public final class Lexer {
     };
   }
 
-  /** Report the given unknown characters to the given resolution. Returns null
-   * for convinence. */
   private static Chunk report(Resolution resolution, Chunk unknown) {
     if (unknown != null) {
       resolution.error("LEXER", unknown.get(),
@@ -161,7 +151,6 @@ public final class Lexer {
     return null;
   }
 
-  /** Constructor. */
   private Lexer() {
   }
 }

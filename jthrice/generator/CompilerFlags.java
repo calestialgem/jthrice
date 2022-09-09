@@ -8,17 +8,11 @@ import java.nio.file.*;
 
 import jthrice.launcher.*;
 
-/** Command line arguments, which will be passed to the C compiler. */
 final class CompilerFlags {
-  /** Resolution that will be compiled. */
   private final Resolution resolution;
-  /** Compiler command. */
   private final String     command;
-  /** Path to the build directory. */
   private final Path       build;
-  /** Path to the code output file. */
   private final Path       code;
-  /** Path to the executable. */
   private final Path       executable;
 
   CompilerFlags(Resolution resolution, String command, Path build) {
@@ -29,7 +23,6 @@ final class CompilerFlags {
     this.executable = build.resolve(resolution.name + ".exe");
   }
 
-  /** Write the given C source code to the output file. */
   void write(String output) {
     try {
       Files.createDirectories(this.build);
@@ -47,7 +40,6 @@ final class CompilerFlags {
     }
   }
 
-  /** Compile the C source code. */
   void compile() {
     var builder = new ProcessBuilder(this.command, "-o",
       this.executable.toAbsolutePath().toString(),

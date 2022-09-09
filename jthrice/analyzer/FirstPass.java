@@ -6,10 +6,7 @@ package jthrice.analyzer;
 import jthrice.launcher.*;
 import jthrice.parser.*;
 
-/** Resolves name clashes of the user-defined symbols. */
 final class FirstPass {
-  /** Resolve the given program node to the given solution and report to the
-   * given resolution. */
   static void resolve(Resolution resolution, HalfSolution solution,
     Node.Program program) {
     for (var statement : program.statements) {
@@ -21,8 +18,6 @@ final class FirstPass {
     }
   }
 
-  /** Resolve the given statement node to the given solution and report to the
-   * given resolution. */
   private static Unresolved resolveStatement(Resolution resolution,
     HalfSolution solution, Node.Statement statement) {
     return switch (statement) {
@@ -31,8 +26,6 @@ final class FirstPass {
     };
   }
 
-  /** Resolve the given definition node to the given solution and report to the
-   * given resolution. */
   private static Unresolved resolveDefinition(Resolution resolution,
     HalfSolution solution, Node.Definition definition) {
     var builtIn = solution.resolved.get(definition.name.value);
@@ -53,7 +46,6 @@ final class FirstPass {
     return Unresolved.of(definition.name, definition.type, definition.value);
   }
 
-  /** Constructor. */
   private FirstPass() {
   }
 }

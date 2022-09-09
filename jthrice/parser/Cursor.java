@@ -7,47 +7,36 @@ import java.util.*;
 
 import jthrice.lexer.*;
 
-/** Iterator over a lexeme list with state. */
 final class Cursor {
-  /** Cursor at the begining of the given lexemes. */
   static Cursor of(List<Lexeme> lexemes) {
     return new Cursor(lexemes, 0);
   }
 
-  /** Lexemes. */
   private final List<Lexeme> lexemes;
-  /** Index of the next lexeme. */
   private int                next;
 
-  /** Constructor. */
   public Cursor(List<Lexeme> lexemes, int next) {
     this.lexemes = lexemes;
     this.next    = next;
   }
 
-  /** Current lexeme. */
   Lexeme current() {
     return this.lexemes.get(this.next - 1);
   }
 
-  /** Whether there is a lexeme left in the list. */
   boolean has() {
     return this.next < this.lexemes.size();
   }
 
-  /** Next lexeme. */
   Lexeme next() {
     return this.lexemes.get(this.next);
   }
 
-  /** Take the next lexeme. Returns this. */
   Cursor consume() {
     this.next++;
     return this;
   }
 
-  /** Skip all the lexemes until the one with the given type is found. Returns
-   * the found lexeme. */
   @SuppressWarnings("unchecked")
   <T extends Lexeme> T skipUntil(Class<? extends T> type) {
     while (this.consume().has()) {

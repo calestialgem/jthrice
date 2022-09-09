@@ -5,9 +5,7 @@ package jthrice.lexer;
 
 import jthrice.launcher.*;
 
-/** Location of a character in a source. */
 public final class Location {
-  /** Location of the character at the given index in the given source. */
   public static Location of(Source source, int index) {
     if (!source.exists(index) || source.at(index) == '\n') {
       return null;
@@ -25,16 +23,11 @@ public final class Location {
     return new Location(source, index, line, column);
   }
 
-  /** Source that the location is in. */
   public final Source source;
-  /** Index of the character in the string. */
   public final int    index;
-  /** Line number. */
   public final int    line;
-  /** Column number. */
   public final int    column;
 
-  /** Constructor. */
   private Location(Source source, int index, int line, int column) {
     this.source = source;
     this.index  = index;
@@ -42,13 +35,11 @@ public final class Location {
     this.column = column;
   }
 
-  /** Start of the line this location is in. */
   public Location start() {
     return new Location(this.source, this.index - this.column + 1, this.line,
       1);
   }
 
-  /** End of the line this location is in. */
   public Location end() {
     for (var i = this.index; this.source.exists(i); i++) {
       if (this.source.at(i) == '\n') {
