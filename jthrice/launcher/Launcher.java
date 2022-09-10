@@ -22,6 +22,10 @@ public final class Launcher {
   public static void compile(Source source) {
     var resolution = Resolution.of(source.name());
     var lex        = Lexer.lex(resolution, source);
+    for (var lexeme : lex) {
+      System.out.printf("%20s: `%s`%n",
+        "[%s]".formatted(lexeme.getClass().getSimpleName()), lexeme);
+    }
     resolution.report();
   }
 

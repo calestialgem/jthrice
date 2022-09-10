@@ -32,7 +32,7 @@ public sealed abstract class Operator permits Operator.Nofix, Operator.Prefix, O
   public static final Infix  DIVIDE      = new Infix(Lexeme.ForwardSlash.class);
   public static final Infix  REMAINDER   = new Infix(Lexeme.Percent.class);
   public static final Outfix GROUP       = new Outfix(
-    Lexeme.OpeningParentheses.class, Lexeme.ClosingParentheses.class);
+    Lexeme.OpeningParenthesis.class, Lexeme.ClosingParentheses.class);
 
   public static final List<Operator> PRECEDENCE = List.of(Operator.SUBTRACT,
     Operator.ADD, Operator.REMAINDER, Operator.DIVIDE, Operator.MULTIPLY,
