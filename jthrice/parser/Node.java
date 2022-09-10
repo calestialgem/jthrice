@@ -5,6 +5,7 @@ package jthrice.parser;
 
 import java.util.*;
 
+import jthrice.launcher.*;
 import jthrice.lexer.*;
 
 public sealed abstract class Node permits Node.Program, Node.Statement, Node.Expression {

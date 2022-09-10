@@ -1,9 +1,7 @@
 // SPDX-FileCopyrightText: 2022 Cem Geçgel <gecgelcem@outlook.com>
 // SPDX-License-Identifier: GPL-3.0-or-later
 
-package jthrice.lexer;
-
-import jthrice.launcher.*;
+package jthrice.launcher;
 
 public final class Location {
   public static Location of(Source source, int index) {
@@ -23,10 +21,10 @@ public final class Location {
     return new Location(source, index, line, column);
   }
 
-  public final Source source;
-  public final int    index;
-  public final int    line;
-  public final int    column;
+  private final Source source;
+  private final int    index;
+  private final int    line;
+  private final int    column;
 
   private Location(Source source, int index, int line, int column) {
     this.source = source;
@@ -46,5 +44,37 @@ public final class Location {
       }
     }
     return null;
+  }
+
+  public boolean local(Location other) {
+    return source == other.source;
+  }
+
+  public boolean inline(Location other) {
+    return line == other.line;
+  }
+
+  public int distance(Location other) {
+    return other.index - index;
+  }
+
+  public Source source() {
+    return source;
+  }
+
+  public int index() {
+    return index;
+  }
+
+  public int line() {
+    return line;
+  }
+
+  public int column() {
+    return column;
+  }
+
+  public String sub(Location end) {
+    return source.sub(index, end.index);
   }
 }

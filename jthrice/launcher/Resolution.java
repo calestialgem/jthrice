@@ -3,16 +3,14 @@
 
 package jthrice.launcher;
 
-import jthrice.lexer.*;
-
 public final class Resolution {
   public static Resolution of(String name) {
     return new Resolution(name, 0, 0);
   }
 
-  public final String name;
-  private int         errors;
-  private int         warnings;
+  private final String name;
+  private int          errors;
+  private int          warnings;
 
   private Resolution(String name, int errors, int warnings) {
     this.name     = name;
@@ -41,8 +39,8 @@ public final class Resolution {
   public void log(String author, Portion portion, String severity,
     String message) {
     System.out.printf("[%s] %s:%d:%d:%d:%d: %s: %s%n", author, name,
-      portion.first.line, portion.first.column, portion.last.line,
-      portion.last.column, severity, message);
+      portion.first().line(), portion.first().column(), portion.last().line(),
+      portion.last().column(), severity, message);
     portion.underline(System.out);
   }
 
