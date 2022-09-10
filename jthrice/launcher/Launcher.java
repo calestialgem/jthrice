@@ -6,6 +6,7 @@ package jthrice.launcher;
 import java.util.stream.*;
 
 import jthrice.lexer.*;
+import jthrice.parser.*;
 
 public final class Launcher {
   private static void printArguments(String[] arguments) {
@@ -19,13 +20,78 @@ public final class Launcher {
     System.out.println();
   }
 
+  private static void print(Node node) {
+    switch (node) {
+      case Root root:
+        for (var statement : root.statements) {
+          print(statement);
+        }
+        break;
+      case Statement statement:
+        switch (statement) {
+          case Definition definition:
+            System.out.printf("%s: ", definition.name);
+            print(definition.type);
+            System.out.print(" = ");
+            print(definition.value);
+            System.out.print(';');
+            break;
+        }
+        System.out.println();
+        break;
+      case Expression expression:
+        switch (expression) {
+          case Nullary nullary:
+            System.out.print(nullary.operator);
+            break;
+          case Prenary prenary:
+            System.out.print('[');
+            System.out.print(prenary.operator);
+            print(prenary.operand);
+            System.out.print(']');
+            break;
+          case Postary postary:
+            System.out.print('[');
+            print(postary.operand);
+            System.out.print(postary.operator);
+            System.out.print(']');
+            break;
+          case Cirnary cirnary:
+            System.out.print(cirnary.left);
+            print(cirnary.operand);
+            System.out.print(cirnary.right);
+            break;
+          case Binary binary:
+            System.out.print('[');
+            print(binary.left);
+            System.out.print(binary.operator);
+            print(binary.right);
+            System.out.print(']');
+            break;
+          case Polinary polinary:
+            System.out.print('[');
+            print(polinary.first);
+            System.out.print(polinary.left);
+            for (var i = 0; i < polinary.remaining.size() - 1; i++) {
+              print(polinary.remaining.get(i));
+              System.out.printf("%s ", polinary.between.get(i));
+            }
+            if (!polinary.remaining.isEmpty()) {
+              print(polinary.remaining.get(polinary.remaining.size() - 1));
+            }
+            System.out.print(polinary.right);
+            System.out.print(']');
+            break;
+        }
+        break;
+    }
+  }
+
   public static void compile(Source source) {
     var resolution = Resolution.of(source.name());
     var lex        = Lexer.lex(resolution, source);
-    for (var lexeme : lex) {
-      System.out.printf("%20s: `%s`%n",
-        "[%s]".formatted(lexeme.getClass().getSimpleName()), lexeme);
-    }
+    var root       = Parser.parse(resolution, lex);
+    print(root);
     resolution.report();
   }
 

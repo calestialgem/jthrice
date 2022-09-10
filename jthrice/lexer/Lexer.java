@@ -68,12 +68,12 @@ public final class Lexer {
       if (keyword.matches(source, index)) {
         var portion = Portion.of(source, index, index + keyword.length() - 1);
         index += keyword.length();
-        if (!separate()) {
-          index = portion.first().index();
-          continue;
-        }
         lex.add(keyword.create(portion));
-        return true;
+        if (separate()) {
+          return true;
+        }
+        index = portion.first().index();
+        lex.remove(lex.size() - 1);
       }
     }
     return false;
@@ -88,13 +88,13 @@ public final class Lexer {
           continue;
         }
         index = matcher.end();
-        if (!separate()) {
-          index = matcher.start();
-          continue;
-        }
         lex.add(regular
           .create(Portion.of(source, matcher.start(), matcher.end() - 1)));
-        return true;
+        if (separate()) {
+          return true;
+        }
+        index = matcher.start();
+        lex.remove(lex.size() - 1);
       }
     }
     return false;
