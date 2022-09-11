@@ -41,34 +41,34 @@ public final class Launcher {
         break;
       case Expression expression:
         switch (expression) {
-          case Nullary nullary:
+          case NullaryExpression nullary:
             System.out.print(nullary.operator);
             break;
-          case Prenary prenary:
+          case PrenaryExpression prenary:
             System.out.print('[');
             System.out.print(prenary.operator);
             print(prenary.operand);
             System.out.print(']');
             break;
-          case Postary postary:
+          case PostaryExpression postary:
             System.out.print('[');
             print(postary.operand);
             System.out.print(postary.operator);
             System.out.print(']');
             break;
-          case Cirnary cirnary:
+          case CirnaryExpression cirnary:
             System.out.print(cirnary.left);
             print(cirnary.operand);
             System.out.print(cirnary.right);
             break;
-          case Binary binary:
+          case BinaryExpression binary:
             System.out.print('[');
             print(binary.left);
             System.out.print(binary.operator);
             print(binary.right);
             System.out.print(']');
             break;
-          case Polinary polinary:
+          case VariaryExpression polinary:
             System.out.print('[');
             print(polinary.first);
             System.out.print(polinary.left);

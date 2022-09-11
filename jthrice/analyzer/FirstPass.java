@@ -8,44 +8,50 @@ import jthrice.parser.*;
 
 final class FirstPass {
   static void resolve(Resolution resolution, HalfSolution solution,
-    Node.Program program) {
-    for (var statement : program.statements) {
-      var unresolved = FirstPass.resolveStatement(resolution, solution,
-        statement);
-      if (unresolved != null) {
-        solution.unresolved.put(unresolved.name, unresolved);
-      }
+    Root root) {
+    var pass = new FirstPass(resolution, solution, root);
+    pass.resolve();
+  }
+
+  private final Resolution   resolution;
+  private final HalfSolution solution;
+  private final Root         root;
+
+  private FirstPass(Resolution resolution, HalfSolution solution, Root root) {
+    this.resolution = resolution;
+    this.solution   = solution;
+    this.root       = root;
+  }
+
+  private void resolve() {
+    for (var statement : root.statements) {
+      resolveStatement(statement);
     }
   }
 
-  private static Unresolved resolveStatement(Resolution resolution,
-    HalfSolution solution, Node.Statement statement) {
-    return switch (statement) {
-      case Node.Definition definition ->
-        FirstPass.resolveDefinition(resolution, solution, definition);
-    };
+  private void resolveStatement(Statement statement) {
+    switch (statement) {
+      case Definition definition -> resolveDefinition(definition);
+    }
   }
 
-  private static Unresolved resolveDefinition(Resolution resolution,
-    HalfSolution solution, Node.Definition definition) {
-    var builtIn = solution.resolved.get(definition.name.value);
+  private void resolveDefinition(Definition definition) {
+    var builtIn = solution.resolved.get(definition.name.toString());
     if (builtIn != null) {
       resolution.error("ANALYZER", definition.name.portion,
         "Name clashes with the built-in symbol `%s`!".formatted(builtIn.name));
-      return null;
+      return;
     }
-    var userDefined = solution.unresolved.get(definition.name.value);
+    var userDefined = solution.unresolved.get(definition.name.toString());
     if (userDefined != null) {
       resolution.error("ANALYZER", definition.name.portion,
         "Name clashes with the previously defined symbol `%s`!"
           .formatted(userDefined.name));
       resolution.info("ANALYZER", userDefined.definition.portion,
         "Previous decleration was here.");
-      return null;
+      return;
     }
-    return Unresolved.of(definition.name, definition.type, definition.value);
-  }
-
-  private FirstPass() {
+    solution.unresolved.put(definition.name.toString(),
+      Unresolved.of(definition.name, definition.type, definition.value));
   }
 }

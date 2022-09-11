@@ -2,17 +2,18 @@ package jthrice.parser;
 
 import jthrice.lexer.*;
 
-final class Polifix extends Operator {
-  static Polifix of(Class<? extends Lexeme> left,
+public final class VariaryOperator extends Operator {
+  static VariaryOperator of(Class<? extends Lexeme> left,
     Class<? extends Lexeme> between, Class<? extends Lexeme> right) {
-    return new Polifix(left, between, right);
+    return new VariaryOperator(left, between, right);
   }
 
   private final Class<? extends Lexeme> left;
   private final Class<? extends Lexeme> between;
   private final Class<? extends Lexeme> right;
 
-  private Polifix(Class<? extends Lexeme> left, Class<? extends Lexeme> between,
+  private VariaryOperator(Class<? extends Lexeme> left,
+    Class<? extends Lexeme> between,
     Class<? extends Lexeme> right) {
     this.left    = left;
     this.between = between;

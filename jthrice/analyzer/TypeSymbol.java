@@ -3,12 +3,11 @@
 
 package jthrice.analyzer;
 
-import jthrice.lexer.Lexeme.*;
-import jthrice.parser.*;
+import jthrice.lexer.*;
 
 public final class TypeSymbol extends Symbol {
   public static final TypeSymbol META = new TypeSymbol(Type.META.toString(),
-    null, Evaluation.ofNofix(null, Type.META, Operator.LITERAL, null));
+    null, NullaryEvaluation.of(null, Type.META));
   public static final TypeSymbol I1   = TypeSymbol.ofScalar(Scalar.I1);
   public static final TypeSymbol I2   = TypeSymbol.ofScalar(Scalar.I2);
   public static final TypeSymbol I4   = TypeSymbol.ofScalar(Scalar.I4);
@@ -25,7 +24,7 @@ public final class TypeSymbol extends Symbol {
 
   private static TypeSymbol ofScalar(Scalar scalar) {
     return new TypeSymbol(scalar.toString(), null,
-      Evaluation.ofNofix(Type.META, scalar, Operator.LITERAL, null));
+      NullaryEvaluation.of(Type.META, scalar));
   }
 
   private TypeSymbol(String name, Identifier declaration,

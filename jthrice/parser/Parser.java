@@ -217,25 +217,25 @@ public final class Parser {
 
   private boolean parseOperator(int precedence, int inlevel) {
     return switch (Operator.get(precedence, inlevel)) {
-      case Nofix nofix -> parseNullary(nofix);
-      case Prefix prefix -> parsePrenary(prefix, precedence);
-      case Postfix postfix -> parsePostary(postfix);
-      case Cirfix cirfix -> parseCirnary(cirfix);
-      case Infix infix -> parseBinary(infix, precedence);
-      case Polifix polifix -> parsePolinary(polifix);
+      case NullaryOperator nullary -> parseNullary(nullary);
+      case PrenaryOperator prenary -> parsePrenary(prenary, precedence);
+      case PostaryOperator postary -> parsePostary(postary);
+      case CirnaryOperator cirnary -> parseCirnary(cirnary);
+      case BinaryOperator binary -> parseBinary(binary, precedence);
+      case VariaryOperator variary -> parseVariary(variary);
     };
   }
 
-  private boolean parseNullary(Nofix nofix) {
-    if (hasExpression() || !nofix.operator(get())) {
+  private boolean parseNullary(NullaryOperator nullary) {
+    if (hasExpression() || !nullary.operator(get())) {
       return false;
     }
-    expression = Nullary.of(consume());
+    expression = NullaryExpression.of(nullary, consume());
     return true;
   }
 
-  private boolean parsePrenary(Prefix prefix, int precedence) {
-    if (hasExpression() || !prefix.operator(get())) {
+  private boolean parsePrenary(PrenaryOperator prenary, int precedence) {
+    if (hasExpression() || !prenary.operator(get())) {
       return false;
     }
     var operator = consume();
@@ -257,21 +257,21 @@ public final class Parser {
       return true;
     }
 
-    expression = Prenary.of(operator, getExpression());
+    expression = PrenaryExpression.of(prenary, operator, getExpression());
     return true;
   }
 
-  private boolean parsePostary(Postfix postfix) {
-    if (!hasExpression() || !has() || !postfix.operator(get())) {
+  private boolean parsePostary(PostaryOperator postary) {
+    if (!hasExpression() || !has() || !postary.operator(get())) {
       return false;
     }
 
-    expression = Postary.of(getExpression(), consume());
+    expression = PostaryExpression.of(postary, getExpression(), consume());
     return true;
   }
 
-  private boolean parseCirnary(Cirfix cirfix) {
-    if (hasExpression() || !cirfix.left(get())) {
+  private boolean parseCirnary(CirnaryOperator cirnary) {
+    if (hasExpression() || !cirnary.left(get())) {
       return false;
     }
     var left = consume();
@@ -297,26 +297,27 @@ public final class Parser {
       resolution.error("PARSER",
         Portion.of(left.portion, getExpression().portion),
         "There is no matching `%s` for the `%s` in the cirnary operation!"
-          .formatted(cirfix.right(), left));
+          .formatted(cirnary.right(), left));
       resolution.info("PARSER", left.portion,
-        "Outfix operator is opened here.");
+        "Cirnary operator is opened here.");
       return true;
     }
-    if (!cirfix.right(get())) {
+    if (!cirnary.right(get())) {
       resolution.error("PARSER", get().portion,
         "Expected a matching `%s` for the `%s` in the cirnary operation!"
-          .formatted(cirfix.right(), left));
+          .formatted(cirnary.right(), left));
       resolution.info("PARSER", left.portion,
-        "Outfix operator is opened here.");
+        "Cirnary operator is opened here.");
       return true;
     }
 
-    expression = Cirnary.of(left, getExpression(), consume());
+    expression = CirnaryExpression.of(cirnary, left, getExpression(),
+      consume());
     return true;
   }
 
-  private boolean parseBinary(Infix infix, int precedence) {
-    if (!hasExpression() || !has() || !infix.operator(get())) {
+  private boolean parseBinary(BinaryOperator binary, int precedence) {
+    if (!hasExpression() || !has() || !binary.operator(get())) {
       return false;
     }
 
@@ -340,12 +341,12 @@ public final class Parser {
       return true;
     }
 
-    expression = Binary.of(left, operator, getExpression());
+    expression = BinaryExpression.of(binary, left, operator, getExpression());
     return true;
   }
 
-  private boolean parsePolinary(Polifix polifix) {
-    if (!hasExpression() || !has() || !polifix.left(get())) {
+  private boolean parseVariary(VariaryOperator variary) {
+    if (!hasExpression() || !has() || !variary.left(get())) {
       return false;
     }
 
@@ -356,24 +357,26 @@ public final class Parser {
 
     if (!has()) {
       resolution.error("PARSER", Portion.of(first.portion, left.portion),
-        "There is no matching `%s` for the `%s` in the polinary operation!"
-          .formatted(polifix.right(), left));
+        "There is no matching `%s` for the `%s` in the variary operation!"
+          .formatted(variary.right(), left));
       resolution.info("PARSER", left.portion,
-        "Polifix operator is opened here.");
+        "Variary operator is opened here.");
       return true;
     }
 
     if (!parseExpression(0)) {
-      if (!polifix.right(get())) {
+      if (!variary.right(get())) {
         resolution.error("PARSER", get().portion,
-          "Expected a matching `%s` for the `%s` in the polinary operation!"
-            .formatted(polifix.right(), left));
+          "Expected a matching `%s` for the `%s` in the variary operation!"
+            .formatted(variary.right(), left));
         resolution.info("PARSER", left.portion,
-          "Polifix operator is opened here.");
+          "Variary operator is opened here.");
         return true;
       }
 
-      expression = Polinary.of(first, left, remaining, between, consume());
+      expression = VariaryExpression.of(variary, first, left, remaining,
+        between,
+        consume());
       return true;
     }
     if (!hasExpression()) {
@@ -387,23 +390,23 @@ public final class Parser {
         resolution.error("PARSER",
           Portion.of(first.portion,
             remaining.get(remaining.size() - 1).portion),
-          "There is no matching `%s` for the `%s` or a `%s` with another operand, in the polinary operation!"
-            .formatted(polifix.right(), polifix.between(), left));
+          "There is no matching `%s` for the `%s` or a `%s` with another operand, in the variary operation!"
+            .formatted(variary.right(), variary.between(), left));
         resolution.info("PARSER", left.portion,
-          "Polifix operator is opened here.");
+          "Variary operator is opened here.");
         return true;
       }
-      if (polifix.right(get())) {
+      if (variary.right(get())) {
         break;
       }
-      if (!polifix.between(get())) {
+      if (!variary.between(get())) {
         resolution.error("PARSER",
           Portion.of(first.portion,
             remaining.get(remaining.size() - 1).portion),
-          "Expected a matching `%s` for the `%s` or a `%s` with another operand, in the polinary operation!"
-            .formatted(polifix.right(), polifix.between(), left));
+          "Expected a matching `%s` for the `%s` or a `%s` with another operand, in the variary operation!"
+            .formatted(variary.right(), variary.between(), left));
         resolution.info("PARSER", left.portion,
-          "Polifix operator is opened here.");
+          "Variary operator is opened here.");
         return true;
       }
 
@@ -411,14 +414,14 @@ public final class Parser {
 
       if (!has()) {
         resolution.error("PARSER", between.get(between.size() - 1).portion,
-          "There is no operand after the `%s` in the polinary operation!"
-            .formatted(polifix.between(), left));
+          "There is no operand after the `%s` in the variary operation!"
+            .formatted(variary.between(), left));
         return true;
       }
       if (!parseExpression(0)) {
         resolution.error("PARSER", between.get(between.size() - 1).portion,
-          "Expected an operand after the `%s` in the polinary operation!"
-            .formatted(polifix.between(), left));
+          "Expected an operand after the `%s` in the variary operation!"
+            .formatted(variary.between(), left));
         return true;
       }
       if (!hasExpression()) {
@@ -428,7 +431,8 @@ public final class Parser {
       remaining.add(getExpression());
     }
 
-    expression = Polinary.of(first, left, remaining, between, consume());
+    expression = VariaryExpression.of(variary, first, left, remaining, between,
+      consume());
     return true;
   }
 }

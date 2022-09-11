@@ -3,19 +3,19 @@
 
 package jthrice.analyzer;
 
-import jthrice.lexer.Lexeme.*;
+import jthrice.lexer.*;
 import jthrice.parser.*;
 
 public final class Variable extends Symbol {
   static Variable of(Identifier identifier, Evaluation evaluation,
-    Node.Expression bound) {
-    return new Variable(identifier.value, identifier, evaluation, bound);
+    Expression bound) {
+    return new Variable(identifier.toString(), identifier, evaluation, bound);
   }
 
-  public final Node.Expression bound;
+  public final Expression bound;
 
   private Variable(String name, Identifier declaration, Evaluation evaluation,
-    Node.Expression bound) {
+    Expression bound) {
     super(name, declaration, evaluation);
     this.bound = bound;
   }

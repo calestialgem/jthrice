@@ -2,14 +2,14 @@ package jthrice.parser;
 
 import jthrice.lexer.*;
 
-final class Infix extends Operator {
-  static Infix of(Class<? extends Lexeme> operator) {
-    return new Infix(operator);
+public final class BinaryOperator extends Operator {
+  static BinaryOperator of(Class<? extends Lexeme> operator) {
+    return new BinaryOperator(operator);
   }
 
   private final Class<? extends Lexeme> operator;
 
-  private Infix(Class<? extends Lexeme> operator) {
+  private BinaryOperator(Class<? extends Lexeme> operator) {
     this.operator = operator;
   }
 

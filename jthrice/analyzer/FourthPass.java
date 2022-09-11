@@ -66,13 +66,13 @@ final class FourthPass {
   private static Evaluation resolveExpression(Resolution resolution,
     HalfSolution solution, Type expected, Node.Expression expression) {
     return switch (expression) {
-      case Node.Nofix nofix ->
+      case Node.NullaryOperator nofix ->
         FourthPass.resolveNofix(resolution, solution, expected, nofix);
-      case Node.Prefix prefix ->
+      case Node.PrenaryOperator prefix ->
         FourthPass.resolvePrefix(resolution, solution, expected, prefix);
-      case Node.Postfix postfix ->
+      case Node.PostaryOperator postfix ->
         FourthPass.resolvePostfix(resolution, solution, expected, postfix);
-      case Node.Infix infix ->
+      case Node.BinaryOperator infix ->
         FourthPass.resolveInfix(resolution, solution, expected, infix);
       case Node.Outfix outfix ->
         FourthPass.resolveOutfix(resolution, solution, expected, outfix);
@@ -82,7 +82,7 @@ final class FourthPass {
   }
 
   private static Evaluation resolveNofix(Resolution resolution,
-    HalfSolution solution, Type expected, Node.Nofix nofix) {
+    HalfSolution solution, Type expected, Node.NullaryOperator nofix) {
     if (nofix.operator == Operator.LITERAL) {
       return switch (nofix.first) {
         case Lexeme.Number number -> {
@@ -141,7 +141,7 @@ final class FourthPass {
   }
 
   private static Evaluation resolvePrefix(Resolution resolution,
-    HalfSolution solution, Type expected, Node.Prefix prefix) {
+    HalfSolution solution, Type expected, Node.PrenaryOperator prefix) {
     var operand = FourthPass.resolveExpression(resolution, solution, expected,
       prefix.last);
     if (operand == null) {
@@ -177,7 +177,7 @@ final class FourthPass {
   }
 
   private static Evaluation resolvePostfix(Resolution resolution,
-    HalfSolution solution, Type expected, Node.Postfix postfix) {
+    HalfSolution solution, Type expected, Node.PostaryOperator postfix) {
     var operand = FourthPass.resolveExpression(resolution, solution, expected,
       postfix.first);
     if (operand == null) {
@@ -190,7 +190,7 @@ final class FourthPass {
   }
 
   private static Evaluation resolveInfix(Resolution resolution,
-    HalfSolution solution, Type expected, Node.Infix infix) {
+    HalfSolution solution, Type expected, Node.BinaryOperator infix) {
     var left  = FourthPass.resolveExpression(resolution, solution, expected,
       infix.first);
     var right = FourthPass.resolveExpression(resolution, solution, expected,
@@ -264,6 +264,119 @@ final class FourthPass {
     return null;
   }
 
-  private FourthPass() {
+  private final Resolution   resolution;
+  private final HalfSolution solution;
+  private final Root         root;
+
+  private Evaluation evaluation;
+
+  private boolean hasEvaluation() {
+    return evaluation != null;
+  }
+
+  private Evaluation getEvaluation() {
+    var result = evaluation;
+    evaluation = null;
+    return result;
+  }
+
+  private FourthPass(Resolution resolution, HalfSolution solution, Root root) {
+    this.resolution = resolution;
+    this.solution   = solution;
+    this.root       = root;
+  }
+
+  private void resolve() {
+    for (var statement : root.statements) {
+      resolveStatement(statement);
+    }
+  }
+
+  private void resolveStatement(Statement statement) {
+    switch (statement) {
+      case Definition definition -> resolveDefinition(definition);
+    }
+  }
+
+  private void resolveDefinition(Definition definition) {
+  }
+
+  private boolean resolveExpresission(Type expected, Expression expression) {
+    return switch (expression) {
+      case NullaryExpression nullary ->
+        resolveNullary(expected, nullary);
+      case PrenaryExpression prenary ->
+        resolvePrenary(expected, prenary);
+      case PostaryExpression postary ->
+        resolvePostary(expected, postary);
+      case CirnaryExpression cirnary ->
+        resolveCirnary(expected, cirnary);
+      case BinaryExpression binary ->
+        resolveBinary(expected, binary);
+      case VariaryExpression variary ->
+        resolveVariary(expected, variary);
+    };
+  }
+
+  private boolean resolveNullary(Type expected, NullaryExpression nullary) {
+    if (hasEvaluation()) {
+      return false;
+    }
+
+    if (nullary.type == Operator.DECIMAL) {
+      var number = Number.of(nullary.toString(), Base.DECIMAL);
+      evaluation = Literal.of(expected, number);
+      return true;
+    }
+
+    var accessed = solution.resolved.get(nullary.toString());
+    if (accessed == null) {
+      resolution.error("ANALYZER", nullary.portion,
+        "Could not find the accessed symbol `%s`!".formatted(nullary));
+      var later = solution.unresolved.get(nullary.toString());
+      if (later != null) {
+        resolution.info("ANALYZER", later.definition.portion,
+          "The symbol `%s` is defined later here.".formatted(later.name));
+      }
+      return true;
+    }
+    if (accessed.evaluation.type != expected) {
+      resolution.error("ANALYZER", nullary.portion,
+        "Expected `%s` instead of `%s`!".formatted(expected,
+          accessed.evaluation.type));
+      return true;
+    }
+
+    evaluation = Access.of(accessed.evaluation);
+    return true;
+  }
+
+  private boolean resolvePrenary(Type expected, PrenaryExpression prenary) {
+    if (!resolveExpresission(expected, prenary.operand)) {
+      return false;
+    }
+    if (!hasEvaluation()) {
+      return true;
+    }
+    var operand = getEvaluation();
+
+    if (prenary.operator == )
+    return false;
+  }
+
+  private boolean resolvePostary(Type expected, PostaryExpression postary) {
+    return false;
+  }
+
+  private boolean resolveCirnary(Type expected, CirnaryExpression cirnary) {
+    return false;
+  }
+
+  private boolean resolveBinary(Type expected, BinaryExpression binary) {
+    return false;
+  }
+
+  private boolean resolveVariary(Type expected, VariaryExpression variary) {
+    return false;
   }
 }

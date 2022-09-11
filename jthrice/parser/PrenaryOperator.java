@@ -2,14 +2,14 @@ package jthrice.parser;
 
 import jthrice.lexer.*;
 
-public final class Prefix extends Operator {
-  static Prefix of(Class<? extends Lexeme> operator) {
-    return new Prefix(operator);
+public final class PrenaryOperator extends Operator {
+  static PrenaryOperator of(Class<? extends Lexeme> operator) {
+    return new PrenaryOperator(operator);
   }
 
   private final Class<? extends Lexeme> operator;
 
-  private Prefix(Class<? extends Lexeme> operator) {
+  private PrenaryOperator(Class<? extends Lexeme> operator) {
     this.operator = operator;
   }
 

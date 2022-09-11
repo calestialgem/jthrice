@@ -7,18 +7,18 @@ import jthrice.lexer.*;
 import jthrice.parser.*;
 
 final class Unresolved {
-  static Unresolved of(Lexeme.Identifier identifier, Node.Expression type,
-    Node.Expression value) {
-    return new Unresolved(identifier.value, identifier, type, value);
+  static Unresolved of(Identifier identifier, Expression type,
+    Expression value) {
+    return new Unresolved(identifier.toString(), identifier, type, value);
   }
 
-  public final String            name;
-  public final Lexeme.Identifier definition;
-  public final Node.Expression   type;
-  public final Node.Expression   value;
+  public final String     name;
+  public final Identifier definition;
+  public final Expression type;
+  public final Expression value;
 
-  private Unresolved(String name, Lexeme.Identifier definition,
-    Node.Expression type, Node.Expression value) {
+  private Unresolved(String name, Identifier definition,
+    Expression type, Expression value) {
     this.name       = name;
     this.definition = definition;
     this.type       = type;

@@ -2,14 +2,14 @@ package jthrice.parser;
 
 import jthrice.lexer.*;
 
-final class Nofix extends Operator {
-  static Nofix of(Class<? extends Lexeme> operator) {
-    return new Nofix(operator);
+public final class NullaryOperator extends Operator {
+  static NullaryOperator of(Class<? extends Lexeme> operator) {
+    return new NullaryOperator(operator);
   }
 
   private final Class<? extends Lexeme> operator;
 
-  private Nofix(Class<? extends Lexeme> operator) {
+  private NullaryOperator(Class<? extends Lexeme> operator) {
     this.operator = operator;
   }
 

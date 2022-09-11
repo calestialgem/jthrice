@@ -10,10 +10,11 @@ final class HalfSolution {
     return new HalfSolution(new HashMap<>(), new HashMap<>());
   }
 
-  public final Map<String, Symbol>     resolved;
-  public final Map<String, Unresolved> unresolved;
+  final Map<String, Symbol>     resolved;
+  final Map<String, Unresolved> unresolved;
 
-  private HalfSolution(Map<String, Symbol> resolved,
+  private HalfSolution(
+    Map<String, Symbol> resolved,
     Map<String, Unresolved> unresolved) {
     this.resolved   = resolved;
     this.unresolved = unresolved;

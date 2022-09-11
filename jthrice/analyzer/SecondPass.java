@@ -8,7 +8,7 @@ import jthrice.parser.*;
 
 final class SecondPass {
   static void resolve(Resolution resolution, HalfSolution solution,
-    Node.Program program) {
+    Root root) {
     // TODO: Implement user-defined types.
   }
 

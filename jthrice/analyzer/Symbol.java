@@ -11,11 +11,11 @@ public sealed abstract class Symbol permits TypeSymbol, Variable {
     TypeSymbol.U2, TypeSymbol.U4, TypeSymbol.U8, TypeSymbol.UX, TypeSymbol.F4,
     TypeSymbol.F8, TypeSymbol.RINF };
 
-  public final String            name;
-  public final Lexeme.Identifier declaration;
-  public final Evaluation        evaluation;
+  public final String     name;
+  public final Identifier declaration;
+  public final Evaluation evaluation;
 
-  protected Symbol(String name, Lexeme.Identifier declaration,
+  protected Symbol(String name, Identifier declaration,
     Evaluation evaluation) {
     this.name        = name;
     this.declaration = declaration;
